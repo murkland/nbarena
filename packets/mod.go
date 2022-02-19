@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/yumland/ctxwebrtc"
+	"github.com/yumland/yumbattle/input"
 )
 
 var ErrUnknownPacket = errors.New("unknown packet")
@@ -44,7 +45,7 @@ type Reveal struct {
 func (Reveal) packetType() packetType { return packetTypeReveal }
 
 type Intent struct {
-	Mask uint64
+	Mask input.Intent
 }
 
 func (Intent) packetType() packetType { return packetTypeIntent }
