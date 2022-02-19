@@ -11,14 +11,15 @@ import (
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
+	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
 	"github.com/yumland/yumbattle/state"
 	"golang.org/x/sync/errgroup"
 )
 
-const renderWidth = 240
-const renderHeight = 160
+const sceneWidth = 240
+const sceneHeight = 160
 
 const maxPendingIntents = 60
 
@@ -90,8 +91,8 @@ func (cs *clientState) fastForward() error {
 }
 
 type Game struct {
-	rootGeoM ebiten.GeoM
-	dc       *ctxwebrtc.DataChannel
+	sceneGeoM ebiten.GeoM
+	dc        *ctxwebrtc.DataChannel
 
 	cs   *clientState
 	csMu sync.Mutex
@@ -104,7 +105,7 @@ func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game 
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("yumbattle")
 	const defaultScale = 4
-	ebiten.SetWindowSize(renderWidth*defaultScale, renderHeight*defaultScale)
+	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
 
 	s := state.New(rng)
 
@@ -222,17 +223,17 @@ func (g *Game) handleConn(ctx context.Context) error {
 }
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
-	scaleFactor := outsideWidth / renderWidth
-	if s := outsideHeight / renderHeight; s < scaleFactor {
+	scaleFactor := outsideWidth / sceneWidth
+	if s := outsideHeight / sceneHeight; s < scaleFactor {
 		scaleFactor = s
 	}
 
-	insideWidth := renderWidth * scaleFactor
-	insideHeight := renderHeight * scaleFactor
+	insideWidth := sceneWidth * scaleFactor
+	insideHeight := sceneHeight * scaleFactor
 
-	g.rootGeoM = ebiten.GeoM{}
-	g.rootGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
-	g.rootGeoM.Translate(float64(outsideWidth-insideWidth)/2, float64(outsideHeight-insideHeight)/2)
+	g.sceneGeoM = ebiten.GeoM{}
+	g.sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
+	g.sceneGeoM.Translate(float64(outsideWidth-insideWidth)/2, float64(outsideHeight-insideHeight)/2)
 
 	return outsideWidth, outsideHeight
 }
@@ -240,7 +241,14 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
-	g.drawDebug(screen)
+
+	rootNode := &draw.OptionsNode{Opts: &ebiten.DrawImageOptions{}}
+
+	sceneNode := &draw.OptionsNode{Opts: &ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	rootNode.Children = append(rootNode.Children, sceneNode)
+	rootNode.Children = append(sceneNode.Children, g.makeDebugDrawNode())
+
+	rootNode.Draw(screen, &ebiten.DrawImageOptions{})
 }
 
 func (g *Game) Update() error {

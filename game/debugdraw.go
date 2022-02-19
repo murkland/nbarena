@@ -2,14 +2,13 @@ package game
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/sanity-io/litter"
+	"github.com/yumland/yumbattle/draw"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -35,7 +34,21 @@ func init() {
 	}
 }
 
-func (g *Game) drawDebug(screen *ebiten.Image) {
+func (g *Game) makeDebugDrawNode() draw.Node {
+	colorM := ebiten.ColorM{}
+	colorM.Translate(1.0, 1.0, 1.0, 0.0)
+
+	geoM := ebiten.GeoM{}
+	geoM.Translate(12, 12)
+
 	delay := g.medianDelay()
-	text.Draw(screen, fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Sdump(g.cs.dirtyState)), mplusNormalFont, 12, 40, color.White)
+	return &draw.OptionsNode{
+		Opts: &ebiten.DrawImageOptions{
+			GeoM:   geoM,
+			ColorM: colorM,
+		},
+		Children: []draw.Node{
+			&draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Sdump(g.cs.dirtyState))},
+		},
+	}
 }
