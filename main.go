@@ -6,10 +6,12 @@ import (
 	"flag"
 	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pion/webrtc/v3"
 	"github.com/yumland/clone"
 	"github.com/yumland/ctxwebrtc"
 	signorclient "github.com/yumland/signor/client"
+	"github.com/yumland/yumbattle/game"
 	"github.com/yumland/yumbattle/netsyncrand"
 )
 
@@ -70,4 +72,13 @@ func main() {
 	_ = rng
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
+
+	var g game.Game
+	ebiten.SetWindowResizable(true)
+	ebiten.SetWindowTitle("yumbattle")
+	const defaultScale = 4
+	ebiten.SetWindowSize(game.RenderWidth*defaultScale, game.RenderHeight*defaultScale)
+	if err := ebiten.RunGame(&g); err != nil {
+		log.Fatalf("failed to run game: %s", err)
+	}
 }
