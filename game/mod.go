@@ -3,24 +3,17 @@ package game
 import (
 	"context"
 	"fmt"
-	"image/color"
-	"log"
 	"sort"
 	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/sanity-io/litter"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
 	"github.com/yumland/yumbattle/state"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -30,7 +23,8 @@ const renderHeight = 160
 const maxPendingIntents = 60
 
 type clientState struct {
-	isOfferer      bool
+	isOfferer bool
+
 	committedState *state.State
 	dirtyState     *state.State
 
@@ -117,9 +111,11 @@ func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game 
 	g := &Game{
 		dc: dc,
 		cs: &clientState{
-			isOfferer:       isOfferer,
-			committedState:  s,
-			dirtyState:      s.Clone(),
+			isOfferer: isOfferer,
+
+			committedState: s,
+			dirtyState:     s.Clone(),
+
 			incomingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 			outgoingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 		},
@@ -241,32 +237,10 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
-var (
-	mplusNormalFont font.Face
-)
-
-func init() {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	const dpi = 72
-	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    12,
-		DPI:     dpi,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
-	delay := g.medianDelay()
-	text.Draw(screen, fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Sdump(g.cs.dirtyState)), mplusNormalFont, 12, 40, color.White)
+	g.drawDebug(screen)
 }
 
 func (g *Game) Update() error {
