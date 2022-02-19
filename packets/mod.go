@@ -45,7 +45,7 @@ type Reveal struct {
 func (Reveal) packetType() packetType { return packetTypeReveal }
 
 type Intent struct {
-	Mask input.Intent
+	Intent input.Intent
 }
 
 func (Intent) packetType() packetType { return packetTypeIntent }
