@@ -1,6 +1,9 @@
 package state
 
-import "github.com/yumland/yumbattle/draw"
+import (
+	"github.com/yumland/clone"
+	"github.com/yumland/yumbattle/draw"
+)
 
 type Entity struct {
 	appearance draw.Node
@@ -12,6 +15,15 @@ type Entity struct {
 
 	canStepOnHoleLikeTiles bool
 	ignoresTileEffects     bool
+}
+
+func (e *Entity) Clone() *Entity {
+	return &Entity{
+		e.appearance, // Appearances are not cloned: they are considered immutable enough.
+		e.tilePos,
+		e.hp, clone.Shallow(e.displayHP),
+		e.canStepOnHoleLikeTiles, e.ignoresTileEffects,
+	}
 }
 
 func (e *Entity) TilePos() TilePos {
