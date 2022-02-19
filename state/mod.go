@@ -3,6 +3,7 @@ package state
 import (
 	"math/rand"
 
+	"github.com/yumland/clone"
 	"github.com/yumland/syncrand"
 	"github.com/yumland/yumbattle/input"
 )
@@ -35,16 +36,20 @@ type State struct {
 	RandSource   *syncrand.Source
 	ElapsedTicks uint32
 
+	Tiles []*Tile
+
 	OffererPlayer  PlayerState
 	AnswererPlayer PlayerState
 }
 
 func New(randSource *syncrand.Source) *State {
-	return &State{RandSource: randSource}
+	tiles := EmptyTiles()
+
+	return &State{RandSource: randSource, Tiles: tiles}
 }
 
 func (s *State) Clone() *State {
-	return &State{s.RandSource.Clone(), s.ElapsedTicks, s.OffererPlayer, s.AnswererPlayer}
+	return &State{s.RandSource.Clone(), s.ElapsedTicks, clone.Slice(s.Tiles), s.OffererPlayer, s.AnswererPlayer}
 }
 
 func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
