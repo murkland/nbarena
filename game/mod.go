@@ -3,16 +3,23 @@ package game
 import (
 	"context"
 	"fmt"
+	"image/color"
+	"log"
+	"sort"
 	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
 	"github.com/yumland/yumbattle/state"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -56,23 +63,32 @@ func (cs *clientState) fastForward() error {
 		ourIntent := ourIntents[i]
 		theirIntent := theirIntents[i]
 
-		var tickIntents []input.Intent
+		var offererIntent input.Intent
+		var answerwerIntent input.Intent
 		if cs.isOfferer {
-			tickIntents = []input.Intent{ourIntent, theirIntent}
+			offererIntent = ourIntent
+			answerwerIntent = theirIntent
 		} else {
-			tickIntents = []input.Intent{theirIntent, ourIntent}
+			offererIntent = theirIntent
+			answerwerIntent = ourIntent
 		}
 
-		if err := cs.committedState.Update(tickIntents); err != nil {
-			return err
-		}
+		cs.committedState.Apply(offererIntent, answerwerIntent)
+		cs.committedState.Step()
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
 	for _, intent := range ourIntents[n:] {
-		if err := cs.dirtyState.Update([]input.Intent{intent}); err != nil {
-			return err
+		var offererIntent input.Intent
+		var answerwerIntent input.Intent
+		if cs.isOfferer {
+			offererIntent = intent
+		} else {
+			answerwerIntent = intent
 		}
+
+		cs.dirtyState.Apply(offererIntent, answerwerIntent)
+		cs.dirtyState.Step()
 	}
 
 	return nil
@@ -95,7 +111,7 @@ func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game 
 	const defaultScale = 4
 	ebiten.SetWindowSize(renderWidth*defaultScale, renderHeight*defaultScale)
 
-	s := &state.State{Rng: rng}
+	s := state.New(rng)
 
 	g := &Game{
 		dc: dc,
@@ -109,6 +125,30 @@ func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game 
 		delayRingbuf: ringbuf.New[time.Duration](10),
 	}
 	return g
+}
+
+func (g *Game) delays() []time.Duration {
+	g.delayRingbufMu.RLock()
+	defer g.delayRingbufMu.RUnlock()
+
+	delays := make([]time.Duration, g.delayRingbuf.Used())
+	if err := g.delayRingbuf.Peek(delays, 0); err != nil {
+		panic(err)
+	}
+
+	sort.Slice(delays, func(i int, j int) bool {
+		return delays[i] < delays[j]
+	})
+
+	return delays
+}
+
+func (g *Game) medianDelay() time.Duration {
+	delays := g.delays()
+	if len(delays) == 0 {
+		return 0
+	}
+	return delays[len(delays)/2]
 }
 
 func (g *Game) sendPings(ctx context.Context) error {
@@ -200,7 +240,32 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
+var (
+	mplusNormalFont font.Face
+)
+
+func init() {
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	const dpi = 72
+	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    24,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
+	g.csMu.Lock()
+	defer g.csMu.Unlock()
+	delay := g.medianDelay()
+	text.Draw(screen, fmt.Sprintf("%6.2fms\n%+v\n%+v", float64(delay)/float64(time.Millisecond), g.cs.dirtyState.OffererPlayer, g.cs.dirtyState.AnswererPlayer), mplusNormalFont, 24, 40, color.White)
 }
 
 func (g *Game) Update() error {
@@ -208,6 +273,7 @@ func (g *Game) Update() error {
 	defer g.csMu.Unlock()
 
 	if g.cs.outgoingIntents.Free() == 0 {
+		// Pause until we have enough space.
 		return nil
 	}
 
