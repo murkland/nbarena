@@ -58,7 +58,8 @@ type Reveal struct {
 func (Reveal) packetType() packetType { return packetTypeReveal }
 
 type Intent struct {
-	Intent input.Intent
+	ForTick uint32
+	Intent  input.Intent
 }
 
 func (Intent) packetType() packetType { return packetTypeIntent }
@@ -107,7 +108,7 @@ func Unmarshal(raw []byte) (Packet, error) {
 
 func Send(ctx context.Context, dc *ctxwebrtc.DataChannel, packet Packet) error {
 	if *debugLogPackets {
-		log.Printf("--> %d: %v", packet.packetType(), packet)
+		log.Printf("--> %d: %+v", packet.packetType(), packet)
 	}
 	return dc.Send(ctx, Marshal(packet))
 }
@@ -122,7 +123,7 @@ func Recv(ctx context.Context, dc *ctxwebrtc.DataChannel) (Packet, error) {
 		return nil, err
 	}
 	if *debugLogPackets {
-		log.Printf("<-- %d: %v", packet.packetType(), packet)
+		log.Printf("<-- %d: %+v", packet.packetType(), packet)
 	}
 	return packet, nil
 }
