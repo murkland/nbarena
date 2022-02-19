@@ -18,6 +18,10 @@ func (e *Entity) TilePos() TilePos {
 	return e.tilePos
 }
 
+func (e *Entity) SetTilePos(tilePos TilePos) {
+	e.tilePos = tilePos
+}
+
 func (e *Entity) HP() int {
 	return e.hp
 }
