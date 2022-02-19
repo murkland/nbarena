@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/sanity-io/litter"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
@@ -252,7 +253,7 @@ func init() {
 
 	const dpi = 72
 	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    24,
+		Size:    12,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
@@ -265,7 +266,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 	delay := g.medianDelay()
-	text.Draw(screen, fmt.Sprintf("%6.2fms\n%+v\n%+v", float64(delay)/float64(time.Millisecond), g.cs.dirtyState.OffererPlayer, g.cs.dirtyState.AnswererPlayer), mplusNormalFont, 24, 40, color.White)
+	text.Draw(screen, fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Sdump(g.cs.dirtyState)), mplusNormalFont, 12, 40, color.White)
 }
 
 func (g *Game) Update() error {

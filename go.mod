@@ -3,18 +3,19 @@ module github.com/yumland/yumbattle
 go 1.18
 
 require (
+	github.com/sanity-io/litter v1.5.2
 	github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
 
