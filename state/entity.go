@@ -3,13 +3,37 @@ package state
 import "github.com/yumland/yumbattle/draw"
 
 type Entity struct {
-	Appearance draw.Node
+	appearance draw.Node
 
-	TilePos TilePos
+	tilePos TilePos
 
-	HP        int
-	DisplayHP *int
+	hp        int
+	displayHP *int
 
-	CanStepOnHoleLikeTiles bool
-	IgnoresTileEffects     bool
+	canStepOnHoleLikeTiles bool
+	ignoresTileEffects     bool
+}
+
+func (e *Entity) TilePos() TilePos {
+	return e.tilePos
+}
+
+func (e *Entity) HP() int {
+	return e.hp
+}
+
+func (e *Entity) SetHP(hp int) {
+	e.hp = hp
+}
+
+func (e *Entity) CanStepOnHoleLikeTiles() bool {
+	return e.canStepOnHoleLikeTiles
+}
+
+func (e *Entity) IgnoresTileEffects() bool {
+	return e.ignoresTileEffects
+}
+
+func (e *Entity) Appearance() draw.Node {
+	return e.appearance
 }

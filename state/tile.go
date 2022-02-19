@@ -59,7 +59,7 @@ func (tb *HoleTileBehavior) Appearance(t *Tile) draw.Node {
 }
 
 func (tb *HoleTileBehavior) CanStepOn(e *Entity) bool {
-	return e.CanStepOnHoleLikeTiles
+	return e.CanStepOnHoleLikeTiles()
 }
 func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity) {}
 func (tb *HoleTileBehavior) OnLeave(t *Tile, e *Entity) {}
@@ -76,7 +76,7 @@ func (tb *BrokenTileBehavior) Appearance(t *Tile) draw.Node {
 }
 
 func (tb *BrokenTileBehavior) CanStepOn(e *Entity) bool {
-	return e.CanStepOnHoleLikeTiles
+	return e.CanStepOnHoleLikeTiles()
 }
 func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity) {}
 func (tb *BrokenTileBehavior) OnLeave(t *Tile, e *Entity) {}
@@ -115,7 +115,7 @@ func (tb *CrackedTile) CanStepOn(e *Entity) bool {
 func (tb *CrackedTile) OnEnter(t *Tile, e *Entity) {
 }
 func (tb *CrackedTile) OnLeave(t *Tile, e *Entity) {
-	if e.IgnoresTileEffects {
+	if e.IgnoresTileEffects() {
 		return
 	}
 	t.SetBehavior(&BrokenTileBehavior{})
