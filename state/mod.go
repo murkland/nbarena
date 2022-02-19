@@ -32,19 +32,19 @@ func (ps *PlayerState) Step() {
 }
 
 type State struct {
-	Rng          *syncrand.Source
+	RandSource   *syncrand.Source
 	ElapsedTicks uint32
 
 	OffererPlayer  PlayerState
 	AnswererPlayer PlayerState
 }
 
-func New(rng *syncrand.Source) *State {
-	return &State{Rng: rng}
+func New(randSource *syncrand.Source) *State {
+	return &State{RandSource: randSource}
 }
 
 func (s *State) Clone() *State {
-	return &State{s.Rng.Clone(), s.ElapsedTicks, s.OffererPlayer, s.AnswererPlayer}
+	return &State{s.RandSource.Clone(), s.ElapsedTicks, s.OffererPlayer, s.AnswererPlayer}
 }
 
 func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
@@ -54,7 +54,7 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 	}
 
 	wrappedIntents := []wrappedIntent{{true, offererIntent}, {false, answererIntent}}
-	rand.New(s.Rng).Shuffle(len(wrappedIntents), func(i, j int) {
+	rand.New(s.RandSource).Shuffle(len(wrappedIntents), func(i, j int) {
 		wrappedIntents[i], wrappedIntents[j] = wrappedIntents[j], wrappedIntents[i]
 	})
 

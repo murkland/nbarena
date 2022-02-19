@@ -54,14 +54,14 @@ func main() {
 		}
 	}
 
-	rng, seed, err := netsyncrand.Negotiate(ctx, dc)
+	randSource, seed, err := netsyncrand.Negotiate(ctx, dc)
 	if err != nil {
-		log.Fatalf("failed to negotiate rng: %s", err)
+		log.Fatalf("failed to negotiate randSource: %s", err)
 	}
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	g := game.New(dc, rng, isOfferer)
+	g := game.New(dc, randSource, isOfferer)
 	go func() {
 		if err := g.RunBackgroundTasks(ctx); err != nil {
 			log.Fatalf("error running background tasks: %s", err)
