@@ -27,9 +27,6 @@ func main() {
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
 
-	var selfEntityID uint32
-	var opponentEntityID uint32
-
 	peerConn, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		log.Fatalf("failed to create RTC peer connection: %s", err)
@@ -46,26 +43,21 @@ func main() {
 
 	dc := ctxwebrtc.WrapDataChannel(rtcDc)
 
-	isOfferer := false
-	if !*answer {
+	isOfferer := !*answer
+	if isOfferer {
 		if err := signorClient.Offer(ctx, []byte(*sessionID), peerConn); err != nil {
 			log.Fatalf("failed to offer: %s", err)
 		}
-		isOfferer = true
 	} else {
 		if err := signorClient.Answer(ctx, []byte(*sessionID), peerConn); err != nil {
 			log.Fatalf("failed to offer: %s", err)
 		}
 	}
 
-	_ = selfEntityID
-	_ = opponentEntityID
-
 	rng, seed, err := netsyncrand.Negotiate(ctx, dc)
 	if err != nil {
 		log.Fatalf("failed to negotiate rng: %s", err)
 	}
-	_ = rng
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
