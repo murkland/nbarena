@@ -39,6 +39,7 @@ require (
 	github.com/pion/webrtc/v3 v3.1.23
 	github.com/twitchtv/twirp v8.1.1+incompatible // indirect
 	github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a
+	github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6
 	golang.org/x/crypto v0.0.0-20220213190939-1e6e3497d506 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect

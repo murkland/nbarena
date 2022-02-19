@@ -73,12 +73,13 @@ func main() {
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	var g game.Game
-	ebiten.SetWindowResizable(true)
-	ebiten.SetWindowTitle("yumbattle")
-	const defaultScale = 4
-	ebiten.SetWindowSize(game.RenderWidth*defaultScale, game.RenderHeight*defaultScale)
-	if err := ebiten.RunGame(&g); err != nil {
+	g := game.New(dc)
+	go func() {
+		if err := g.RunBackgroundTasks(ctx); err != nil {
+			log.Fatalf("error running background tasks: %s", err)
+		}
+	}()
+	if err := ebiten.RunGame(g); err != nil {
 		log.Fatalf("failed to run game: %s", err)
 	}
 }

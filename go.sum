@@ -107,6 +107,8 @@ github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2 h1:VrW/Nfd0s8fsKcRPu
 github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2/go.mod h1:kSrmMLPKmihL4c3Yakj7vJRefVC82oMuyVD8m6AECak=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a h1:DMRrQnzpzNzvraH+PiFWy9dKzWd7iR3qLo1VRmonBkY=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a/go.mod h1:bGxs2wfpMOkoPIaPxbKTmSpItIsZmAd78A3mzs3WGTQ=
+github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6 h1:a3Edf+vILfuzQVdOOor/46J0nSqa8ML9proBcXIKyys=
+github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6/go.mod h1:vivnnl/AoVLEWtaJsVcZTHXKgFsxzWcI1Wb8ueM5U64=
 github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0 h1:5lhyhDt4c4lvvgIG+rwIF+MK4VbAV00GzxASvHTNa8k=
 github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0/go.mod h1:dElKY4j5ExkRe+Ga8JD5JeHMzrPLDMcG/PqR9nnmBCk=
 github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7 h1:yXDjC4YFLTILn8wxOCNHgWzFgnNNhglNGJJFL53xTGY=
