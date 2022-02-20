@@ -33,10 +33,12 @@ func (ps *PlayerState) Step() {
 }
 
 type State struct {
-	RandSource   *syncrand.Source
 	ElapsedTicks uint32
 
-	Tiles []*Tile
+	RandSource *syncrand.Source
+
+	Tiles    []*Tile
+	Entities map[int]*Entity
 
 	OffererPlayer  PlayerState
 	AnswererPlayer PlayerState
@@ -45,11 +47,16 @@ type State struct {
 func New(randSource *syncrand.Source) *State {
 	tiles := EmptyTiles()
 
-	return &State{RandSource: randSource, Tiles: tiles}
+	return &State{RandSource: randSource, Tiles: tiles, Entities: make(map[int]*Entity)}
 }
 
 func (s *State) Clone() *State {
-	return &State{s.RandSource.Clone(), s.ElapsedTicks, clone.Slice(s.Tiles), s.OffererPlayer, s.AnswererPlayer}
+	return &State{
+		s.ElapsedTicks,
+		s.RandSource.Clone(),
+		clone.Slice(s.Tiles), clone.Map(s.Entities),
+		s.OffererPlayer, s.AnswererPlayer,
+	}
 }
 
 func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
