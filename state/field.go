@@ -6,11 +6,11 @@ import (
 )
 
 type ColumnInfo struct {
-	ownerSwapTimeLeft int
+	allySwapTimeLeft int
 }
 
 func (c ColumnInfo) Clone() ColumnInfo {
-	return ColumnInfo{c.ownerSwapTimeLeft}
+	return ColumnInfo{c.allySwapTimeLeft}
 }
 
 type Field struct {
@@ -28,12 +28,12 @@ func newField() Field {
 
 func (f *Field) Step() {
 	for j := range f.columnInfo {
-		if f.columnInfo[j].ownerSwapTimeLeft > 0 {
-			f.columnInfo[j].ownerSwapTimeLeft--
-			if f.columnInfo[j].ownerSwapTimeLeft <= 0 {
+		if f.columnInfo[j].allySwapTimeLeft > 0 {
+			f.columnInfo[j].allySwapTimeLeft--
+			if f.columnInfo[j].allySwapTimeLeft <= 0 {
 				for i := 0; i < tileCols; i++ {
 					t := &f.tiles[int(TilePosXY(i, j))]
-					// TODO: Check if tile is occupied: if occupied, do not switch owner.
+					// TODO: Check if tile is occupied: if occupied, do not switch ally.
 					t.isAlliedWithAnswerer = !t.isAlliedWithAnswerer
 				}
 			}
