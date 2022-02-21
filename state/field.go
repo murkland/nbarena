@@ -24,9 +24,6 @@ func newField() Field {
 }
 
 func (f *Field) Step() {
-	for i := range f.tiles {
-		f.tiles[i].Step()
-	}
 	for j := range f.columnInfo {
 		if f.columnInfo[j].ownerSwapTimeLeft > 0 {
 			f.columnInfo[j].ownerSwapTimeLeft--
@@ -38,5 +35,9 @@ func (f *Field) Step() {
 				}
 			}
 		}
+	}
+
+	for i := range f.tiles {
+		f.tiles[i].Step()
 	}
 }
