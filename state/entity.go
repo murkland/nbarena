@@ -11,7 +11,7 @@ type Entity struct {
 	tilePos       TilePos
 	futureTilePos TilePos
 
-	team Team
+	isOwnedByAnswerer bool
 
 	isFlipped bool
 
@@ -39,7 +39,7 @@ func (e Entity) Clone() Entity {
 	return Entity{
 		e.appearance, // Appearances are not cloned: they are considered immutable enough.
 		e.tilePos, e.futureTilePos,
-		e.team,
+		e.isOwnedByAnswerer,
 		e.isFlipped,
 		e.hp, clone.Shallow(e.displayHP),
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,

@@ -22,3 +22,21 @@ func (f Field) Clone() Field {
 func newField() Field {
 	return Field{make([]Tile, tileCols*tileRows), make([]ColumnInfo, tileCols)}
 }
+
+func (f *Field) Step() {
+	for i := range f.tiles {
+		f.tiles[i].Step()
+	}
+	for j := range f.columnInfo {
+		if f.columnInfo[j].ownerSwapTimeLeft > 0 {
+			f.columnInfo[j].ownerSwapTimeLeft--
+			if f.columnInfo[j].ownerSwapTimeLeft <= 0 {
+				for i := 0; i < tileCols; i++ {
+					t := &f.tiles[int(TilePosXY(i, j))]
+					// TODO: Check if tile is occupied: if occupied, do not switch owner.
+					t.isOwnedByAnswerer = !t.isOwnedByAnswerer
+				}
+			}
+		}
+	}
+}

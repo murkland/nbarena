@@ -90,8 +90,9 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 }
 
 func (s *State) Step() {
+	s.elapsedTicks++
 	// TODO: Step everything in a random order.
 	s.OffererPlayer.Step()
 	s.AnswererPlayer.Step()
-	s.elapsedTicks++
+	s.field.Step()
 }
