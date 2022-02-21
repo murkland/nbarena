@@ -23,7 +23,17 @@ func (f Field) Clone() Field {
 }
 
 func newField() Field {
-	return Field{make([]Tile, tileCols*tileRows), make([]ColumnInfo, tileCols)}
+	tiles := make([]Tile, tileCols*tileRows)
+	for j := 0; j < 5; j++ {
+		for i := 0; i < 8; i++ {
+			t := &tiles[int(TilePosXY(i, j))]
+			if i >= 1 && i < 7 && j >= 1 && j < 4 {
+				t.behavior = &NormalTileBehavior{}
+			}
+			t.isAlliedWithAnswerer = i >= 4
+		}
+	}
+	return Field{tiles, make([]ColumnInfo, tileCols)}
 }
 
 func (f *Field) Step() {
