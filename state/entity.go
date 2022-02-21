@@ -3,7 +3,6 @@ package state
 import (
 	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/draw"
-	"github.com/yumland/yumbattle/input"
 )
 
 type Entity struct {
@@ -106,27 +105,51 @@ func (e *Entity) Step() {
 	if !e.isBeingDragged /* && !e.isFrozen */ {
 		if e.paralyzedFramesLeft > 0 {
 			e.paralyzedFramesLeft--
+			if e.paralyzedFramesLeft <= 0 {
+				e.isParalyzed = false
+			}
 		}
 		if e.confusedFramesLeft > 0 {
 			e.confusedFramesLeft--
+			if e.confusedFramesLeft <= 0 {
+				e.isConfused = false
+			}
 		}
 		if e.blindedFramesLeft > 0 {
 			e.blindedFramesLeft--
+			if e.blindedFramesLeft <= 0 {
+				e.isBlinded = false
+			}
 		}
 		if e.immobilizedFramesLeft > 0 {
 			e.immobilizedFramesLeft--
+			if e.immobilizedFramesLeft <= 0 {
+				e.isImmobilized = false
+			}
 		}
 		if e.flashingFramesLeft > 0 {
 			e.flashingFramesLeft--
+			if e.flashingFramesLeft <= 0 {
+				e.isFlashing = false
+			}
 		}
 		if e.invincibleFramesLeft > 0 {
 			e.invincibleFramesLeft--
+			if e.invincibleFramesLeft <= 0 {
+				e.isInvincible = false
+			}
 		}
 		if e.frozenFramesLeft > 0 {
 			e.frozenFramesLeft--
+			if e.frozenFramesLeft <= 0 {
+				e.isFrozen = false
+			}
 		}
 		if e.bubbledFramesLeft > 0 {
 			e.bubbledFramesLeft--
+			if e.bubbledFramesLeft <= 0 {
+				e.isBubbled = false
+			}
 		}
 	}
 
@@ -156,21 +179,4 @@ func (e *Entity) Step() {
 	if e.bubbledFramesLeft > 0 {
 		e.isBubbled = true
 	}
-}
-
-func (e *Entity) Apply(intent input.Intent) {
-	x, y := e.tilePos.XY()
-	if intent.Direction&input.DirectionLeft != 0 {
-		x--
-	}
-	if intent.Direction&input.DirectionRight != 0 {
-		x++
-	}
-	if intent.Direction&input.DirectionUp != 0 {
-		y--
-	}
-	if intent.Direction&input.DirectionDown != 0 {
-		y++
-	}
-	e.futureTilePos = TilePosXY(x, y)
 }

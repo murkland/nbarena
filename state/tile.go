@@ -14,6 +14,13 @@ func (t Tile) Clone() Tile {
 	return Tile{clone.Interface[TileBehavior](t.behavior), t.isAlliedWithAnswerer}
 }
 
+func (t *Tile) CanEnter(e *Entity) bool {
+	if t.behavior == nil {
+		return false
+	}
+	return t.behavior.CanEnter(t, e)
+}
+
 func (t *Tile) SetBehavior(b TileBehavior) {
 	t.behavior = b
 }
@@ -40,13 +47,13 @@ func TilePosXY(x int, y int) TilePos {
 }
 
 func (p TilePos) XY() (int, int) {
-	return int(p) / tileCols, int(p) % tileCols
+	return int(p) % tileCols, int(p) / tileCols
 }
 
 type TileBehavior interface {
 	clone.Cloner[TileBehavior]
 	Appearance(t *Tile) draw.Node
-	CanStepOn(e *Entity) bool
+	CanEnter(t *Tile, e *Entity) bool
 	OnEnter(t *Tile, e *Entity)
 	OnLeave(t *Tile, e *Entity)
 	Step(t *Tile)
@@ -63,7 +70,7 @@ func (tb *HoleTileBehavior) Appearance(t *Tile) draw.Node {
 	return nil
 }
 
-func (tb *HoleTileBehavior) CanStepOn(e *Entity) bool {
+func (tb *HoleTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.CanStepOnHoleLikeTiles()
 }
 func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity) {}
@@ -82,7 +89,7 @@ func (tb *BrokenTileBehavior) Appearance(t *Tile) draw.Node {
 	return nil
 }
 
-func (tb *BrokenTileBehavior) CanStepOn(e *Entity) bool {
+func (tb *BrokenTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.CanStepOnHoleLikeTiles()
 }
 func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity) {}
@@ -108,7 +115,7 @@ func (tb *NormalTileBehavior) Appearance(t *Tile) draw.Node {
 	return nil
 }
 
-func (tb *NormalTileBehavior) CanStepOn(e *Entity) bool {
+func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
 func (tb *NormalTileBehavior) OnEnter(t *Tile, e *Entity) {}
@@ -126,7 +133,7 @@ func (tb *CrackedTile) Appearance(t *Tile) draw.Node {
 	return nil
 }
 
-func (tb *CrackedTile) CanStepOn(e *Entity) bool {
+func (tb *CrackedTile) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
 func (tb *CrackedTile) OnEnter(t *Tile, e *Entity) {

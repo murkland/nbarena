@@ -26,7 +26,16 @@ type State struct {
 
 func New(randSource *syncrand.Source) State {
 	field := newField()
-	entities := map[int]*Entity{}
+	entities := map[int]*Entity{
+		OffererEntityID: {
+			tilePos:       TilePosXY(2, 2),
+			futureTilePos: TilePosXY(2, 2),
+		},
+		AnswererEntityID: {
+			tilePos:       TilePosXY(5, 2),
+			futureTilePos: TilePosXY(5, 2),
+		},
+	}
 
 	return State{
 		randSource: randSource,
@@ -48,6 +57,33 @@ func (s State) Clone() State {
 	}
 }
 
+func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool) {
+	dir := intent.Direction
+	if e.isConfused {
+		dir = dir.FlipH().FlipV()
+	}
+
+	x, y := e.tilePos.XY()
+	if dir&input.DirectionLeft != 0 {
+		x--
+	}
+	if dir&input.DirectionRight != 0 {
+		x++
+	}
+	if dir&input.DirectionUp != 0 {
+		y--
+	}
+	if dir&input.DirectionDown != 0 {
+		y++
+	}
+
+	tilePos := TilePosXY(x, y)
+	tile := &s.field.tiles[tilePos]
+	if e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
+		e.futureTilePos = tilePos
+	}
+}
+
 func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 	intents := []struct {
 		isOfferer bool
@@ -66,7 +102,7 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 		} else {
 			entity = s.entities[AnswererEntityID]
 		}
-		entity.Apply(wrapped.intent)
+		s.applyPlayerIntent(entity, wrapped.intent, wrapped.isOfferer)
 	}
 }
 
