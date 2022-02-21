@@ -65,8 +65,6 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 func (s *State) Step() {
 	s.elapsedTicks++
 
-	s.field.Step()
-
 	// Step entities in a random order.
 	entities := make([]struct {
 		id     int
@@ -87,4 +85,6 @@ func (s *State) Step() {
 	for _, wrapped := range entities {
 		wrapped.entity.Step()
 	}
+
+	s.field.Step()
 }
