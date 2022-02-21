@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/sanity-io/litter v1.5.2
-	github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2
+	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d

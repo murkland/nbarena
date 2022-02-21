@@ -111,6 +111,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2 h1:VrW/Nfd0s8fsKcRPupO3gE6fogtsMP/0gX/47Xf0OUM=
 github.com/yumland/clone v0.0.0-20220219084857-2f37977454e2/go.mod h1:kSrmMLPKmihL4c3Yakj7vJRefVC82oMuyVD8m6AECak=
+github.com/yumland/clone v0.0.0-20220221223031-811338b75512 h1:tXoOEvWUFEWvAN0cCPvW7f+bBxJeqQLAOzmx1dZpMV8=
+github.com/yumland/clone v0.0.0-20220221223031-811338b75512/go.mod h1:kSrmMLPKmihL4c3Yakj7vJRefVC82oMuyVD8m6AECak=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a h1:DMRrQnzpzNzvraH+PiFWy9dKzWd7iR3qLo1VRmonBkY=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a/go.mod h1:bGxs2wfpMOkoPIaPxbKTmSpItIsZmAd78A3mzs3WGTQ=
 github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6 h1:a3Edf+vILfuzQVdOOor/46J0nSqa8ML9proBcXIKyys=

@@ -159,5 +159,20 @@ func (e *Entity) Step() {
 }
 
 func (e *Entity) Apply(intent input.Intent) {
-
+	if intent.Direction&input.DirectionLeft != 0 {
+		x, y := e.futureTilePos.XY()
+		e.futureTilePos = TilePosXY(x-1, y)
+	}
+	if intent.Direction&input.DirectionRight != 0 {
+		x, y := e.futureTilePos.XY()
+		e.futureTilePos = TilePosXY(x+1, y)
+	}
+	if intent.Direction&input.DirectionUp != 0 {
+		x, y := e.futureTilePos.XY()
+		e.futureTilePos = TilePosXY(x, y-1)
+	}
+	if intent.Direction&input.DirectionDown != 0 {
+		x, y := e.futureTilePos.XY()
+		e.futureTilePos = TilePosXY(x, y+1)
+	}
 }
