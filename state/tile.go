@@ -6,19 +6,20 @@ import (
 )
 
 type Tile struct {
-	behavior TileBehavior
-	team     Team
+	behavior               TileBehavior
+	returnToNormalTimeLeft int32
+	team                   Team
 }
 
-func (t *Tile) Clone() *Tile {
-	return &Tile{t.behavior.Clone(), t.team}
+func (t Tile) Clone() Tile {
+	return Tile{t.behavior.Clone(), t.returnToNormalTimeLeft, t.team}
 }
 
-func (t *Tile) SetBehavior(b TileBehavior) {
+func (t Tile) SetBehavior(b TileBehavior) {
 	t.behavior = b
 }
 
-func (t *Tile) Team() Team {
+func (t Tile) Team() Team {
 	return t.team
 }
 
@@ -26,10 +27,6 @@ const tileRows = 5
 const tileCols = 8
 
 type TilePos int
-
-func EmptyTiles() []*Tile {
-	return make([]*Tile, tileRows*tileCols)
-}
 
 func TilePosXY(x int, y int) TilePos {
 	return TilePos(y*tileCols + x)

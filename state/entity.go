@@ -35,8 +35,8 @@ type Entity struct {
 	isBeingDragged bool
 }
 
-func (e *Entity) Clone() *Entity {
-	return &Entity{
+func (e Entity) Clone() Entity {
+	return Entity{
 		e.appearance, // Appearances are not cloned: they are considered immutable enough.
 		e.tilePos, e.futureTilePos,
 		e.team,

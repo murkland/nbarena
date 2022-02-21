@@ -29,44 +29,53 @@ func (ps *PlayerState) Apply(intent input.Intent) {
 }
 
 func (ps *PlayerState) Step() {
-
 }
 
 type State struct {
-	ElapsedTicks uint32
+	elapsedTicks int
 
-	RandSource *syncrand.Source
+	randSource *syncrand.Source
 
-	Tiles    []*Tile
-	Entities map[int]*Entity
+	field    Field
+	entities map[int]Entity
 
 	OffererPlayer  PlayerState
 	AnswererPlayer PlayerState
 }
 
-func New(randSource *syncrand.Source) *State {
-	tiles := EmptyTiles()
+func New(randSource *syncrand.Source) State {
+	field := newField()
 
-	return &State{RandSource: randSource, Tiles: tiles, Entities: make(map[int]*Entity)}
+	return State{
+		randSource: randSource,
+
+		field:    field,
+		entities: make(map[int]Entity),
+	}
 }
 
-func (s *State) Clone() *State {
-	return &State{
-		s.ElapsedTicks,
-		s.RandSource.Clone(),
-		clone.Slice(s.Tiles), clone.Map(s.Entities),
+func (s *State) ElapsedTicks() int {
+	return s.elapsedTicks
+}
+
+func (s State) Clone() State {
+	return State{
+		s.elapsedTicks,
+		s.randSource.Clone(),
+		s.field, clone.Map(s.entities),
 		s.OffererPlayer, s.AnswererPlayer,
 	}
 }
 
 func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
-	type wrappedIntent struct {
+	wrappedIntents := []struct {
 		isOfferer bool
 		intent    input.Intent
+	}{
+		{true, offererIntent},
+		{false, answererIntent},
 	}
-
-	wrappedIntents := []wrappedIntent{{true, offererIntent}, {false, answererIntent}}
-	rand.New(s.RandSource).Shuffle(len(wrappedIntents), func(i, j int) {
+	rand.New(s.randSource).Shuffle(len(wrappedIntents), func(i, j int) {
 		wrappedIntents[i], wrappedIntents[j] = wrappedIntents[j], wrappedIntents[i]
 	})
 
@@ -84,5 +93,5 @@ func (s *State) Step() {
 	// TODO: Step everything in a random order.
 	s.OffererPlayer.Step()
 	s.AnswererPlayer.Step()
-	s.ElapsedTicks++
+	s.elapsedTicks++
 }

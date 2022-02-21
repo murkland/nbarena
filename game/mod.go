@@ -26,8 +26,8 @@ const maxPendingIntents = 60
 type clientState struct {
 	isOfferer bool
 
-	committedState *state.State
-	dirtyState     *state.State
+	committedState state.State
+	dirtyState     state.State
 
 	incomingIntents *ringbuf.RingBuf[input.Intent]
 	outgoingIntents *ringbuf.RingBuf[input.Intent]
@@ -200,7 +200,7 @@ func (g *Game) handleConn(ctx context.Context) error {
 				g.csMu.Lock()
 				defer g.csMu.Unlock()
 
-				nextTick := g.cs.committedState.ElapsedTicks + uint32(g.cs.incomingIntents.Used()) + 1
+				nextTick := uint32(g.cs.committedState.ElapsedTicks() + g.cs.incomingIntents.Used() + 1)
 				if p.ForTick != nextTick {
 					return fmt.Errorf("expected intent for %d but it was for %d", nextTick, p.ForTick)
 				}
@@ -242,9 +242,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
-	rootNode := &draw.OptionsNode{Opts: &ebiten.DrawImageOptions{}}
+	rootNode := draw.OptionsNode{Opts: &ebiten.DrawImageOptions{}}
 
-	sceneNode := &draw.OptionsNode{Opts: &ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	sceneNode := draw.OptionsNode{Opts: &ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
 	rootNode.Children = append(rootNode.Children, sceneNode)
 	rootNode.Children = append(sceneNode.Children, g.makeDebugDrawNode())
 
@@ -261,7 +261,7 @@ func (g *Game) Update() error {
 	}
 
 	intent := input.CurrentIntent()
-	forTick := g.cs.dirtyState.ElapsedTicks + 1
+	forTick := uint32(g.cs.dirtyState.ElapsedTicks() + 1)
 
 	ctx := context.Background()
 
