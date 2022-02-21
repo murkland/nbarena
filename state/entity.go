@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/draw"
+	"github.com/yumland/yumbattle/input"
 )
 
 type Entity struct {
@@ -155,4 +156,8 @@ func (e *Entity) Step() {
 	if e.bubbledFramesLeft > 0 {
 		e.isBubbled = true
 	}
+}
+
+func (e *Entity) Apply(intent input.Intent) {
+
 }

@@ -10,6 +10,11 @@ import (
 	"github.com/yumland/yumbattle/input"
 )
 
+const (
+	OffererEntityID  = 1
+	AnswererEntityID = 2
+)
+
 type State struct {
 	elapsedTicks int
 
@@ -54,12 +59,13 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 		intents[i], intents[j] = intents[j], intents[i]
 	})
 	for _, wrapped := range intents {
-		intent := wrapped.intent
+		var entity *Entity
 		if wrapped.isOfferer {
-			_ = intent
+			entity = s.entities[OffererEntityID]
 		} else {
-			_ = intent
+			entity = s.entities[AnswererEntityID]
 		}
+		entity.Apply(wrapped.intent)
 	}
 }
 
