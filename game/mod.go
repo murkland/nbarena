@@ -69,8 +69,8 @@ func (cs *clientState) fastForward() error {
 			answerwerIntent = ourIntent
 		}
 
-		cs.committedState.Apply(offererIntent, answerwerIntent)
 		cs.committedState.Step()
+		cs.committedState.Apply(offererIntent, answerwerIntent)
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
@@ -83,8 +83,8 @@ func (cs *clientState) fastForward() error {
 			answerwerIntent = intent
 		}
 
-		cs.dirtyState.Apply(offererIntent, answerwerIntent)
 		cs.dirtyState.Step()
+		cs.dirtyState.Apply(offererIntent, answerwerIntent)
 	}
 
 	return nil
