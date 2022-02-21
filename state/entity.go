@@ -136,11 +136,11 @@ func (e *Entity) Step() {
 		e.isConfused = true
 	}
 	if e.blindedFramesLeft > 0 && !e.isBlinded {
-		// Cannot be implicitly implied.
+		// Must set flag explicitly.
 		e.blindedFramesLeft = 0
 	}
 	if e.immobilizedFramesLeft > 0 && !e.isImmobilized {
-		// Cannot be implicitly implied.
+		// Must set flag explicitly.
 		e.immobilizedFramesLeft = 0
 	}
 	if e.flashingFramesLeft > 0 {
