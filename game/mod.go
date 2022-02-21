@@ -246,7 +246,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	sceneNode := draw.OptionsNode{Opts: &ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
 	rootNode.Children = append(rootNode.Children, sceneNode)
+
 	rootNode.Children = append(sceneNode.Children, g.makeDebugDrawNode())
+
+	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.DrawNode())
 
 	rootNode.Draw(screen, &ebiten.DrawImageOptions{})
 }

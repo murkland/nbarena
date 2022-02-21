@@ -1,6 +1,9 @@
 package state
 
-import "github.com/yumland/clone"
+import (
+	"github.com/yumland/clone"
+	"github.com/yumland/yumbattle/draw"
+)
 
 type ColumnInfo struct {
 	ownerSwapTimeLeft int
@@ -40,4 +43,8 @@ func (f *Field) Step() {
 	for i := range f.tiles {
 		f.tiles[i].Step()
 	}
+}
+
+func (f *Field) DrawNode() draw.Node {
+	return draw.OptionsNode{}
 }

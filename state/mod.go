@@ -6,6 +6,7 @@ import (
 
 	"github.com/yumland/clone"
 	"github.com/yumland/syncrand"
+	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/input"
 )
 
@@ -87,4 +88,10 @@ func (s *State) Step() {
 	}
 
 	s.field.Step()
+}
+
+func (s *State) DrawNode() draw.Node {
+	rootNode := draw.OptionsNode{}
+	rootNode.Children = append(rootNode.Children, s.field.DrawNode())
+	return rootNode
 }
