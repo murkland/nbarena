@@ -34,7 +34,7 @@ func (f *Field) Step() {
 				for i := 0; i < tileCols; i++ {
 					t := &f.tiles[int(TilePosXY(i, j))]
 					// TODO: Check if tile is occupied: if occupied, do not switch owner.
-					t.isOwnedByAnswerer = !t.isOwnedByAnswerer
+					t.isAlliedWithAnswerer = !t.isAlliedWithAnswerer
 				}
 			}
 		}

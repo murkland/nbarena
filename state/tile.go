@@ -8,19 +8,19 @@ import (
 type Tile struct {
 	behavior               TileBehavior
 	returnToNormalTimeLeft int32
-	isOwnedByAnswerer      bool
+	isAlliedWithAnswerer   bool
 }
 
 func (t Tile) Clone() Tile {
-	return Tile{t.behavior.Clone(), t.returnToNormalTimeLeft, t.isOwnedByAnswerer}
+	return Tile{t.behavior.Clone(), t.returnToNormalTimeLeft, t.isAlliedWithAnswerer}
 }
 
 func (t *Tile) SetBehavior(b TileBehavior) {
 	t.behavior = b
 }
 
-func (t *Tile) IsOwnedByAnswerer() bool {
-	return t.isOwnedByAnswerer
+func (t *Tile) IsAlliedWithAnswerer() bool {
+	return t.isAlliedWithAnswerer
 }
 
 func (t *Tile) Step() {
