@@ -3,6 +3,8 @@ package game
 import (
 	"fmt"
 	"log"
+	"math/rand"
+	"reflect"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -48,7 +50,15 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 			ColorM: colorM,
 		},
 		Children: []draw.Node{
-			draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Sdump(g.cs.dirtyState))},
+			draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
+				HidePrivateFields: false,
+				FieldFilter: func(sf reflect.StructField, v reflect.Value) bool {
+					if sf.Type.Implements(reflect.TypeOf((*rand.Source)(nil)).Elem()) {
+						return false
+					}
+					return true
+				},
+			}.Sdump(g.cs.dirtyState))},
 		},
 	}
 }
