@@ -152,7 +152,7 @@ func (e *Entity) Step() {
 	if e.frozenFramesLeft > 0 {
 		e.isFrozen = true
 	}
-	if e.frozenFramesLeft > 0 {
-		e.isFrozen = true
+	if e.bubbledFramesLeft > 0 {
+		e.isBubbled = true
 	}
 }
