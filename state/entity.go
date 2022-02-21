@@ -77,5 +77,35 @@ func (e *Entity) Appearance() draw.Node {
 }
 
 func (e *Entity) Step() {
+	// TODO: Handle action.
 
+	// Tick timers.
+	if !e.isBeingDragged /* && !e.isFrozen */ {
+		if e.paralyzedFramesLeft > 0 {
+			e.paralyzedFramesLeft--
+		}
+		if e.confusedFramesLeft > 0 {
+			e.confusedFramesLeft--
+		}
+		if e.blindedFramesLeft > 0 {
+			e.blindedFramesLeft--
+		}
+		if e.immobilizedFramesLeft > 0 {
+			e.immobilizedFramesLeft--
+		}
+		if e.flashingFramesLeft > 0 {
+			e.flashingFramesLeft--
+		}
+		if e.invincibleFramesLeft > 0 {
+			e.invincibleFramesLeft--
+		}
+		if e.frozenFramesLeft > 0 {
+			e.frozenFramesLeft--
+		}
+		if e.bubbledFramesLeft > 0 {
+			e.bubbledFramesLeft--
+		}
+	}
+
+	// TODO: Add flags to check these timers.
 }
