@@ -23,14 +23,29 @@ type Entity struct {
 	cannotFlinch           bool
 	fatalHitLeaves1HP      bool
 
-	paralyzedFramesLeft   uint16
-	confusedFramesLeft    uint16
-	blindedFramesLeft     uint16
+	isParalyzed         bool
+	paralyzedFramesLeft uint16
+
+	isConfused         bool
+	confusedFramesLeft uint16
+
+	isBlinded         bool
+	blindedFramesLeft uint16
+
+	isImmobilized         bool
 	immobilizedFramesLeft uint16
-	flashingFramesLeft    uint16
-	invincibleFramesLeft  uint16
-	frozenFramesLeft      uint16
-	bubbledFramesLeft     uint16
+
+	isFlashing         bool
+	flashingFramesLeft uint16
+
+	isInvincible         bool
+	invincibleFramesLeft uint16
+
+	isFrozen         bool
+	frozenFramesLeft uint16
+
+	isBubbled         bool
+	bubbledFramesLeft uint16
 
 	isBeingDragged bool
 }
@@ -43,7 +58,14 @@ func (e *Entity) Clone() *Entity {
 		e.isFlipped,
 		e.hp, clone.Shallow(e.displayHP),
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
-		e.paralyzedFramesLeft, e.confusedFramesLeft, e.blindedFramesLeft, e.immobilizedFramesLeft, e.flashingFramesLeft, e.invincibleFramesLeft, e.frozenFramesLeft, e.bubbledFramesLeft,
+		e.isParalyzed, e.paralyzedFramesLeft,
+		e.isConfused, e.confusedFramesLeft,
+		e.isBlinded, e.blindedFramesLeft,
+		e.isImmobilized, e.immobilizedFramesLeft,
+		e.isFlashing, e.flashingFramesLeft,
+		e.isInvincible, e.invincibleFramesLeft,
+		e.isFrozen, e.frozenFramesLeft,
+		e.isBubbled, e.bubbledFramesLeft,
 		e.isBeingDragged,
 	}
 }
@@ -107,5 +129,30 @@ func (e *Entity) Step() {
 		}
 	}
 
-	// TODO: Add flags to check these timers.
+	if e.paralyzedFramesLeft > 0 {
+		e.isParalyzed = true
+	}
+	if e.confusedFramesLeft > 0 {
+		e.isConfused = true
+	}
+	if e.blindedFramesLeft > 0 && !e.isBlinded {
+		// Cannot be implicitly implied.
+		e.blindedFramesLeft = 0
+	}
+	if e.immobilizedFramesLeft > 0 && !e.isImmobilized {
+		// Cannot be implicitly implied.
+		e.immobilizedFramesLeft = 0
+	}
+	if e.flashingFramesLeft > 0 {
+		e.isFlashing = true
+	}
+	if e.invincibleFramesLeft > 0 {
+		e.isInvincible = true
+	}
+	if e.frozenFramesLeft > 0 {
+		e.isFrozen = true
+	}
+	if e.frozenFramesLeft > 0 {
+		e.isFrozen = true
+	}
 }
