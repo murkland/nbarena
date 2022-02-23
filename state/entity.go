@@ -63,7 +63,7 @@ func (e *Entity) Clone() *Entity {
 		e.invincibleFramesLeft,
 		e.frozenFramesLeft,
 		e.bubbledFramesLeft,
-		h,
+		e.currentHit,
 		e.isBeingDragged,
 		e.isSliding,
 	}
@@ -97,87 +97,86 @@ func (e *Entity) Appearance() draw.Node {
 	return e.appearance
 }
 
-func (e *Entity) Hit(h Hit) {
-	if h.ParalyzeFrames > 0 {
-		e.paralyzedFramesLeft = h.ParalyzeFrames
-		e.frozenFramesLeft = 0
-		e.bubbledFramesLeft = 0
-		e.confusedFramesLeft = 0
-		h.ConfuseFrames = 0
-	}
-	h.ParalyzeFrames = 0
-
-	if h.FreezeFrames > 0 {
-		e.frozenFramesLeft = h.FreezeFrames
-		e.bubbledFramesLeft = 0
-		e.confusedFramesLeft = 0
-		e.paralyzedFramesLeft = 0
-		h.BubbleFrames = 0
-		h.ConfuseFrames = 0
-	}
-	h.FreezeFrames = 0
-
-	if h.BubbleFrames > 0 {
-		e.bubbledFramesLeft = h.BubbleFrames
-		e.confusedFramesLeft = 0
-		e.paralyzedFramesLeft = 0
-		e.frozenFramesLeft = 0
-		e.confusedFramesLeft = 0
-		h.ConfuseFrames = 0
-	}
-	h.BubbleFrames = 0
-
-	if h.ConfuseFrames > 0 {
-		e.confusedFramesLeft = h.ConfuseFrames
-		e.paralyzedFramesLeft = 0
-		e.frozenFramesLeft = 0
-		e.bubbledFramesLeft = 0
-		h.FreezeFrames = 0
-		h.BubbleFrames = 0
-		h.ParalyzeFrames = 0
-	}
-	h.ConfuseFrames = 0
-
-	if h.ImmobilizeFrames > 0 {
-		e.immobilizedFramesLeft = h.ImmobilizeFrames
-	}
-	h.ImmobilizeFrames = 0
-
-	if h.BlindFrames > 0 {
-		e.blindedFramesLeft = h.BlindFrames
-	}
-	h.BlindFrames = 0
-}
-
 func (e *Entity) Step() {
 	// TODO: Handle action.
 
 	// Tick timers.
 	if !e.isBeingDragged /* && !e.isInTimestop */ {
+		// Process paralyzed.
 		if e.paralyzedFramesLeft > 0 {
+			if e.currentHit.ParalyzeFrames > 0 {
+				e.paralyzedFramesLeft = e.currentHit.ParalyzeFrames
+				e.currentHit.ConfuseFrames = 0
+			}
 			e.paralyzedFramesLeft--
+			e.frozenFramesLeft = 0
+			e.bubbledFramesLeft = 0
+			e.confusedFramesLeft = 0
 		}
+		e.currentHit.ParalyzeFrames = 0
 
+		// Process frozen.
 		if e.frozenFramesLeft > 0 {
+			if e.currentHit.FreezeFrames > 0 {
+				e.frozenFramesLeft = e.currentHit.FreezeFrames
+				e.currentHit.BubbleFrames = 0
+				e.currentHit.ConfuseFrames = 0
+				e.paralyzedFramesLeft = 0
+			}
 			e.frozenFramesLeft--
+			e.bubbledFramesLeft = 0
+			e.confusedFramesLeft = 0
 		}
+		e.currentHit.FreezeFrames = 0
 
+		// Process bubbled.
 		if e.bubbledFramesLeft > 0 {
+			if e.currentHit.BubbleFrames > 0 {
+				e.bubbledFramesLeft = e.currentHit.BubbleFrames
+				e.currentHit.ConfuseFrames = 0
+				e.confusedFramesLeft = 0
+				e.paralyzedFramesLeft = 0
+				e.frozenFramesLeft = 0
+			}
 			e.bubbledFramesLeft--
+			e.confusedFramesLeft = 0
 		}
+		e.currentHit.BubbleFrames = 0
 
+		// Process confused.
 		if e.confusedFramesLeft > 0 {
+			if e.currentHit.ConfuseFrames > 0 {
+				e.confusedFramesLeft = e.currentHit.ConfuseFrames
+				e.currentHit.FreezeFrames = 0
+				e.currentHit.BubbleFrames = 0
+				e.currentHit.ParalyzeFrames = 0
+				e.paralyzedFramesLeft = 0
+				e.frozenFramesLeft = 0
+				e.bubbledFramesLeft = 0
+			}
 			e.confusedFramesLeft--
 		}
+		e.currentHit.ConfuseFrames = 0
 
+		// Process immobilized.
 		if e.immobilizedFramesLeft > 0 {
+			if e.currentHit.ImmobilizeFrames > 0 {
+				e.immobilizedFramesLeft = e.currentHit.ImmobilizeFrames
+			}
 			e.immobilizedFramesLeft--
 		}
+		e.currentHit.ImmobilizeFrames = 0
 
+		// Process blinded.
 		if e.blindedFramesLeft > 0 {
+			if e.currentHit.BlindFrames > 0 {
+				e.blindedFramesLeft = e.currentHit.BlindFrames
+			}
 			e.blindedFramesLeft--
 		}
+		e.currentHit.BlindFrames = 0
 
+		// Process invincible.
 		if e.invincibleFramesLeft > 0 {
 			e.invincibleFramesLeft--
 		}
