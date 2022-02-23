@@ -6,12 +6,26 @@ import (
 )
 
 type Hit struct {
+	Damage int
+
 	ParalyzeFrames   int
 	ConfuseFrames    int
 	BlindFrames      int
 	ImmobilizeFrames int
 	FreezeFrames     int
 	BubbleFrames     int
+}
+
+func (h *Hit) Merge(h2 Hit) {
+	h.Damage += h2.Damage
+
+	// TODO: Verify this is correct behavior.
+	h.ParalyzeFrames = h2.ParalyzeFrames
+	h.ConfuseFrames = h2.ConfuseFrames
+	h.BlindFrames = h2.BlindFrames
+	h.ImmobilizeFrames = h2.ImmobilizeFrames
+	h.FreezeFrames = h2.FreezeFrames
+	h.BubbleFrames = h2.BubbleFrames
 }
 
 type Entity struct {
@@ -41,7 +55,7 @@ type Entity struct {
 	frozenFramesLeft      int
 	bubbledFramesLeft     int
 
-	currentHit *Hit
+	currentHit Hit
 
 	isBeingDragged bool
 	isSliding      bool
@@ -100,88 +114,116 @@ func (e *Entity) Appearance() draw.Node {
 func (e *Entity) Step() {
 	// TODO: Handle action.
 
+	// TODO: Process poison damage.
+
+	// Process hit damage.
+	mustLeave1HP := e.hp > 1 && e.fatalHitLeaves1HP
+	e.hp -= e.currentHit.Damage
+	if e.hp < 0 {
+		e.hp = 0
+	}
+	if mustLeave1HP {
+		e.hp = 1
+	}
+	e.currentHit.Damage = 0
+
 	// Tick timers.
-	if e.currentHit != nil {
-		if !e.isBeingDragged /* && !e.isInTimestop */ {
-			// Process paralyzed.
-			if e.paralyzedFramesLeft > 0 {
-				if e.currentHit.ParalyzeFrames > 0 {
-					e.paralyzedFramesLeft = e.currentHit.ParalyzeFrames
-					e.currentHit.ConfuseFrames = 0
-				}
-				e.paralyzedFramesLeft--
-				e.frozenFramesLeft = 0
-				e.bubbledFramesLeft = 0
-				e.confusedFramesLeft = 0
-			}
-			e.currentHit.ParalyzeFrames = 0
-
-			// Process frozen.
-			if e.frozenFramesLeft > 0 {
-				if e.currentHit.FreezeFrames > 0 {
-					e.frozenFramesLeft = e.currentHit.FreezeFrames
-					e.currentHit.BubbleFrames = 0
-					e.currentHit.ConfuseFrames = 0
-					e.paralyzedFramesLeft = 0
-				}
-				e.frozenFramesLeft--
-				e.bubbledFramesLeft = 0
-				e.confusedFramesLeft = 0
-			}
-			e.currentHit.FreezeFrames = 0
-
-			// Process bubbled.
-			if e.bubbledFramesLeft > 0 {
-				if e.currentHit.BubbleFrames > 0 {
-					e.bubbledFramesLeft = e.currentHit.BubbleFrames
-					e.currentHit.ConfuseFrames = 0
-					e.confusedFramesLeft = 0
-					e.paralyzedFramesLeft = 0
-					e.frozenFramesLeft = 0
-				}
-				e.bubbledFramesLeft--
-				e.confusedFramesLeft = 0
-			}
-			e.currentHit.BubbleFrames = 0
-
-			// Process confused.
-			if e.confusedFramesLeft > 0 {
-				if e.currentHit.ConfuseFrames > 0 {
-					e.confusedFramesLeft = e.currentHit.ConfuseFrames
-					e.currentHit.FreezeFrames = 0
-					e.currentHit.BubbleFrames = 0
-					e.currentHit.ParalyzeFrames = 0
-					e.paralyzedFramesLeft = 0
-					e.frozenFramesLeft = 0
-					e.bubbledFramesLeft = 0
-				}
-				e.confusedFramesLeft--
-			}
+	if !e.isBeingDragged /* && !e.isInTimestop */ {
+		// Process paralyzed.
+		if e.currentHit.ParalyzeFrames > 0 {
+			e.paralyzedFramesLeft = e.currentHit.ParalyzeFrames
 			e.currentHit.ConfuseFrames = 0
+			e.currentHit.ParalyzeFrames = 0
+		}
+		if e.paralyzedFramesLeft > 0 {
+			e.paralyzedFramesLeft--
+			e.frozenFramesLeft = 0
+			e.bubbledFramesLeft = 0
+			e.confusedFramesLeft = 0
+		}
 
-			// Process immobilized.
-			if e.immobilizedFramesLeft > 0 {
-				if e.currentHit.ImmobilizeFrames > 0 {
-					e.immobilizedFramesLeft = e.currentHit.ImmobilizeFrames
-				}
-				e.immobilizedFramesLeft--
-			}
+		// Process frozen.
+		if e.currentHit.FreezeFrames > 0 {
+			e.frozenFramesLeft = e.currentHit.FreezeFrames
+			e.paralyzedFramesLeft = 0
+			e.currentHit.BubbleFrames = 0
+			e.currentHit.ConfuseFrames = 0
+			e.currentHit.FreezeFrames = 0
+		}
+		if e.frozenFramesLeft > 0 {
+			e.frozenFramesLeft--
+			e.bubbledFramesLeft = 0
+			e.confusedFramesLeft = 0
+		}
+
+		// Process bubbled.
+		if e.currentHit.BubbleFrames > 0 {
+			e.bubbledFramesLeft = e.currentHit.BubbleFrames
+			e.confusedFramesLeft = 0
+			e.paralyzedFramesLeft = 0
+			e.frozenFramesLeft = 0
+			e.currentHit.ConfuseFrames = 0
+			e.currentHit.BubbleFrames = 0
+		}
+		if e.bubbledFramesLeft > 0 {
+			e.bubbledFramesLeft--
+			e.confusedFramesLeft = 0
+		}
+
+		// Process confused.
+		if e.currentHit.ConfuseFrames > 0 {
+			e.confusedFramesLeft = e.currentHit.ConfuseFrames
+			e.paralyzedFramesLeft = 0
+			e.frozenFramesLeft = 0
+			e.bubbledFramesLeft = 0
+			e.currentHit.FreezeFrames = 0
+			e.currentHit.BubbleFrames = 0
+			e.currentHit.ParalyzeFrames = 0
+			e.currentHit.ConfuseFrames = 0
+		}
+		if e.confusedFramesLeft > 0 {
+			e.confusedFramesLeft--
+		}
+
+		// Process immobilized.
+		if e.currentHit.ImmobilizeFrames > 0 {
+			e.immobilizedFramesLeft = e.currentHit.ImmobilizeFrames
 			e.currentHit.ImmobilizeFrames = 0
+		}
+		if e.immobilizedFramesLeft > 0 {
+			e.immobilizedFramesLeft--
+		}
 
-			// Process blinded.
-			if e.blindedFramesLeft > 0 {
-				if e.currentHit.BlindFrames > 0 {
-					e.blindedFramesLeft = e.currentHit.BlindFrames
-				}
-				e.blindedFramesLeft--
-			}
+		// Process blinded.
+		if e.currentHit.BlindFrames > 0 {
+			e.blindedFramesLeft = e.currentHit.BlindFrames
 			e.currentHit.BlindFrames = 0
+		}
+		if e.blindedFramesLeft > 0 {
+			e.blindedFramesLeft--
+		}
 
-			// Process invincible.
-			if e.invincibleFramesLeft > 0 {
-				e.invincibleFramesLeft--
+		// Process invincible.
+		if e.invincibleFramesLeft > 0 {
+			e.invincibleFramesLeft--
+		}
+	}
+
+	// Update UI.
+	if e.displayHP != nil {
+		dhp := *e.displayHP - e.hp
+		var newDisplayHP int
+		if dhp < 0 {
+			newDisplayHP := *e.displayHP - (dhp >> 3) + 2
+			if newDisplayHP < e.hp {
+				newDisplayHP = e.hp
+			}
+		} else {
+			newDisplayHP := *e.displayHP + (dhp >> 3) + 2
+			if newDisplayHP > e.hp {
+				newDisplayHP = e.hp
 			}
 		}
-		e.currentHit = nil
+		*e.displayHP = newDisplayHP
 	}
 }
