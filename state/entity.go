@@ -5,6 +5,15 @@ import (
 	"github.com/yumland/yumbattle/draw"
 )
 
+type Hit struct {
+	ParalyzeFrames   int
+	ConfuseFrames    int
+	BlindFrames      int
+	ImmobilizeFrames int
+	FreezeFrames     int
+	BubbleFrames     int
+}
+
 type Entity struct {
 	appearance draw.Node
 
@@ -23,31 +32,19 @@ type Entity struct {
 	cannotFlinch           bool
 	fatalHitLeaves1HP      bool
 
-	isParalyzed         bool
-	paralyzedFramesLeft uint16
+	paralyzedFramesLeft   int
+	confusedFramesLeft    int
+	blindedFramesLeft     int
+	immobilizedFramesLeft int
+	flashingFramesLeft    int
+	invincibleFramesLeft  int
+	frozenFramesLeft      int
+	bubbledFramesLeft     int
 
-	isConfused         bool
-	confusedFramesLeft uint16
-
-	isBlinded         bool
-	blindedFramesLeft uint16
-
-	isImmobilized         bool
-	immobilizedFramesLeft uint16
-
-	isFlashing         bool
-	flashingFramesLeft uint16
-
-	isInvincible         bool
-	invincibleFramesLeft uint16
-
-	isFrozen         bool
-	frozenFramesLeft uint16
-
-	isBubbled         bool
-	bubbledFramesLeft uint16
+	currentHit Hit
 
 	isBeingDragged bool
+	isSliding      bool
 }
 
 func (e *Entity) Clone() *Entity {
@@ -58,15 +55,17 @@ func (e *Entity) Clone() *Entity {
 		e.isFlipped,
 		e.hp, clone.Shallow(e.displayHP),
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
-		e.isParalyzed, e.paralyzedFramesLeft,
-		e.isConfused, e.confusedFramesLeft,
-		e.isBlinded, e.blindedFramesLeft,
-		e.isImmobilized, e.immobilizedFramesLeft,
-		e.isFlashing, e.flashingFramesLeft,
-		e.isInvincible, e.invincibleFramesLeft,
-		e.isFrozen, e.frozenFramesLeft,
-		e.isBubbled, e.bubbledFramesLeft,
+		e.paralyzedFramesLeft,
+		e.confusedFramesLeft,
+		e.blindedFramesLeft,
+		e.immobilizedFramesLeft,
+		e.flashingFramesLeft,
+		e.invincibleFramesLeft,
+		e.frozenFramesLeft,
+		e.bubbledFramesLeft,
+		h,
 		e.isBeingDragged,
+		e.isSliding,
 	}
 }
 
@@ -98,85 +97,89 @@ func (e *Entity) Appearance() draw.Node {
 	return e.appearance
 }
 
+func (e *Entity) Hit(h Hit) {
+	if h.ParalyzeFrames > 0 {
+		e.paralyzedFramesLeft = h.ParalyzeFrames
+		e.frozenFramesLeft = 0
+		e.bubbledFramesLeft = 0
+		e.confusedFramesLeft = 0
+		h.ConfuseFrames = 0
+	}
+	h.ParalyzeFrames = 0
+
+	if h.FreezeFrames > 0 {
+		e.frozenFramesLeft = h.FreezeFrames
+		e.bubbledFramesLeft = 0
+		e.confusedFramesLeft = 0
+		e.paralyzedFramesLeft = 0
+		h.BubbleFrames = 0
+		h.ConfuseFrames = 0
+	}
+	h.FreezeFrames = 0
+
+	if h.BubbleFrames > 0 {
+		e.bubbledFramesLeft = h.BubbleFrames
+		e.confusedFramesLeft = 0
+		e.paralyzedFramesLeft = 0
+		e.frozenFramesLeft = 0
+		e.confusedFramesLeft = 0
+		h.ConfuseFrames = 0
+	}
+	h.BubbleFrames = 0
+
+	if h.ConfuseFrames > 0 {
+		e.confusedFramesLeft = h.ConfuseFrames
+		e.paralyzedFramesLeft = 0
+		e.frozenFramesLeft = 0
+		e.bubbledFramesLeft = 0
+		h.FreezeFrames = 0
+		h.BubbleFrames = 0
+		h.ParalyzeFrames = 0
+	}
+	h.ConfuseFrames = 0
+
+	if h.ImmobilizeFrames > 0 {
+		e.immobilizedFramesLeft = h.ImmobilizeFrames
+	}
+	h.ImmobilizeFrames = 0
+
+	if h.BlindFrames > 0 {
+		e.blindedFramesLeft = h.BlindFrames
+	}
+	h.BlindFrames = 0
+}
+
 func (e *Entity) Step() {
 	// TODO: Handle action.
 
 	// Tick timers.
-	if !e.isBeingDragged /* && !e.isFrozen */ {
+	if !e.isBeingDragged /* && !e.isInTimestop */ {
 		if e.paralyzedFramesLeft > 0 {
 			e.paralyzedFramesLeft--
-			if e.paralyzedFramesLeft <= 0 {
-				e.isParalyzed = false
-			}
 		}
-		if e.confusedFramesLeft > 0 {
-			e.confusedFramesLeft--
-			if e.confusedFramesLeft <= 0 {
-				e.isConfused = false
-			}
-		}
-		if e.blindedFramesLeft > 0 {
-			e.blindedFramesLeft--
-			if e.blindedFramesLeft <= 0 {
-				e.isBlinded = false
-			}
-		}
-		if e.immobilizedFramesLeft > 0 {
-			e.immobilizedFramesLeft--
-			if e.immobilizedFramesLeft <= 0 {
-				e.isImmobilized = false
-			}
-		}
-		if e.flashingFramesLeft > 0 {
-			e.flashingFramesLeft--
-			if e.flashingFramesLeft <= 0 {
-				e.isFlashing = false
-			}
-		}
-		if e.invincibleFramesLeft > 0 {
-			e.invincibleFramesLeft--
-			if e.invincibleFramesLeft <= 0 {
-				e.isInvincible = false
-			}
-		}
+
 		if e.frozenFramesLeft > 0 {
 			e.frozenFramesLeft--
-			if e.frozenFramesLeft <= 0 {
-				e.isFrozen = false
-			}
 		}
+
 		if e.bubbledFramesLeft > 0 {
 			e.bubbledFramesLeft--
-			if e.bubbledFramesLeft <= 0 {
-				e.isBubbled = false
-			}
 		}
-	}
 
-	if e.paralyzedFramesLeft > 0 {
-		e.isParalyzed = true
-	}
-	if e.confusedFramesLeft > 0 {
-		e.isConfused = true
-	}
-	if e.blindedFramesLeft > 0 && !e.isBlinded {
-		// Must set flag explicitly.
-		e.blindedFramesLeft = 0
-	}
-	if e.immobilizedFramesLeft > 0 && !e.isImmobilized {
-		// Must set flag explicitly.
-		e.immobilizedFramesLeft = 0
-	}
-	if e.flashingFramesLeft > 0 {
-		e.isFlashing = true
-	}
-	if e.invincibleFramesLeft > 0 {
-		e.isInvincible = true
-	}
-	if e.frozenFramesLeft > 0 {
-		e.isFrozen = true
-	}
-	if e.bubbledFramesLeft > 0 {
-		e.isBubbled = true
+		if e.confusedFramesLeft > 0 {
+			e.confusedFramesLeft--
+		}
+
+		if e.immobilizedFramesLeft > 0 {
+			e.immobilizedFramesLeft--
+		}
+
+		if e.blindedFramesLeft > 0 {
+			e.blindedFramesLeft--
+		}
+
+		if e.invincibleFramesLeft > 0 {
+			e.invincibleFramesLeft--
+		}
 	}
 }
