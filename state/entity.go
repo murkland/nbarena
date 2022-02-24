@@ -1,7 +1,7 @@
 package state
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
@@ -34,6 +34,9 @@ func (h *Hit) Merge(h2 Hit) {
 }
 
 type Entity struct {
+	behaviorElapsed int
+	behavior        EntityBehavior
+
 	tilePos       TilePos
 	futureTilePos TilePos
 
@@ -69,6 +72,7 @@ type Entity struct {
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
+		e.behaviorElapsed, clone.Interface[EntityBehavior](e.behavior),
 		e.tilePos, e.futureTilePos,
 		e.isAlliedWithAnswerer,
 		e.isFlipped,
@@ -88,6 +92,11 @@ func (e *Entity) Clone() *Entity {
 		e.isBeingDragged,
 		e.isSliding,
 	}
+}
+
+func (e *Entity) SetBehavior(behavior EntityBehavior) {
+	e.behaviorElapsed = 0
+	e.behavior = behavior
 }
 
 func (e *Entity) TilePos() TilePos {
@@ -123,9 +132,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.isFlipped {
 		characterNode.Opts.GeoM.Scale(-1, 1)
 	}
-	anim := b.Megaman.Info.Animations[0]
-	frame := b.Megaman.Info.Frames[anim.Frames[0]]
-	characterNode.Children = append(characterNode.Children, draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin))
+	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
 	rootNode.Children = append(rootNode.Children, characterNode)
 
 	return rootNode
@@ -153,6 +160,10 @@ func (e *Entity) Step() {
 	e.currentHit.Damage = 0
 
 	// Tick timers.
+	// TODO: Verify this behavior is correct.
+	e.behaviorElapsed++
+	e.behavior.Step(e)
+
 	if !e.currentHit.Drag {
 		if !e.isBeingDragged /* && !e.isInTimestop */ {
 			// Process flashing.

@@ -29,14 +29,17 @@ func New(randSource *syncrand.Source) State {
 	field := newField()
 	entities := map[int]*Entity{
 		OffererEntityID: {
+			behavior:      &IdleEntityBehavior{},
 			tilePos:       TilePosXY(2, 2),
 			futureTilePos: TilePosXY(2, 2),
 		},
 		AnswererEntityID: {
 			isFlipped:            true,
 			isAlliedWithAnswerer: true,
-			tilePos:              TilePosXY(5, 2),
-			futureTilePos:        TilePosXY(5, 2),
+
+			behavior:      &IdleEntityBehavior{},
+			tilePos:       TilePosXY(5, 2),
+			futureTilePos: TilePosXY(5, 2),
 		},
 	}
 
@@ -61,30 +64,32 @@ func (s State) Clone() State {
 }
 
 func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool) {
-	dir := intent.Direction
-	if e.confusedFramesLeft > 0 {
-		dir = dir.FlipH().FlipV()
-	}
+	if _, ok := e.behavior.(*IdleEntityBehavior); ok {
+		dir := intent.Direction
+		if e.confusedFramesLeft > 0 {
+			dir = dir.FlipH().FlipV()
+		}
 
-	x, y := e.tilePos.XY()
-	if dir&input.DirectionLeft != 0 {
-		x--
-	}
-	if dir&input.DirectionRight != 0 {
-		x++
-	}
-	if dir&input.DirectionUp != 0 {
-		y--
-	}
-	if dir&input.DirectionDown != 0 {
-		y++
-	}
+		x, y := e.tilePos.XY()
+		if dir&input.DirectionLeft != 0 {
+			x--
+		}
+		if dir&input.DirectionRight != 0 {
+			x++
+		}
+		if dir&input.DirectionUp != 0 {
+			y--
+		}
+		if dir&input.DirectionDown != 0 {
+			y++
+		}
 
-	tilePos := TilePosXY(x, y)
-	tile := &s.field.tiles[tilePos]
-	if e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
-		e.futureTilePos = tilePos
-		// TODO: Switch behavior.
+		tilePos := TilePosXY(x, y)
+		tile := &s.field.tiles[tilePos]
+		if tilePos != e.tilePos && e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
+			e.futureTilePos = tilePos
+			e.SetBehavior(&MoveEntityBehavior{})
+		}
 	}
 }
 

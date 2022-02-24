@@ -8,15 +8,15 @@ import (
 )
 
 type Tile struct {
-	behaviorElapsedTime int
-	behavior            TileBehavior
+	behaviorElapsed int
+	behavior        TileBehavior
 
 	isAlliedWithAnswerer bool
 }
 
 func (t Tile) Clone() Tile {
 	return Tile{
-		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
+		t.behaviorElapsed, clone.Interface[TileBehavior](t.behavior),
 		t.isAlliedWithAnswerer,
 	}
 }
@@ -29,6 +29,7 @@ func (t *Tile) CanEnter(e *Entity) bool {
 }
 
 func (t *Tile) SetBehavior(b TileBehavior) {
+	t.behaviorElapsed = 0
 	t.behavior = b
 }
 
@@ -41,7 +42,7 @@ func (t *Tile) Step() {
 		return
 	}
 
-	t.behaviorElapsedTime++
+	t.behaviorElapsed++
 	t.behavior.Step(t)
 }
 
