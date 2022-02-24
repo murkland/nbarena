@@ -1,7 +1,6 @@
 package state
 
 import (
-	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/draw"
 )
 
@@ -33,8 +32,6 @@ func (h *Hit) Merge(h2 Hit) {
 }
 
 type Entity struct {
-	appearance draw.Node
-
 	tilePos       TilePos
 	futureTilePos TilePos
 
@@ -42,8 +39,10 @@ type Entity struct {
 
 	isFlipped bool
 
+	isDeleted bool
+
 	hp        int
-	displayHP *int
+	displayHP int
 
 	canStepOnHoleLikeTiles bool
 	ignoresTileEffects     bool
@@ -61,17 +60,18 @@ type Entity struct {
 
 	currentHit Hit
 
+	isAngry        bool
 	isBeingDragged bool
 	isSliding      bool
 }
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
-		e.appearance, // Appearances are not cloned: they are considered immutable enough.
 		e.tilePos, e.futureTilePos,
 		e.isAlliedWithAnswerer,
 		e.isFlipped,
-		e.hp, clone.Shallow(e.displayHP),
+		e.isDeleted,
+		e.hp, e.displayHP,
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
 		e.paralyzedFramesLeft,
 		e.confusedFramesLeft,
@@ -82,6 +82,7 @@ func (e *Entity) Clone() *Entity {
 		e.frozenFramesLeft,
 		e.bubbledFramesLeft,
 		e.currentHit,
+		e.isAngry,
 		e.isBeingDragged,
 		e.isSliding,
 	}
@@ -112,11 +113,16 @@ func (e *Entity) IgnoresTileEffects() bool {
 }
 
 func (e *Entity) Appearance() draw.Node {
-	return e.appearance
+	return nil
 }
 
 func (e *Entity) Step() {
 	// TODO: Handle action.
+
+	// Set anger, if required.
+	if e.currentHit.Damage >= 300 {
+		e.isAngry = true
+	}
 
 	// TODO: Process poison damage.
 
@@ -241,20 +247,20 @@ func (e *Entity) Step() {
 	}
 
 	// Update UI.
-	if e.displayHP != nil {
-		dhp := *e.displayHP - e.hp
+	if e.displayHP != 0 {
 		var newDisplayHP int
+		dhp := e.displayHP - e.hp
 		if dhp < 0 {
-			newDisplayHP := *e.displayHP - (dhp >> 3) + 2
+			newDisplayHP := e.displayHP - (-dhp >> 3) + 2
 			if newDisplayHP < e.hp {
 				newDisplayHP = e.hp
 			}
 		} else {
-			newDisplayHP := *e.displayHP + (dhp >> 3) + 2
+			newDisplayHP := e.displayHP + (dhp >> 3) + 2
 			if newDisplayHP > e.hp {
 				newDisplayHP = e.hp
 			}
 		}
-		*e.displayHP = newDisplayHP
+		e.displayHP = newDisplayHP
 	}
 }

@@ -258,7 +258,7 @@ func (g *Game) Update() error {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
-	if g.cs.outgoingIntents.Free() == 0 {
+	if g.cs.outgoingIntents.Used() >= int(g.medianDelay()*time.Duration(ebiten.MaxTPS())/2/time.Second+1) {
 		// Pause until we have enough space.
 		return nil
 	}

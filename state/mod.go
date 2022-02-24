@@ -59,7 +59,7 @@ func (s State) Clone() State {
 
 func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool) {
 	dir := intent.Direction
-	if e.isConfused {
+	if e.confusedFramesLeft > 0 {
 		dir = dir.FlipH().FlipV()
 	}
 
