@@ -83,8 +83,8 @@ func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool
 	tilePos := TilePosXY(x, y)
 	tile := &s.field.tiles[tilePos]
 	if e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
-		//e.futureTilePos = tilePos
-		e.tilePos = tilePos
+		e.futureTilePos = tilePos
+		// TODO: Switch behavior.
 	}
 }
 
