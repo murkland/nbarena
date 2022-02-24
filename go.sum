@@ -115,6 +115,14 @@ github.com/yumland/clone v0.0.0-20220221223031-811338b75512 h1:tXoOEvWUFEWvAN0cC
 github.com/yumland/clone v0.0.0-20220221223031-811338b75512/go.mod h1:kSrmMLPKmihL4c3Yakj7vJRefVC82oMuyVD8m6AECak=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a h1:DMRrQnzpzNzvraH+PiFWy9dKzWd7iR3qLo1VRmonBkY=
 github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a/go.mod h1:bGxs2wfpMOkoPIaPxbKTmSpItIsZmAd78A3mzs3WGTQ=
+github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 h1:y1KJloRWYkATfDAl3opJi1/kzH6dmjNvUpOn51oaQSw=
+github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499/go.mod h1:U09K8Yc+Ai/d5U2SO0gHBM+5eJ3dy6jBBvsmr8FVr0w=
+github.com/yumland/pngsheet v0.0.0-20220222030648-e90cbe6baafc h1:hmrzg267ml+ZTsBTbezQeD2qTPKFkkWRxJayKu3nYf8=
+github.com/yumland/pngsheet v0.0.0-20220222030648-e90cbe6baafc/go.mod h1:KycDP348HxK0ZCPxWeGOiOpcZdC6Fbj3txk0BvDigEw=
+github.com/yumland/pngsheet v0.0.0-20220224052604-82ffd74a2554 h1:cOdcDOgQYsVdKrX2TtRUkl/AO3XqhA6UJpkv0avVl9c=
+github.com/yumland/pngsheet v0.0.0-20220224052604-82ffd74a2554/go.mod h1:KycDP348HxK0ZCPxWeGOiOpcZdC6Fbj3txk0BvDigEw=
+github.com/yumland/pngsheet v0.0.0-20220224053521-b2ca166258e1 h1:5RIfjvmWulhG/B4ELdddVa9QeSZWcEAdvafrdS/6ULM=
+github.com/yumland/pngsheet v0.0.0-20220224053521-b2ca166258e1/go.mod h1:KycDP348HxK0ZCPxWeGOiOpcZdC6Fbj3txk0BvDigEw=
 github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6 h1:a3Edf+vILfuzQVdOOor/46J0nSqa8ML9proBcXIKyys=
 github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6/go.mod h1:vivnnl/AoVLEWtaJsVcZTHXKgFsxzWcI1Wb8ueM5U64=
 github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0 h1:5lhyhDt4c4lvvgIG+rwIF+MK4VbAV00GzxASvHTNa8k=
@@ -137,6 +145,8 @@ golang.org/x/image v0.0.0-20190703141733-d6a02ce849c9/go.mod h1:FeLwcggjj3mMvU+o
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d h1:RNPAfi2nHY7C2srAV8A49jpsYr0ADedCk1wq6fTMTvs=
 golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d/go.mod h1:023OzeP/+EPmXeapQh35lcL3II3LrY8Ic+EFFKVhULM=
+golang.org/x/image v0.0.0-20211028202545-6944b10bf410 h1:hTftEOvwiOq2+O8k2D5/Q7COC7k5Qcrgc2TFURJYnvQ=
+golang.org/x/image v0.0.0-20211028202545-6944b10bf410/go.mod h1:023OzeP/+EPmXeapQh35lcL3II3LrY8Ic+EFFKVhULM=
 golang.org/x/mobile v0.0.0-20190312151609-d3739f865fa6/go.mod h1:z+o9i4GpDbdi3rU15maQ/Ox0txvL9dWGYEHz965HBQE=
 golang.org/x/mobile v0.0.0-20190415191353-3e0bab5405d6/go.mod h1:E/iHnbuqvinMTCcRqshq8CkpyQDoeVncDDYHnLhea+o=
 golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 h1:peBP2oZO/xVnGMaWMCyFEI0WENsGj71wx5K12mRELHQ=

@@ -1,6 +1,8 @@
 package draw
 
 import (
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
@@ -11,12 +13,12 @@ type Node interface {
 }
 
 type OptionsNode struct {
-	Opts     *ebiten.DrawImageOptions
+	Opts     ebiten.DrawImageOptions
 	Children []Node
 }
 
 func (n OptionsNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
-	o := *n.Opts
+	o := n.Opts
 	o.GeoM.Concat(opts.GeoM)
 	o.ColorM.Concat(opts.ColorM)
 
@@ -31,6 +33,16 @@ type ImageNode struct {
 
 func (n ImageNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
 	screen.DrawImage(n.Image, opts)
+}
+
+func ImageWithOrigin(img *ebiten.Image, origin image.Point) Node {
+	node := OptionsNode{Children: []Node{
+		ImageNode{
+			Image: img,
+		},
+	}}
+	node.Opts.GeoM.Translate(float64(-origin.X), float64(-origin.Y))
+	return node
 }
 
 type TextNode struct {

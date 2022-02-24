@@ -11,6 +11,7 @@ import (
 	"github.com/yumland/clone"
 	"github.com/yumland/ctxwebrtc"
 	signorclient "github.com/yumland/signor/client"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/game"
 	"github.com/yumland/yumbattle/netsyncrand"
 )
@@ -26,6 +27,11 @@ func main() {
 
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
+
+	b, err := bundle.Load()
+	if err != nil {
+		log.Fatalf("failed to load bundle: %s", err)
+	}
 
 	peerConn, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -61,7 +67,7 @@ func main() {
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	g := game.New(dc, randSource, isOfferer)
+	g := game.New(b, dc, randSource, isOfferer)
 	go func() {
 		if err := g.RunBackgroundTasks(ctx); err != nil {
 			log.Fatalf("error running background tasks: %s", err)

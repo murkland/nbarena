@@ -6,6 +6,7 @@ import (
 
 	"github.com/yumland/clone"
 	"github.com/yumland/syncrand"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/input"
 )
@@ -32,8 +33,10 @@ func New(randSource *syncrand.Source) State {
 			futureTilePos: TilePosXY(2, 2),
 		},
 		AnswererEntityID: {
-			tilePos:       TilePosXY(5, 2),
-			futureTilePos: TilePosXY(5, 2),
+			isFlipped:            true,
+			isAlliedWithAnswerer: true,
+			tilePos:              TilePosXY(5, 2),
+			futureTilePos:        TilePosXY(5, 2),
 		},
 	}
 
@@ -80,7 +83,8 @@ func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool
 	tilePos := TilePosXY(x, y)
 	tile := &s.field.tiles[tilePos]
 	if e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
-		e.futureTilePos = tilePos
+		//e.futureTilePos = tilePos
+		e.tilePos = tilePos
 	}
 }
 
@@ -133,8 +137,29 @@ func (s *State) Step() {
 	s.field.Step()
 }
 
-func (s *State) DrawNode() draw.Node {
+const (
+	fieldOffsetTopFull = 87
+	fieldOffsetTop     = 72
+)
+
+func (s *State) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, s.field.DrawNode())
+	rootNode.Opts.GeoM.Translate(0, fieldOffsetTopFull)
+	{
+		tilesNode := draw.OptionsNode{}
+		tilesNode.Children = append(tilesNode.Children, s.field.Appearance(b))
+		rootNode.Children = append(rootNode.Children, tilesNode)
+	}
+	{
+		entitiesNode := draw.OptionsNode{}
+		for _, entity := range s.entities {
+			node := entity.Appearance(b)
+			if node == nil {
+				continue
+			}
+			entitiesNode.Children = append(entitiesNode.Children, node)
+		}
+		rootNode.Children = append(rootNode.Children, entitiesNode)
+	}
 	return rootNode
 }

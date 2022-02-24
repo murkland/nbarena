@@ -11,6 +11,7 @@ import (
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
@@ -97,11 +98,13 @@ type Game struct {
 	cs   *clientState
 	csMu sync.Mutex
 
+	bundle *bundle.Bundle
+
 	delayRingbuf   *ringbuf.RingBuf[time.Duration]
 	delayRingbufMu sync.RWMutex
 }
 
-func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game {
+func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game {
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("yumbattle")
 	const defaultScale = 4
@@ -110,7 +113,8 @@ func New(dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game 
 	s := state.New(rng)
 
 	g := &Game{
-		dc: dc,
+		bundle: b,
+		dc:     dc,
 		cs: &clientState{
 			isOfferer: isOfferer,
 
@@ -242,15 +246,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
-	rootNode := draw.OptionsNode{Opts: &ebiten.DrawImageOptions{}}
-
-	sceneNode := draw.OptionsNode{Opts: &ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	rootNode := draw.OptionsNode{}
+	sceneNode := draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
 	rootNode.Children = append(rootNode.Children, sceneNode)
-
-	rootNode.Children = append(sceneNode.Children, g.makeDebugDrawNode())
-
-	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.DrawNode())
-
+	rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
 	rootNode.Draw(screen, &ebiten.DrawImageOptions{})
 }
 

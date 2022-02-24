@@ -1,7 +1,9 @@
 package state
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/clone"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
 
@@ -43,6 +45,17 @@ func (t *Tile) Step() {
 	t.behavior.Step(t)
 }
 
+func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
+	if t.behavior == nil {
+		return nil
+	}
+	tiles := b.Battletiles.OffererTiles
+	if t.isAlliedWithAnswerer {
+		tiles = b.Battletiles.AnswererTiles
+	}
+	return t.behavior.Appearance(t, y, b, tiles)
+}
+
 const tileRows = 5
 const tileCols = 8
 
@@ -58,7 +71,7 @@ func (p TilePos) XY() (int, int) {
 
 type TileBehavior interface {
 	clone.Cloner[TileBehavior]
-	Appearance(t *Tile) draw.Node
+	Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node
 	CanEnter(t *Tile, e *Entity) bool
 	OnEnter(t *Tile, e *Entity)
 	OnLeave(t *Tile, e *Entity)
@@ -72,7 +85,7 @@ func (tb *HoleTileBehavior) Clone() TileBehavior {
 	return &HoleTileBehavior{}
 }
 
-func (tb *HoleTileBehavior) Appearance(t *Tile) draw.Node {
+func (tb *HoleTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
 	return nil
 }
 
@@ -91,7 +104,7 @@ func (tb *BrokenTileBehavior) Clone() TileBehavior {
 	return &BrokenTileBehavior{tb.returnToNormalTimeLeft}
 }
 
-func (tb *BrokenTileBehavior) Appearance(t *Tile) draw.Node {
+func (tb *BrokenTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
 	return nil
 }
 
@@ -117,8 +130,10 @@ func (tb *NormalTileBehavior) Clone() TileBehavior {
 	return &NormalTileBehavior{}
 }
 
-func (tb *NormalTileBehavior) Appearance(t *Tile) draw.Node {
-	return nil
+func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
+	anim := b.Battletiles.Info.Animations[2*3+(y-1)]
+	frame := b.Battletiles.Info.Frames[anim.Frames[0]]
+	return draw.ImageWithOrigin(tiles.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
 
 func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {
@@ -135,7 +150,7 @@ func (tb *CrackedTile) Clone() TileBehavior {
 	return &CrackedTile{}
 }
 
-func (tb *CrackedTile) Appearance(t *Tile) draw.Node {
+func (tb *CrackedTile) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
 	return nil
 }
 

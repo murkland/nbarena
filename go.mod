@@ -7,13 +7,14 @@ require (
 	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
+	github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
 	golang.org/x/text v0.3.7 // indirect
@@ -41,6 +42,7 @@ require (
 	github.com/pion/webrtc/v3 v3.1.23
 	github.com/twitchtv/twirp v8.1.1+incompatible // indirect
 	github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a
+	github.com/yumland/pngsheet v0.0.0-20220224053521-b2ca166258e1
 	github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6
 	golang.org/x/crypto v0.0.0-20220213190939-1e6e3497d506 // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect

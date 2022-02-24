@@ -1,6 +1,8 @@
 package state
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
 
@@ -112,8 +114,21 @@ func (e *Entity) IgnoresTileEffects() bool {
 	return e.ignoresTileEffects
 }
 
-func (e *Entity) Appearance() draw.Node {
-	return nil
+func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
+	var rootNode draw.OptionsNode
+	x, y := e.tilePos.XY()
+	rootNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth+tileRenderedWidth/2), float64((y-1)*tileRenderedHeight+tileRenderedHeight/2))
+
+	var characterNode draw.OptionsNode
+	if e.isFlipped {
+		characterNode.Opts.GeoM.Scale(-1, 1)
+	}
+	anim := b.Megaman.Info.Animations[0]
+	frame := b.Megaman.Info.Frames[anim.Frames[0]]
+	characterNode.Children = append(characterNode.Children, draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin))
+	rootNode.Children = append(rootNode.Children, characterNode)
+
+	return rootNode
 }
 
 func (e *Entity) Step() {

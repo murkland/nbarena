@@ -2,6 +2,7 @@ package state
 
 import (
 	"github.com/yumland/clone"
+	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
 
@@ -55,6 +56,24 @@ func (f *Field) Step() {
 	}
 }
 
-func (f *Field) DrawNode() draw.Node {
-	return draw.OptionsNode{}
+const (
+	tileRenderedWidth  = 40
+	tileRenderedHeight = 24
+)
+
+func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
+	optsNode := draw.OptionsNode{}
+	for i, tile := range f.tiles {
+		x, y := TilePos(i).XY()
+		node := tile.Appearance(y, b)
+		if node == nil {
+			continue
+		}
+
+		childNode := draw.OptionsNode{}
+		childNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth), float64((y-1)*tileRenderedHeight))
+		childNode.Children = append(childNode.Children, node)
+		optsNode.Children = append(optsNode.Children, childNode)
+	}
+	return optsNode
 }

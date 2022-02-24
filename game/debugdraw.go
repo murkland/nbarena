@@ -45,7 +45,7 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 
 	delay := g.medianDelay()
 	return draw.OptionsNode{
-		Opts: &ebiten.DrawImageOptions{
+		Opts: ebiten.DrawImageOptions{
 			GeoM:   geoM,
 			ColorM: colorM,
 		},
