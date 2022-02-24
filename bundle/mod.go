@@ -11,7 +11,7 @@ import (
 )
 
 type Sheet struct {
-	Info  pngsheet.Info
+	Info  *pngsheet.Info
 	Image image.Image
 }
 
@@ -31,13 +31,13 @@ func loadSheet(filename string) (*Sheet, error) {
 }
 
 type Battletiles struct {
-	Info          pngsheet.Info
+	Info          *pngsheet.Info
 	OffererTiles  *ebiten.Image
 	AnswererTiles *ebiten.Image
 }
 
 type Megaman struct {
-	Info        pngsheet.Info
+	Info        *pngsheet.Info
 	BaseSprites *ebiten.Image
 }
 

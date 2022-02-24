@@ -25,8 +25,7 @@ func (eb *IdleEntityBehavior) Step(e *Entity) {
 }
 
 func (eb *IdleEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node {
-	anim := b.Megaman.Info.Animations[0]
-	frame := b.Megaman.Info.Frames[anim.Frames[0]]
+	frame := b.Megaman.Info.Animations[0].Frames[0]
 	return draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
 
@@ -47,14 +46,11 @@ func (eb *MoveEntityBehavior) Step(e *Entity) {
 }
 
 func (eb *MoveEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node {
-	var anim pngsheet.Animation
-	var frame pngsheet.Frame
+	var frame *pngsheet.Frame
 	if e.behaviorElapsed < 3 {
-		anim = b.Megaman.Info.Animations[4]
-		frame = b.Megaman.Info.Frames[anim.Frames[e.behaviorElapsed]]
+		frame = b.Megaman.Info.Animations[4].Frames[e.behaviorElapsed]
 	} else {
-		anim = b.Megaman.Info.Animations[3]
-		frame = b.Megaman.Info.Frames[anim.Frames[e.behaviorElapsed-3]]
+		frame = b.Megaman.Info.Animations[3].Frames[e.behaviorElapsed-3]
 	}
 	return draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }

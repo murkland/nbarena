@@ -132,8 +132,7 @@ func (tb *NormalTileBehavior) Clone() TileBehavior {
 }
 
 func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	anim := b.Battletiles.Info.Animations[2*3+(y-1)]
-	frame := b.Battletiles.Info.Frames[anim.Frames[0]]
+	frame := b.Battletiles.Info.Animations[2*3+(y-1)].Frames[0]
 	return draw.ImageWithOrigin(tiles.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
 
