@@ -115,11 +115,11 @@ func (e *Entity) IgnoresTileEffects() bool {
 }
 
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
-	var rootNode draw.OptionsNode
+	rootNode := &draw.OptionsNode{}
 	x, y := e.tilePos.XY()
 	rootNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth+tileRenderedWidth/2), float64((y-1)*tileRenderedHeight+tileRenderedHeight/2))
 
-	var characterNode draw.OptionsNode
+	characterNode := &draw.OptionsNode{}
 	if e.isFlipped {
 		characterNode.Opts.GeoM.Scale(-1, 1)
 	}

@@ -62,7 +62,7 @@ const (
 )
 
 func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
-	optsNode := draw.OptionsNode{}
+	optsNode := &draw.OptionsNode{}
 	for i, tile := range f.tiles {
 		x, y := TilePos(i).XY()
 		node := tile.Appearance(y, b)
@@ -70,7 +70,7 @@ func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 			continue
 		}
 
-		childNode := draw.OptionsNode{}
+		childNode := &draw.OptionsNode{}
 		childNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth), float64((y-1)*tileRenderedHeight))
 		childNode.Children = append(childNode.Children, node)
 		optsNode.Children = append(optsNode.Children, childNode)

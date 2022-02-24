@@ -44,13 +44,13 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 	geoM.Translate(12, 12)
 
 	delay := g.medianDelay()
-	return draw.OptionsNode{
+	return &draw.OptionsNode{
 		Opts: ebiten.DrawImageOptions{
 			GeoM:   geoM,
 			ColorM: colorM,
 		},
 		Children: []draw.Node{
-			draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
+			&draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
 				HidePrivateFields: false,
 				FieldFilter: func(sf reflect.StructField, v reflect.Value) bool {
 					if sf.Type.Implements(reflect.TypeOf((*rand.Source)(nil)).Elem()) {

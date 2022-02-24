@@ -246,8 +246,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
-	rootNode := draw.OptionsNode{}
-	sceneNode := draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	rootNode := &draw.OptionsNode{}
+	sceneNode := &draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
 	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
 	rootNode.Children = append(rootNode.Children, sceneNode)
 	rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
