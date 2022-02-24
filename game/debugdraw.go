@@ -3,14 +3,13 @@ package game
 import (
 	"fmt"
 	"log"
-	"math/rand"
-	"reflect"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/sanity-io/litter"
 	"github.com/yumland/yumbattle/draw"
+	"github.com/yumland/yumbattle/state"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -38,10 +37,17 @@ func init() {
 
 func (g *Game) makeDebugDrawNode() draw.Node {
 	colorM := ebiten.ColorM{}
-	colorM.Translate(1.0, 1.0, 1.0, 0.0)
+	colorM.Translate(0.0, 1.0, 0.0, 0.0)
 
 	geoM := ebiten.GeoM{}
 	geoM.Translate(12, 12)
+
+	var entity *state.Entity
+	if !g.cs.isAnswerer {
+		entity = g.cs.dirtyState.Entity(state.OffererEntityID)
+	} else {
+		entity = g.cs.dirtyState.Entity(state.AnswererEntityID)
+	}
 
 	delay := g.medianDelay()
 	return &draw.OptionsNode{
@@ -52,13 +58,7 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 		Children: []draw.Node{
 			&draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
 				HidePrivateFields: false,
-				FieldFilter: func(sf reflect.StructField, v reflect.Value) bool {
-					if sf.Type.Implements(reflect.TypeOf((*rand.Source)(nil)).Elem()) {
-						return false
-					}
-					return true
-				},
-			}.Sdump(g.cs.dirtyState))},
+			}.Sdump(entity))},
 		},
 	}
 }

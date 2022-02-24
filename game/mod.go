@@ -25,7 +25,7 @@ const sceneHeight = 160
 const maxPendingIntents = 60
 
 type clientState struct {
-	isOfferer bool
+	isAnswerer bool
 
 	committedState state.State
 	dirtyState     state.State
@@ -62,12 +62,12 @@ func (cs *clientState) fastForward() error {
 
 		var offererIntent input.Intent
 		var answerwerIntent input.Intent
-		if cs.isOfferer {
-			offererIntent = ourIntent
-			answerwerIntent = theirIntent
-		} else {
+		if cs.isAnswerer {
 			offererIntent = theirIntent
 			answerwerIntent = ourIntent
+		} else {
+			offererIntent = ourIntent
+			answerwerIntent = theirIntent
 		}
 
 		cs.committedState.Step()
@@ -78,10 +78,10 @@ func (cs *clientState) fastForward() error {
 	for _, intent := range ourIntents[n:] {
 		var offererIntent input.Intent
 		var answerwerIntent input.Intent
-		if cs.isOfferer {
-			offererIntent = intent
-		} else {
+		if cs.isAnswerer {
 			answerwerIntent = intent
+		} else {
+			offererIntent = intent
 		}
 
 		cs.dirtyState.Step()
@@ -104,7 +104,7 @@ type Game struct {
 	delayRingbufMu sync.RWMutex
 }
 
-func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOfferer bool) *Game {
+func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool) *Game {
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("yumbattle")
 	const defaultScale = 4
@@ -116,7 +116,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isOf
 		bundle: b,
 		dc:     dc,
 		cs: &clientState{
-			isOfferer: isOfferer,
+			isAnswerer: isAnswerer,
 
 			committedState: s,
 			dirtyState:     s.Clone(),

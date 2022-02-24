@@ -168,3 +168,7 @@ func (s *State) Appearance(b *bundle.Bundle) draw.Node {
 	}
 	return rootNode
 }
+
+func (s *State) Entity(id int) *Entity {
+	return s.entities[id]
+}

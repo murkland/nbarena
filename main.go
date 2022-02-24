@@ -49,14 +49,14 @@ func main() {
 
 	dc := ctxwebrtc.WrapDataChannel(rtcDc)
 
-	isOfferer := !*answer
-	if isOfferer {
+	isAnswerer := *answer
+	if !isAnswerer {
 		if err := signorClient.Offer(ctx, []byte(*sessionID), peerConn); err != nil {
 			log.Fatalf("failed to offer: %s", err)
 		}
 	} else {
 		if err := signorClient.Answer(ctx, []byte(*sessionID), peerConn); err != nil {
-			log.Fatalf("failed to offer: %s", err)
+			log.Fatalf("failed to answer: %s", err)
 		}
 	}
 
@@ -67,7 +67,7 @@ func main() {
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	g := game.New(b, dc, randSource, isOfferer)
+	g := game.New(b, dc, randSource, isAnswerer)
 	go func() {
 		if err := g.RunBackgroundTasks(ctx); err != nil {
 			log.Fatalf("error running background tasks: %s", err)
