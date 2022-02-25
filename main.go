@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"log"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pion/webrtc/v3"
@@ -21,12 +22,18 @@ var (
 	connectAddr = flag.String("connect_addr", "http://localhost:12345", "address to connect to")
 	answer      = flag.Bool("answer", false, "if true, answers a session instead of offers")
 	sessionID   = flag.String("session_id", "test-session", "session to join to")
+	stunServers = flag.String("stun_servers", "stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302,stun:stun2.l.google.com:19302,stun:stun3.l.google.com:19302,stun:stun4.l.google.com:19302", "stun servers")
 )
 
 func main() {
 	moreflag.Parse()
 
-	log.Printf("connecting to %s, answer = %t, session_id = %s", *connectAddr, *answer, *sessionID)
+	var iceServers []webrtc.ICEServer
+	for _, url := range strings.Split(*stunServers, ",") {
+		iceServers = append(iceServers, webrtc.ICEServer{URLs: []string{url}})
+	}
+
+	log.Printf("connecting to %s, answer = %t, session_id = %s (using ICE servers: %+v)", *connectAddr, *answer, *sessionID, iceServers)
 
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
@@ -36,7 +43,9 @@ func main() {
 		log.Fatalf("failed to load bundle: %s", err)
 	}
 
-	peerConn, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	peerConn, err := webrtc.NewPeerConnection(webrtc.Configuration{
+		ICEServers: iceServers,
+	})
 	if err != nil {
 		log.Fatalf("failed to create RTC peer connection: %s", err)
 	}
