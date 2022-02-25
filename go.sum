@@ -117,6 +117,8 @@ github.com/yumland/moreflag v0.0.0-20220225172828-c1872f58395d h1:s6cnFYMEVMMYxd
 github.com/yumland/moreflag v0.0.0-20220225172828-c1872f58395d/go.mod h1:8JP2Mtlex0bEW7gFL6yKhpPV9g8FaRKLsdF/z+nKD4E=
 github.com/yumland/moreflag v0.0.0-20220225173459-95562dba1807 h1:1WUNqREKoZSQsr6rbl9L3uNRkL92pYSE2/+c+x5de6Q=
 github.com/yumland/moreflag v0.0.0-20220225173459-95562dba1807/go.mod h1:8JP2Mtlex0bEW7gFL6yKhpPV9g8FaRKLsdF/z+nKD4E=
+github.com/yumland/moreflag v0.0.0-20220225173735-f45431031721 h1:D1MfkbUQMCNFAEbYnPnx6IAEQoVl1bxgCNApr+yglsg=
+github.com/yumland/moreflag v0.0.0-20220225173735-f45431031721/go.mod h1:8JP2Mtlex0bEW7gFL6yKhpPV9g8FaRKLsdF/z+nKD4E=
 github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 h1:y1KJloRWYkATfDAl3opJi1/kzH6dmjNvUpOn51oaQSw=
 github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499/go.mod h1:U09K8Yc+Ai/d5U2SO0gHBM+5eJ3dy6jBBvsmr8FVr0w=
 github.com/yumland/pngsheet v0.0.0-20220224190134-a22187872889 h1:bwRB/Ovmsg6cwsGQUHcS8mmwkd/jHU4S4sg8EvK3ks4=

@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/sanity-io/litter v1.5.2
 	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
-	github.com/yumland/moreflag v0.0.0-20220225173459-95562dba1807
+	github.com/yumland/moreflag v0.0.0-20220225173735-f45431031721
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
