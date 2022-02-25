@@ -10,6 +10,7 @@ import (
 	"github.com/pion/webrtc/v3"
 	"github.com/yumland/clone"
 	"github.com/yumland/ctxwebrtc"
+	"github.com/yumland/moreflag"
 	signorclient "github.com/yumland/signor/client"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/game"
@@ -23,7 +24,9 @@ var (
 )
 
 func main() {
-	flag.Parse()
+	moreflag.Parse()
+
+	log.Printf("connecting to %s, answer = %t, session_id = %s", *connectAddr, *answer, *sessionID)
 
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
@@ -59,6 +62,8 @@ func main() {
 			log.Fatalf("failed to answer: %s", err)
 		}
 	}
+
+	log.Printf("connected!")
 
 	randSource, seed, err := netsyncrand.Negotiate(ctx, dc)
 	if err != nil {
