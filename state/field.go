@@ -1,6 +1,7 @@
 package state
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
@@ -75,5 +76,18 @@ func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 		childNode.Children = append(childNode.Children, node)
 		optsNode.Children = append(optsNode.Children, childNode)
 	}
+
+	for x := 1; x < 7; x++ {
+		childNode := &draw.OptionsNode{}
+		childNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth), float64((4-1)*tileRenderedHeight))
+		frame := b.Battletiles.Info.Animations[len(b.Battletiles.Info.Animations)-1].Frames[0]
+		tiles := b.Battletiles.OffererTiles
+		if x > 3 {
+			tiles = b.Battletiles.AnswererTiles
+		}
+		childNode.Children = append(childNode.Children, draw.ImageWithOrigin(tiles.SubImage(frame.Rect).(*ebiten.Image), frame.Origin))
+		optsNode.Children = append(optsNode.Children, childNode)
+	}
+
 	return optsNode
 }

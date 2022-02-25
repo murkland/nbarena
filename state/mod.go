@@ -149,7 +149,7 @@ const (
 
 func (s *State) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	rootNode.Opts.GeoM.Translate(0, fieldOffsetTopFull)
+	rootNode.Opts.GeoM.Translate(0, fieldOffsetTop)
 	{
 		tilesNode := &draw.OptionsNode{}
 		tilesNode.Children = append(tilesNode.Children, s.field.Appearance(b))
