@@ -31,7 +31,7 @@ func main() {
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
 
-	b, err := bundle.Load()
+	b, err := bundle.Load(ctx)
 	if err != nil {
 		log.Fatalf("failed to load bundle: %s", err)
 	}

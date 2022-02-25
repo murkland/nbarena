@@ -1,13 +1,15 @@
 package bundle
 
 import (
+	"context"
 	"fmt"
 	"image"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/yumland/moreio"
 	"github.com/yumland/pngsheet"
+	"golang.org/x/sync/errgroup"
 )
 
 type Sheet struct {
@@ -15,8 +17,8 @@ type Sheet struct {
 	Image image.Image
 }
 
-func loadSheet(filename string) (*Sheet, error) {
-	f, err := ebitenutil.OpenFile(filename)
+func loadSheet(ctx context.Context, filename string) (*Sheet, error) {
+	f, err := moreio.Open(ctx, filename)
 	if err != nil {
 		return nil, fmt.Errorf("%w while loading %s", err, filename)
 	}
@@ -41,8 +43,8 @@ type Megaman struct {
 	BaseSprites *ebiten.Image
 }
 
-func loadBattleTiles() (*Battletiles, error) {
-	sheet, err := loadSheet("assets/battletiles.png")
+func loadBattleTiles(ctx context.Context) (*Battletiles, error) {
+	sheet, err := loadSheet(ctx, "assets/battletiles.png")
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +58,8 @@ func loadBattleTiles() (*Battletiles, error) {
 	return &Battletiles{sheet.Info, offererImg, answererImg}, nil
 }
 
-func loadMegaman() (*Megaman, error) {
-	sheet, err := loadSheet("assets/sprites/0000.png")
+func loadMegaman(ctx context.Context) (*Megaman, error) {
+	sheet, err := loadSheet(ctx, "assets/sprites/0000.png")
 	if err != nil {
 		return nil, err
 	}
@@ -72,23 +74,31 @@ type Bundle struct {
 	Megaman     *Megaman
 }
 
-func Load() (*Bundle, error) {
+func Load(ctx context.Context) (*Bundle, error) {
 	b := &Bundle{}
 
-	{
-		battletiles, err := loadBattleTiles()
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		battletiles, err := loadBattleTiles(ctx)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		b.Battletiles = battletiles
-	}
+		return nil
+	})
 
-	{
-		megaman, err := loadMegaman()
+	g.Go(func() error {
+		megaman, err := loadMegaman(ctx)
 		if err != nil {
-			return nil, err
+			return nil
 		}
 		b.Megaman = megaman
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
 
 	return b, nil
