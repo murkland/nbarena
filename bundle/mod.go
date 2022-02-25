@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/moreio"
 	"github.com/yumland/pngsheet"
-	"golang.org/x/sync/errgroup"
+	"github.com/yumland/yumbattle/loader"
 )
 
 type Sheet struct {
@@ -77,27 +77,11 @@ type Bundle struct {
 func Load(ctx context.Context) (*Bundle, error) {
 	b := &Bundle{}
 
-	g, ctx := errgroup.WithContext(ctx)
+	l, ctx := loader.New(ctx)
+	loader.Add(ctx, l, &b.Battletiles, loadBattleTiles)
+	loader.Add(ctx, l, &b.Megaman, loadMegaman)
 
-	g.Go(func() error {
-		battletiles, err := loadBattleTiles(ctx)
-		if err != nil {
-			return err
-		}
-		b.Battletiles = battletiles
-		return nil
-	})
-
-	g.Go(func() error {
-		megaman, err := loadMegaman(ctx)
-		if err != nil {
-			return nil
-		}
-		b.Megaman = megaman
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
+	if err := l.Load(); err != nil {
 		return nil, err
 	}
 

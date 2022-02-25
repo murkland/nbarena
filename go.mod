@@ -15,7 +15,7 @@ require (
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
-	github.com/yumland/moreio v0.0.0-20220225180101-371d0794ef42 // indirect
+	github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2 // indirect
 	github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
