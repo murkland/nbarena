@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/yumland/pngsheet"
 )
 
@@ -16,7 +16,7 @@ type Sheet struct {
 }
 
 func loadSheet(filename string) (*Sheet, error) {
-	f, err := os.Open(filename)
+	f, err := ebitenutil.OpenFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("%w while loading %s", err, filename)
 	}
