@@ -3,11 +3,11 @@ package game
 import (
 	"context"
 	"fmt"
-	"sort"
 	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/keegancsmith/nth"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
@@ -16,6 +16,7 @@ import (
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
 	"github.com/yumland/yumbattle/state"
+	"golang.org/x/exp/constraints"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -104,7 +105,7 @@ type Game struct {
 	delayRingbufMu sync.RWMutex
 }
 
-func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool) *Game {
+func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int) *Game {
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("yumbattle")
 	const defaultScale = 4
@@ -124,33 +125,41 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			incomingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 			outgoingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 		},
-		delayRingbuf: ringbuf.New[time.Duration](10),
+		delayRingbuf: ringbuf.New[time.Duration](delaysWindowSize),
 	}
 	return g
 }
 
-func (g *Game) delays() []time.Duration {
+type orderableSlice[T constraints.Ordered] []T
+
+func (s orderableSlice[T]) Len() int {
+	return len(s)
+}
+
+func (s orderableSlice[T]) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s orderableSlice[T]) Less(i, j int) bool {
+	return s[i] < s[j]
+}
+
+func (g *Game) medianDelay() time.Duration {
 	g.delayRingbufMu.RLock()
 	defer g.delayRingbufMu.RUnlock()
+
+	if g.delayRingbuf.Used() == 0 {
+		return 0
+	}
 
 	delays := make([]time.Duration, g.delayRingbuf.Used())
 	if err := g.delayRingbuf.Peek(delays, 0); err != nil {
 		panic(err)
 	}
 
-	sort.Slice(delays, func(i int, j int) bool {
-		return delays[i] < delays[j]
-	})
-
-	return delays
-}
-
-func (g *Game) medianDelay() time.Duration {
-	delays := g.delays()
-	if len(delays) == 0 {
-		return 0
-	}
-	return delays[len(delays)/2]
+	i := len(delays) / 2
+	nth.Element(orderableSlice[time.Duration](delays), i)
+	return delays[i]
 }
 
 func (g *Game) sendPings(ctx context.Context) error {

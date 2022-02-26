@@ -19,10 +19,11 @@ import (
 )
 
 var (
-	connectAddr = flag.String("connect_addr", "http://localhost:12345", "address to connect to")
-	answer      = flag.Bool("answer", false, "if true, answers a session instead of offers")
-	sessionID   = flag.String("session_id", "test-session", "session to join to")
-	stunServers = flag.String("stun_servers", "stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302,stun:stun2.l.google.com:19302,stun:stun3.l.google.com:19302,stun:stun4.l.google.com:19302", "stun servers")
+	connectAddr      = flag.String("connect_addr", "http://localhost:12345", "address to connect to")
+	answer           = flag.Bool("answer", false, "if true, answers a session instead of offers")
+	sessionID        = flag.String("session_id", "test-session", "session to join to")
+	stunServers      = flag.String("stun_servers", "stun:stun.l.google.com:19302,stun:stun1.l.google.com:19302,stun:stun2.l.google.com:19302,stun:stun3.l.google.com:19302,stun:stun4.l.google.com:19302", "stun servers")
+	delaysWindowSize = flag.Int("delays_window_size", 5, "size of window for calculating delay")
 )
 
 func main() {
@@ -81,7 +82,7 @@ func main() {
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	g := game.New(b, dc, randSource, isAnswerer)
+	g := game.New(b, dc, randSource, isAnswerer, *delaysWindowSize)
 	go func() {
 		if err := g.RunBackgroundTasks(ctx); err != nil {
 			log.Fatalf("error running background tasks: %s", err)

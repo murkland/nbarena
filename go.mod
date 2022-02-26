@@ -3,11 +3,14 @@ module github.com/yumland/yumbattle
 go 1.18
 
 require (
+	github.com/keegancsmith/nth v0.0.0-20160926112203-ee21de2f07b8
 	github.com/sanity-io/litter v1.5.2
 	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
 	github.com/yumland/moreflag v0.0.0-20220225175327-26465a223095
+	github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
+	golang.org/x/exp v0.0.0-20220218215828-6cf2b201936e
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
@@ -15,9 +18,8 @@ require (
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
-	github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2 // indirect
 	github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 // indirect
-	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/exp/shiny v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
