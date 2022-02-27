@@ -32,6 +32,10 @@ func (l *Loader) NumLoaded() int {
 	return int(atomic.LoadInt32(&l.loaded))
 }
 
+func (l *Loader) Total() int {
+	return int(l.total)
+}
+
 func (l *Loader) Load() error {
 	return l.g.Wait()
 }
