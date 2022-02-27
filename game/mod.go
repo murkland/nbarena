@@ -216,7 +216,7 @@ func (g *Game) handleConn(ctx context.Context) error {
 				g.csMu.Lock()
 				defer g.csMu.Unlock()
 
-				nextTick := uint32(g.cs.committedState.ElapsedTicks() + g.cs.incomingIntents.Used() + 1)
+				nextTick := uint32(int(g.cs.committedState.ElapsedTime()) + g.cs.incomingIntents.Used() + 1)
 				if p.ForTick != nextTick {
 					return fmt.Errorf("expected intent for %d but it was for %d", nextTick, p.ForTick)
 				}
@@ -284,7 +284,7 @@ func (g *Game) Update() error {
 	}
 
 	intent := input.CurrentIntent()
-	forTick := uint32(g.cs.dirtyState.ElapsedTicks() + 1)
+	forTick := uint32(g.cs.dirtyState.ElapsedTime() + 1)
 
 	ctx := context.Background()
 

@@ -39,20 +39,20 @@ func (eb *MoveEntityBehavior) Clone() EntityBehavior {
 }
 
 func (eb *MoveEntityBehavior) Step(e *Entity) {
-	if e.behaviorElapsed == 3 {
+	if e.behaviorElapsedTime == 3 {
 		e.tilePos = e.futureTilePos
 	}
-	if e.behaviorElapsed == 6+moveEndlagTicks {
+	if e.behaviorElapsedTime == 6+moveEndlagTicks {
 		e.SetBehavior(&IdleEntityBehavior{})
 	}
 }
 
 func (eb *MoveEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node {
 	var frame *pngsheet.Frame
-	if e.behaviorElapsed < 3 {
-		frame = b.Megaman.Info.Animations[4].Frames[e.behaviorElapsed]
-	} else if e.behaviorElapsed < 6 {
-		frame = b.Megaman.Info.Animations[3].Frames[e.behaviorElapsed-3]
+	if e.behaviorElapsedTime < 3 {
+		frame = b.Megaman.Info.Animations[4].Frames[e.behaviorElapsedTime]
+	} else if e.behaviorElapsedTime < 6 {
+		frame = b.Megaman.Info.Animations[3].Frames[e.behaviorElapsedTime-3]
 	} else {
 		frame = b.Megaman.Info.Animations[3].Frames[len(b.Megaman.Info.Animations[3].Frames)-1]
 	}

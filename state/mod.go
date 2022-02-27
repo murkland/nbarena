@@ -11,13 +11,15 @@ import (
 	"github.com/yumland/yumbattle/input"
 )
 
+type Ticks int
+
 const (
 	OffererEntityID  = 1
 	AnswererEntityID = 2
 )
 
 type State struct {
-	elapsedTicks int
+	elapsedTime Ticks
 
 	randSource *syncrand.Source
 
@@ -51,13 +53,13 @@ func New(randSource *syncrand.Source) State {
 	}
 }
 
-func (s *State) ElapsedTicks() int {
-	return s.elapsedTicks
+func (s *State) ElapsedTime() Ticks {
+	return s.elapsedTime
 }
 
 func (s State) Clone() State {
 	return State{
-		s.elapsedTicks,
+		s.elapsedTime,
 		s.randSource.Clone(),
 		s.field.Clone(), clone.Map(s.entities),
 	}
@@ -66,7 +68,7 @@ func (s State) Clone() State {
 func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool) {
 	if _, ok := e.behavior.(*IdleEntityBehavior); ok {
 		dir := intent.Direction
-		if e.confusedFramesLeft > 0 {
+		if e.confusedTimeLeft > 0 {
 			dir = dir.FlipH().FlipV()
 		}
 
@@ -116,7 +118,7 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 }
 
 func (s *State) Step() {
-	s.elapsedTicks++
+	s.elapsedTime++
 
 	// Step entities in a random order.
 	entities := make([]struct {

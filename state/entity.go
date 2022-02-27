@@ -1,7 +1,6 @@
 package state
 
 import (
-	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
@@ -9,13 +8,13 @@ import (
 type Hit struct {
 	Damage int
 
-	FlashFrames      int
-	ParalyzeFrames   int
-	ConfuseFrames    int
-	BlindFrames      int
-	ImmobilizeFrames int
-	FreezeFrames     int
-	BubbleFrames     int
+	FlashTime      Ticks
+	ParalyzeTime   Ticks
+	ConfuseTime    Ticks
+	BlindTime      Ticks
+	ImmobilizeTime Ticks
+	FreezeTime     Ticks
+	BubbleTime     Ticks
 
 	// ???
 	Drag bool
@@ -25,17 +24,17 @@ func (h *Hit) Merge(h2 Hit) {
 	h.Damage += h2.Damage
 
 	// TODO: Verify this is correct behavior.
-	h.ParalyzeFrames = h2.ParalyzeFrames
-	h.ConfuseFrames = h2.ConfuseFrames
-	h.BlindFrames = h2.BlindFrames
-	h.ImmobilizeFrames = h2.ImmobilizeFrames
-	h.FreezeFrames = h2.FreezeFrames
-	h.BubbleFrames = h2.BubbleFrames
+	h.ParalyzeTime = h2.ParalyzeTime
+	h.ConfuseTime = h2.ConfuseTime
+	h.BlindTime = h2.BlindTime
+	h.ImmobilizeTime = h2.ImmobilizeTime
+	h.FreezeTime = h2.FreezeTime
+	h.BubbleTime = h2.BubbleTime
 }
 
 type Entity struct {
-	behaviorElapsed int
-	behavior        EntityBehavior
+	behaviorElapsedTime Ticks
+	behavior            EntityBehavior
 
 	tilePos       TilePos
 	futureTilePos TilePos
@@ -54,14 +53,14 @@ type Entity struct {
 	cannotFlinch           bool
 	fatalHitLeaves1HP      bool
 
-	paralyzedFramesLeft   int
-	confusedFramesLeft    int
-	blindedFramesLeft     int
-	immobilizedFramesLeft int
-	flashingFramesLeft    int
-	invincibleFramesLeft  int
-	frozenFramesLeft      int
-	bubbledFramesLeft     int
+	paralyzedTimeLeft   Ticks
+	confusedTimeLeft    Ticks
+	blindedTimeLeft     Ticks
+	immobilizedTimeLeft Ticks
+	flashingTimeLeft    Ticks
+	invincibleTimeLeft  Ticks
+	frozenTimeLeft      Ticks
+	bubbledTimeLeft     Ticks
 
 	currentHit Hit
 
@@ -72,21 +71,21 @@ type Entity struct {
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
-		e.behaviorElapsed, clone.Interface[EntityBehavior](e.behavior),
+		e.behaviorElapsedTime, e.behavior.Clone(),
 		e.tilePos, e.futureTilePos,
 		e.isAlliedWithAnswerer,
 		e.isFlipped,
 		e.isDeleted,
 		e.hp, e.displayHP,
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
-		e.paralyzedFramesLeft,
-		e.confusedFramesLeft,
-		e.blindedFramesLeft,
-		e.immobilizedFramesLeft,
-		e.flashingFramesLeft,
-		e.invincibleFramesLeft,
-		e.frozenFramesLeft,
-		e.bubbledFramesLeft,
+		e.paralyzedTimeLeft,
+		e.confusedTimeLeft,
+		e.blindedTimeLeft,
+		e.immobilizedTimeLeft,
+		e.flashingTimeLeft,
+		e.invincibleTimeLeft,
+		e.frozenTimeLeft,
+		e.bubbledTimeLeft,
 		e.currentHit,
 		e.isAngry,
 		e.isBeingDragged,
@@ -95,7 +94,7 @@ func (e *Entity) Clone() *Entity {
 }
 
 func (e *Entity) SetBehavior(behavior EntityBehavior) {
-	e.behaviorElapsed = 0
+	e.behaviorElapsedTime = 0
 	e.behavior = behavior
 }
 
@@ -132,6 +131,16 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.isFlipped {
 		characterNode.Opts.GeoM.Scale(-1, 1)
 	}
+	if e.frozenTimeLeft > 0 {
+		// TODO: Render ice.
+		characterNode.Opts.ColorM.Translate(float64(0xa5)/float64(0xff), float64(0xa5)/float64(0xff), float64(0xff)/float64(0xff), 0.0)
+	}
+	if e.paralyzedTimeLeft > 0 && (e.paralyzedTimeLeft/2)%2 == 1 {
+		characterNode.Opts.ColorM.Translate(1.0, 1.0, 0.0, 0.0)
+	}
+	if e.flashingTimeLeft > 0 && (e.flashingTimeLeft/2)%2 == 0 {
+		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
+	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
 	rootNode.Children = append(rootNode.Children, characterNode)
 
@@ -161,97 +170,97 @@ func (e *Entity) Step() {
 
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
-	e.behaviorElapsed++
+	e.behaviorElapsedTime++
 	e.behavior.Step(e)
 
 	if !e.currentHit.Drag {
 		if !e.isBeingDragged /* && !e.isInTimestop */ {
 			// Process flashing.
-			if e.currentHit.FlashFrames > 0 {
-				e.flashingFramesLeft = e.currentHit.FlashFrames
-				e.currentHit.FlashFrames = 0
+			if e.currentHit.FlashTime > 0 {
+				e.flashingTimeLeft = e.currentHit.FlashTime
+				e.currentHit.FlashTime = 0
 			}
-			if e.flashingFramesLeft > 0 {
-				e.flashingFramesLeft--
+			if e.flashingTimeLeft > 0 {
+				e.flashingTimeLeft--
 			}
 
 			// Process paralyzed.
-			if e.currentHit.ParalyzeFrames > 0 {
-				e.paralyzedFramesLeft = e.currentHit.ParalyzeFrames
-				e.currentHit.ConfuseFrames = 0
-				e.currentHit.ParalyzeFrames = 0
+			if e.currentHit.ParalyzeTime > 0 {
+				e.paralyzedTimeLeft = e.currentHit.ParalyzeTime
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.ParalyzeTime = 0
 			}
-			if e.paralyzedFramesLeft > 0 {
-				e.paralyzedFramesLeft--
-				e.frozenFramesLeft = 0
-				e.bubbledFramesLeft = 0
-				e.confusedFramesLeft = 0
+			if e.paralyzedTimeLeft > 0 {
+				e.paralyzedTimeLeft--
+				e.frozenTimeLeft = 0
+				e.bubbledTimeLeft = 0
+				e.confusedTimeLeft = 0
 			}
 
 			// Process frozen.
-			if e.currentHit.FreezeFrames > 0 {
-				e.frozenFramesLeft = e.currentHit.FreezeFrames
-				e.paralyzedFramesLeft = 0
-				e.currentHit.BubbleFrames = 0
-				e.currentHit.ConfuseFrames = 0
-				e.currentHit.FreezeFrames = 0
+			if e.currentHit.FreezeTime > 0 {
+				e.frozenTimeLeft = e.currentHit.FreezeTime
+				e.paralyzedTimeLeft = 0
+				e.currentHit.BubbleTime = 0
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.FreezeTime = 0
 			}
-			if e.frozenFramesLeft > 0 {
-				e.frozenFramesLeft--
-				e.bubbledFramesLeft = 0
-				e.confusedFramesLeft = 0
+			if e.frozenTimeLeft > 0 {
+				e.frozenTimeLeft--
+				e.bubbledTimeLeft = 0
+				e.confusedTimeLeft = 0
 			}
 
 			// Process bubbled.
-			if e.currentHit.BubbleFrames > 0 {
-				e.bubbledFramesLeft = e.currentHit.BubbleFrames
-				e.confusedFramesLeft = 0
-				e.paralyzedFramesLeft = 0
-				e.frozenFramesLeft = 0
-				e.currentHit.ConfuseFrames = 0
-				e.currentHit.BubbleFrames = 0
+			if e.currentHit.BubbleTime > 0 {
+				e.bubbledTimeLeft = e.currentHit.BubbleTime
+				e.confusedTimeLeft = 0
+				e.paralyzedTimeLeft = 0
+				e.frozenTimeLeft = 0
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.BubbleTime = 0
 			}
-			if e.bubbledFramesLeft > 0 {
-				e.bubbledFramesLeft--
-				e.confusedFramesLeft = 0
+			if e.bubbledTimeLeft > 0 {
+				e.bubbledTimeLeft--
+				e.confusedTimeLeft = 0
 			}
 
 			// Process confused.
-			if e.currentHit.ConfuseFrames > 0 {
-				e.confusedFramesLeft = e.currentHit.ConfuseFrames
-				e.paralyzedFramesLeft = 0
-				e.frozenFramesLeft = 0
-				e.bubbledFramesLeft = 0
-				e.currentHit.FreezeFrames = 0
-				e.currentHit.BubbleFrames = 0
-				e.currentHit.ParalyzeFrames = 0
-				e.currentHit.ConfuseFrames = 0
+			if e.currentHit.ConfuseTime > 0 {
+				e.confusedTimeLeft = e.currentHit.ConfuseTime
+				e.paralyzedTimeLeft = 0
+				e.frozenTimeLeft = 0
+				e.bubbledTimeLeft = 0
+				e.currentHit.FreezeTime = 0
+				e.currentHit.BubbleTime = 0
+				e.currentHit.ParalyzeTime = 0
+				e.currentHit.ConfuseTime = 0
 			}
-			if e.confusedFramesLeft > 0 {
-				e.confusedFramesLeft--
+			if e.confusedTimeLeft > 0 {
+				e.confusedTimeLeft--
 			}
 
 			// Process immobilized.
-			if e.currentHit.ImmobilizeFrames > 0 {
-				e.immobilizedFramesLeft = e.currentHit.ImmobilizeFrames
-				e.currentHit.ImmobilizeFrames = 0
+			if e.currentHit.ImmobilizeTime > 0 {
+				e.immobilizedTimeLeft = e.currentHit.ImmobilizeTime
+				e.currentHit.ImmobilizeTime = 0
 			}
-			if e.immobilizedFramesLeft > 0 {
-				e.immobilizedFramesLeft--
+			if e.immobilizedTimeLeft > 0 {
+				e.immobilizedTimeLeft--
 			}
 
 			// Process blinded.
-			if e.currentHit.BlindFrames > 0 {
-				e.blindedFramesLeft = e.currentHit.BlindFrames
-				e.currentHit.BlindFrames = 0
+			if e.currentHit.BlindTime > 0 {
+				e.blindedTimeLeft = e.currentHit.BlindTime
+				e.currentHit.BlindTime = 0
 			}
-			if e.blindedFramesLeft > 0 {
-				e.blindedFramesLeft--
+			if e.blindedTimeLeft > 0 {
+				e.blindedTimeLeft--
 			}
 
 			// Process invincible.
-			if e.invincibleFramesLeft > 0 {
-				e.invincibleFramesLeft--
+			if e.invincibleTimeLeft > 0 {
+				e.invincibleTimeLeft--
 			}
 		} else {
 			// TODO: Interrupt player.
@@ -259,14 +268,14 @@ func (e *Entity) Step() {
 	} else {
 		e.currentHit.Drag = false
 
-		e.frozenFramesLeft = 0
-		e.bubbledFramesLeft = 0
-		e.paralyzedFramesLeft = 0
-		e.currentHit.BubbleFrames = 0
-		e.currentHit.FreezeFrames = 0
+		e.frozenTimeLeft = 0
+		e.bubbledTimeLeft = 0
+		e.paralyzedTimeLeft = 0
+		e.currentHit.BubbleTime = 0
+		e.currentHit.FreezeTime = 0
 
 		if false {
-			e.paralyzedFramesLeft = 0
+			e.paralyzedTimeLeft = 0
 		}
 
 		// TODO: Interrupt player.
