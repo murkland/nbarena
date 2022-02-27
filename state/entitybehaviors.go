@@ -29,6 +29,8 @@ func (eb *IdleEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node 
 	return draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
 
+const moveEndlagTicks = 7
+
 type MoveEntityBehavior struct {
 }
 
@@ -40,7 +42,7 @@ func (eb *MoveEntityBehavior) Step(e *Entity) {
 	if e.behaviorElapsed == 3 {
 		e.tilePos = e.futureTilePos
 	}
-	if e.behaviorElapsed == 6 {
+	if e.behaviorElapsed == 6+moveEndlagTicks {
 		e.SetBehavior(&IdleEntityBehavior{})
 	}
 }
@@ -49,8 +51,10 @@ func (eb *MoveEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node 
 	var frame *pngsheet.Frame
 	if e.behaviorElapsed < 3 {
 		frame = b.Megaman.Info.Animations[4].Frames[e.behaviorElapsed]
-	} else {
+	} else if e.behaviorElapsed < 6 {
 		frame = b.Megaman.Info.Animations[3].Frames[e.behaviorElapsed-3]
+	} else {
+		frame = b.Megaman.Info.Animations[3].Frames[len(b.Megaman.Info.Animations[3].Frames)-1]
 	}
 	return draw.ImageWithOrigin(b.Megaman.BaseSprites.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
