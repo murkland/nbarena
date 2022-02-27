@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/keegancsmith/nth"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
@@ -100,6 +101,8 @@ type Game struct {
 	csMu sync.Mutex
 
 	bundle *bundle.Bundle
+
+	paused bool
 
 	delayRingbuf   *ringbuf.RingBuf[time.Duration]
 	delayRingbufMu sync.RWMutex
@@ -264,6 +267,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		g.paused = !g.paused
+	}
+
+	if g.paused && !inpututil.IsKeyJustPressed(ebiten.KeyPeriod) {
+		return nil
+	}
+
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
