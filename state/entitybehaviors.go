@@ -104,6 +104,10 @@ func (eb *BusterEntityBehavior) Step(e *Entity) {
 	if realElapsedTime == 5+eb.cooldownTime {
 		e.SetBehavior(&IdleEntityBehavior{})
 	}
+
+	if realElapsedTime == 1 {
+		// TODO: Figure out if jammed.
+	}
 }
 
 func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Node {
