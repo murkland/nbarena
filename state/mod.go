@@ -198,7 +198,7 @@ func (sq *updateStack) Pop() (int, *Entity) {
 	eid := &sq.pending[len(sq.pending)-1]
 	entity := eid.Entity
 	eid.Entity = nil
-	sq.pending = sq.pending[:len(sq.pending)-2]
+	sq.pending = sq.pending[: len(sq.pending)-1 : cap(sq.pending)]
 	return eid.ID, entity
 }
 
