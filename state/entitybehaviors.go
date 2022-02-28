@@ -143,8 +143,7 @@ func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Nod
 		if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
 			muzzleFlashNode := &draw.OptionsNode{}
 			muzzleFlashFrame := b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]
-			// TODO: Figure this out
-			muzzleFlashNode.Opts.GeoM.Translate(-float64(busterFrame.Origin.X-busterFrame.Rect.Dx()), -float64(busterFrame.Origin.Y-busterFrame.Rect.Dy()/2))
+			// TODO: Figure out how to draw the muzzle flash.
 			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, muzzleFlashFrame))
 			rootNode.Children = append(rootNode.Children, muzzleFlashNode)
 		}
