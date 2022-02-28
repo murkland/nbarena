@@ -193,7 +193,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (e *Entity) Step(sh *StateHandle) {
+func (e *Entity) Step(sh *StepHandle) {
 	e.elapsedTime++
 
 	// Set anger, if required.

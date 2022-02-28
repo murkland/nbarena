@@ -151,12 +151,12 @@ type entityAndID struct {
 	Entity *Entity
 }
 
-type StateHandle struct {
+type StepHandle struct {
 	state   *State
 	pending []entityAndID
 }
 
-func (sh *StateHandle) SpawnEntity(e *Entity) int {
+func (sh *StepHandle) SpawnEntity(e *Entity) int {
 	id := sh.state.AddEntity(e)
 	sh.pending = append(sh.pending, entityAndID{id, e})
 	return id
@@ -177,7 +177,7 @@ func (s *State) Step() {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
 
-	sh := &StateHandle{s, pending}
+	sh := &StepHandle{s, pending}
 
 	for len(sh.pending) > 0 {
 		entity := sh.pending[len(sh.pending)-1].Entity
