@@ -1,12 +1,18 @@
 package draw
 
 import (
+	"flag"
 	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/yumland/pngsheet"
 	"golang.org/x/image/font"
+)
+
+var (
+	debugDrawImageNodeOutlines = flag.Bool("debug_draw_image_node_outlines", false, "draw image node outlines")
 )
 
 type Node interface {
@@ -32,8 +38,24 @@ type ImageNode struct {
 	Image *ebiten.Image
 }
 
+func makeDebugOutline(bounds image.Rectangle) *ebiten.Image {
+	img := ebiten.NewImage(bounds.Dx(), bounds.Dy())
+	img.Fill(color.RGBA{255, 0, 0, 255})
+	for y := img.Bounds().Min.Y + 1; y < img.Bounds().Max.Y-1; y++ {
+		for x := img.Bounds().Min.X + 1; x < img.Bounds().Max.X-1; x++ {
+			img.Set(x, y, color.Transparent)
+		}
+	}
+	return img
+}
+
 func (n *ImageNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
 	screen.DrawImage(n.Image, opts)
+	if *debugDrawImageNodeOutlines {
+		opts2 := *opts
+		opts2.ColorM.Reset()
+		screen.DrawImage(makeDebugOutline(n.Image.Bounds()), &opts2)
+	}
 }
 
 func ImageWithFrame(img *ebiten.Image, frame *pngsheet.Frame) Node {
