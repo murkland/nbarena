@@ -77,6 +77,7 @@ func (eb *MoveEntityBehavior) Interrupts(e *Entity) EntityBehaviorInterrupts {
 
 type BusterEntityBehavior struct {
 	IsPowerShot  bool
+	isJammed     bool
 	cooldownTime Ticks
 }
 
@@ -91,6 +92,7 @@ func (eb *BusterEntityBehavior) realElapsedTime(e *Entity) Ticks {
 func (eb *BusterEntityBehavior) Clone() EntityBehavior {
 	return &BusterEntityBehavior{
 		eb.IsPowerShot,
+		eb.isJammed,
 		eb.cooldownTime,
 	}
 }
@@ -128,11 +130,13 @@ func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Nod
 	busterFrame := busterFrames.Frames[busterAnimTime]
 	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.BusterSprites.Image, busterFrame))
 
-	muzzleFlashAnimTime := int(realElapsedTime) - 1
-	if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
-		muzzleFlashNode := &draw.OptionsNode{}
-		muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]))
-		rootNode.Children = append(rootNode.Children, muzzleFlashNode)
+	if !eb.isJammed {
+		muzzleFlashAnimTime := int(realElapsedTime) - 1
+		if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
+			muzzleFlashNode := &draw.OptionsNode{}
+			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]))
+			rootNode.Children = append(rootNode.Children, muzzleFlashNode)
+		}
 	}
 
 	return rootNode
