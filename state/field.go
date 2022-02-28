@@ -1,7 +1,6 @@
 package state
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
@@ -85,7 +84,7 @@ func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 		if x > 3 {
 			tiles = b.Battletiles.AnswererTiles
 		}
-		childNode.Children = append(childNode.Children, draw.ImageWithOrigin(tiles.SubImage(frame.Rect).(*ebiten.Image), frame.Origin))
+		childNode.Children = append(childNode.Children, draw.ImageWithFrame(tiles, frame))
 		optsNode.Children = append(optsNode.Children, childNode)
 	}
 

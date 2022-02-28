@@ -53,6 +53,9 @@ type Entity struct {
 	cannotFlinch           bool
 	fatalHitLeaves1HP      bool
 
+	chargingElapsedTime Ticks
+	powerShotChargeTime Ticks
+
 	paralyzedTimeLeft   Ticks
 	confusedTimeLeft    Ticks
 	blindedTimeLeft     Ticks
@@ -78,6 +81,7 @@ func (e *Entity) Clone() *Entity {
 		e.isDeleted,
 		e.hp, e.displayHP,
 		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
+		e.chargingElapsedTime, e.powerShotChargeTime,
 		e.paralyzedTimeLeft,
 		e.confusedTimeLeft,
 		e.blindedTimeLeft,
@@ -142,14 +146,25 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
+
+	if e.chargingElapsedTime >= 10 {
+		chargingNode := &draw.OptionsNode{}
+		characterNode.Children = append(characterNode.Children, chargingNode)
+
+		frames := b.ChargingSprites.ChargingAnimation.Frames
+		if e.chargingElapsedTime >= e.powerShotChargeTime {
+			frames = b.ChargingSprites.ChargedAnimation.Frames
+		}
+		frame := frames[int(e.chargingElapsedTime)%len(frames)]
+		chargingNode.Children = append(chargingNode.Children, draw.ImageWithFrame(b.ChargingSprites.Image, frame))
+	}
+
 	rootNode.Children = append(rootNode.Children, characterNode)
 
 	return rootNode
 }
 
 func (e *Entity) Step() {
-	// TODO: Handle action.
-
 	// Set anger, if required.
 	if e.currentHit.Damage >= 300 {
 		e.isAngry = true

@@ -133,7 +133,7 @@ func (tb *NormalTileBehavior) Clone() TileBehavior {
 
 func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
 	frame := b.Battletiles.Info.Animations[2*3+(y-1)].Frames[0]
-	return draw.ImageWithOrigin(tiles.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
+	return draw.ImageWithFrame(tiles, frame)
 }
 
 func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {

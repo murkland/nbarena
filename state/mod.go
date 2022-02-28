@@ -31,13 +31,18 @@ func New(randSource *syncrand.Source) State {
 	field := newField()
 	entities := map[int]*Entity{
 		OffererEntityID: {
-			behavior:      &IdleEntityBehavior{},
+			behavior: &IdleEntityBehavior{},
+
+			powerShotChargeTime: Ticks(50),
+
 			tilePos:       TilePosXY(2, 2),
 			futureTilePos: TilePosXY(2, 2),
 		},
 		AnswererEntityID: {
 			isFlipped:            true,
 			isAlliedWithAnswerer: true,
+
+			powerShotChargeTime: Ticks(50),
 
 			behavior:      &IdleEntityBehavior{},
 			tilePos:       TilePosXY(5, 2),
@@ -66,7 +71,19 @@ func (s State) Clone() State {
 }
 
 func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool) {
-	if _, ok := e.behavior.(*IdleEntityBehavior); ok {
+	interrupts := e.behavior.Interrupts(e)
+	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.chargingElapsedTime > 0) {
+		e.chargingElapsedTime++
+	}
+
+	if interrupts.OnCharge && !intent.ChargeBasicWeapon && e.chargingElapsedTime > 0 {
+		// Release buster shot.
+		e.SetBehavior(&BusterEntityBehavior{IsPowerShot: e.chargingElapsedTime >= e.powerShotChargeTime})
+		e.chargingElapsedTime = 0
+	}
+
+	interrupts = e.behavior.Interrupts(e)
+	if interrupts.OnMove {
 		dir := intent.Direction
 		if e.confusedTimeLeft > 0 {
 			dir = dir.FlipH().FlipV()

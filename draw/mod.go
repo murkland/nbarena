@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/yumland/pngsheet"
 	"golang.org/x/image/font"
 )
 
@@ -33,6 +34,10 @@ type ImageNode struct {
 
 func (n *ImageNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
 	screen.DrawImage(n.Image, opts)
+}
+
+func ImageWithFrame(img *ebiten.Image, frame *pngsheet.Frame) Node {
+	return ImageWithOrigin(img.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)
 }
 
 func ImageWithOrigin(img *ebiten.Image, origin image.Point) Node {
