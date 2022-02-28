@@ -33,6 +33,8 @@ func (h *Hit) Merge(h2 Hit) {
 }
 
 type Entity struct {
+	elapsedTime Ticks
+
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
 
@@ -74,6 +76,7 @@ type Entity struct {
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
+		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(),
 		e.tilePos, e.futureTilePos,
 		e.isAlliedWithAnswerer,
@@ -139,10 +142,10 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		// TODO: Render ice.
 		characterNode.Opts.ColorM.Translate(float64(0xa5)/float64(0xff), float64(0xa5)/float64(0xff), float64(0xff)/float64(0xff), 0.0)
 	}
-	if e.paralyzedTimeLeft > 0 && (e.paralyzedTimeLeft/2)%2 == 1 {
+	if e.paralyzedTimeLeft > 0 && (e.elapsedTime/2)%2 == 1 {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 0.0, 0.0)
 	}
-	if e.flashingTimeLeft > 0 && (e.flashingTimeLeft/2)%2 == 0 {
+	if e.flashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
@@ -165,6 +168,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 }
 
 func (e *Entity) Step() {
+	e.elapsedTime++
+
 	// Set anger, if required.
 	if e.currentHit.Damage >= 300 {
 		e.isAngry = true
