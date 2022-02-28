@@ -120,11 +120,15 @@ func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Nod
 
 	rootNode := &draw.OptionsNode{}
 
-	megamanBusterAnimTime := int(realElapsedTime)
-	if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
-		megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
+	if realElapsedTime < 5 {
+		megamanBusterAnimTime := int(realElapsedTime)
+		if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
+			megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
+		}
+		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
+	} else {
+		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterEndAnimation.Frames[0]))
 	}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
 
 	busterFrames := b.BusterSprites.Animations[0]
 	busterAnimTime := int(realElapsedTime)
@@ -138,7 +142,10 @@ func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Nod
 		muzzleFlashAnimTime := int(realElapsedTime) - 1
 		if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
 			muzzleFlashNode := &draw.OptionsNode{}
-			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]))
+			muzzleFlashFrame := b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]
+			// TODO: Figure this out
+			muzzleFlashNode.Opts.GeoM.Translate(-float64(busterFrame.Origin.X-busterFrame.Rect.Dx()), -float64(busterFrame.Origin.Y-busterFrame.Rect.Dy()/2))
+			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, muzzleFlashFrame))
 			rootNode.Children = append(rootNode.Children, muzzleFlashNode)
 		}
 	}
