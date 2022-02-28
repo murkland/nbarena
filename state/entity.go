@@ -15,8 +15,16 @@ var (
 	debugDrawEntityMarker = flag.Bool("debug_draw_entity_markers", false, "draw entity markers")
 )
 
+type Damage struct {
+	Base int
+
+	ParalyzeTime Ticks
+	DoubleDamage bool
+	AttackPlus   int
+}
+
 type Hit struct {
-	Damage int
+	TotalDamage int
 
 	FlashTime      Ticks
 	ParalyzeTime   Ticks
@@ -30,8 +38,19 @@ type Hit struct {
 	Drag bool
 }
 
+func (h *Hit) AddDamage(d Damage) {
+	v := d.Base + d.AttackPlus
+	if d.DoubleDamage {
+		v *= 2
+	}
+	h.TotalDamage += v
+	if d.ParalyzeTime > 0 {
+		h.ParalyzeTime = d.ParalyzeTime
+	}
+}
+
 func (h *Hit) Merge(h2 Hit) {
-	h.Damage += h2.Damage
+	h.TotalDamage += h2.TotalDamage
 
 	// TODO: Verify this is correct behavior.
 	h.ParalyzeTime = h2.ParalyzeTime
@@ -197,7 +216,7 @@ func (e *Entity) Step(sh *StepHandle) {
 	e.elapsedTime++
 
 	// Set anger, if required.
-	if e.currentHit.Damage >= 300 {
+	if e.currentHit.TotalDamage >= 300 {
 		e.isAngry = true
 	}
 
@@ -205,14 +224,14 @@ func (e *Entity) Step(sh *StepHandle) {
 
 	// Process hit damage.
 	mustLeave1HP := e.hp > 1 && e.fatalHitLeaves1HP
-	e.hp -= e.currentHit.Damage
+	e.hp -= e.currentHit.TotalDamage
 	if e.hp < 0 {
 		e.hp = 0
 	}
 	if mustLeave1HP {
 		e.hp = 1
 	}
-	e.currentHit.Damage = 0
+	e.currentHit.TotalDamage = 0
 
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
