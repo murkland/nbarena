@@ -1,8 +1,18 @@
 package state
 
 import (
+	"flag"
+	"image"
+	"image/color"
+	"sync"
+
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
+)
+
+var (
+	debugDrawEntityMarker = flag.Bool("debug_draw_entity_markers", false, "draw entity markers")
 )
 
 type Hit struct {
@@ -129,6 +139,9 @@ func (e *Entity) IgnoresTileEffects() bool {
 	return e.ignoresTileEffects
 }
 
+var debugEntityMarkerImage *ebiten.Image
+var debugEntityMarkerImageOnce sync.Once
+
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.tilePos.XY()
@@ -163,6 +176,19 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	}
 
 	rootNode.Children = append(rootNode.Children, characterNode)
+
+	if *debugDrawEntityMarker {
+		debugEntityMarkerImageOnce.Do(func() {
+			debugEntityMarkerImage = ebiten.NewImage(5, 5)
+			for x := 0; x < 5; x++ {
+				debugEntityMarkerImage.Set(x, 2, color.RGBA{0, 255, 0, 255})
+			}
+			for y := 0; y < 5; y++ {
+				debugEntityMarkerImage.Set(2, y, color.RGBA{0, 255, 0, 255})
+			}
+		})
+		rootNode.Children = append(rootNode.Children, draw.ImageWithOrigin(debugEntityMarkerImage, image.Point{2, 2}))
+	}
 
 	return rootNode
 }
