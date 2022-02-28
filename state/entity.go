@@ -193,7 +193,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (e *Entity) Step() {
+func (e *Entity) Step(sh *StateHandle) {
 	e.elapsedTime++
 
 	// Set anger, if required.
@@ -217,7 +217,7 @@ func (e *Entity) Step() {
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.behaviorElapsedTime++
-	e.behavior.Step(e)
+	e.behavior.Step(e, sh)
 
 	if !e.currentHit.Drag {
 		if !e.isBeingDragged /* && !e.isInTimestop */ {

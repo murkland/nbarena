@@ -23,8 +23,10 @@ type State struct {
 
 	randSource *syncrand.Source
 
-	field    Field
-	entities map[int]*Entity
+	field Field
+
+	entities     map[int]*Entity
+	nextEntityID int
 }
 
 func New(randSource *syncrand.Source) State {
@@ -53,9 +55,18 @@ func New(randSource *syncrand.Source) State {
 	return State{
 		randSource: randSource,
 
-		field:    field,
-		entities: entities,
+		field: field,
+
+		entities:     entities,
+		nextEntityID: AnswererEntityID + 1,
 	}
+}
+
+func (s *State) AddEntity(e *Entity) int {
+	id := s.nextEntityID
+	s.entities[id] = e
+	s.nextEntityID++
+	return id
 }
 
 func (s *State) ElapsedTime() Ticks {
@@ -66,7 +77,8 @@ func (s State) Clone() State {
 	return State{
 		s.elapsedTime,
 		s.randSource.Clone(),
-		s.field.Clone(), clone.Map(s.entities),
+		s.field.Clone(),
+		clone.Map(s.entities), s.nextEntityID,
 	}
 }
 
@@ -134,28 +146,44 @@ func (s *State) Apply(offererIntent input.Intent, answererIntent input.Intent) {
 	}
 }
 
+type entityAndID struct {
+	ID     int
+	Entity *Entity
+}
+
+type StateHandle struct {
+	state   *State
+	pending []entityAndID
+}
+
+func (sh *StateHandle) SpawnEntity(e *Entity) int {
+	id := sh.state.AddEntity(e)
+	sh.pending = append(sh.pending, entityAndID{id, e})
+	return id
+}
+
 func (s *State) Step() {
 	s.elapsedTime++
 
 	// Step entities in a random order.
-	entities := make([]struct {
-		id     int
-		entity *Entity
-	}, 0, len(s.entities))
+	pending := make([]entityAndID, 0, len(s.entities))
 	for id, entity := range s.entities {
-		entities = append(entities, struct {
-			id     int
-			entity *Entity
-		}{id, entity})
+		pending = append(pending, entityAndID{id, entity})
 	}
-	sort.Slice(entities, func(i, j int) bool {
-		return entities[i].id < entities[j].id
+	sort.Slice(pending, func(i, j int) bool {
+		return pending[i].ID < pending[j].ID
 	})
-	rand.New(s.randSource).Shuffle(len(entities), func(i, j int) {
-		entities[i], entities[j] = entities[j], entities[i]
+	rand.New(s.randSource).Shuffle(len(pending), func(i, j int) {
+		pending[i], pending[j] = pending[j], pending[i]
 	})
-	for _, wrapped := range entities {
-		wrapped.entity.Step()
+
+	sh := &StateHandle{s, pending}
+
+	for len(sh.pending) > 0 {
+		entity := sh.pending[len(sh.pending)-1].Entity
+		sh.pending[len(sh.pending)-1].Entity = nil
+		sh.pending = sh.pending[:len(sh.pending)-2]
+		entity.Step(sh)
 	}
 
 	s.field.Step()

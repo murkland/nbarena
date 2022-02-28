@@ -15,7 +15,7 @@ type EntityBehaviorInterrupts struct {
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
-	Step(e *Entity)
+	Step(e *Entity, sh *StateHandle)
 	Interrupts(e *Entity) EntityBehaviorInterrupts
 }
 
@@ -26,7 +26,7 @@ func (eb *IdleEntityBehavior) Clone() EntityBehavior {
 	return &IdleEntityBehavior{}
 }
 
-func (eb *IdleEntityBehavior) Step(e *Entity) {
+func (eb *IdleEntityBehavior) Step(e *Entity, sh *StateHandle) {
 }
 
 func (eb *IdleEntityBehavior) Interrupts(e *Entity) EntityBehaviorInterrupts {
@@ -50,7 +50,7 @@ func (eb *MoveEntityBehavior) Clone() EntityBehavior {
 	return &MoveEntityBehavior{}
 }
 
-func (eb *MoveEntityBehavior) Step(e *Entity) {
+func (eb *MoveEntityBehavior) Step(e *Entity, sh *StateHandle) {
 	if e.behaviorElapsedTime == 3 {
 		e.tilePos = e.futureTilePos
 	}
@@ -97,7 +97,7 @@ func (eb *BusterEntityBehavior) Clone() EntityBehavior {
 	}
 }
 
-func (eb *BusterEntityBehavior) Step(e *Entity) {
+func (eb *BusterEntityBehavior) Step(e *Entity, sh *StateHandle) {
 	realElapsedTime := eb.realElapsedTime(e)
 	eb.cooldownTime = 100
 
