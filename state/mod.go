@@ -156,26 +156,50 @@ type entityAndID struct {
 }
 
 type StepHandle struct {
-	state   *State
-	pending []entityAndID
+	state *State
+	sq    *updateStack
 }
 
 func (sh *StepHandle) SpawnEntity(e *Entity) int {
 	id := sh.state.AddEntity(e)
-	sh.pending = append(sh.pending, entityAndID{id, e})
+	sh.sq.Push(id, e)
 	return id
 }
 
 func (sh *StepHandle) RemoveEntity(id int) {
 	sh.state.RemoveEntity(id)
-	pending := make([]entityAndID, 0, cap(sh.pending))
-	for _, eid := range sh.pending {
+	sh.sq.Remove(id)
+}
+
+type updateStack struct {
+	pending []entityAndID
+}
+
+func (sq *updateStack) HasMore() bool {
+	return len(sq.pending) > 0
+}
+
+func (sq *updateStack) Remove(id int) {
+	pending := make([]entityAndID, 0, cap(sq.pending))
+	for _, eid := range sq.pending {
 		if eid.ID == id {
 			continue
 		}
 		pending = append(pending, eid)
 	}
-	sh.pending = pending
+	sq.pending = pending
+}
+
+func (sq *updateStack) Push(id int, entity *Entity) {
+	sq.pending = append(sq.pending, entityAndID{id, entity})
+}
+
+func (sq *updateStack) Pop() (int, *Entity) {
+	eid := &sq.pending[len(sq.pending)-1]
+	entity := eid.Entity
+	eid.Entity = nil
+	sq.pending = sq.pending[:len(sq.pending)-2]
+	return eid.ID, entity
 }
 
 func (s *State) Step() {
@@ -193,12 +217,10 @@ func (s *State) Step() {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
 
-	sh := &StepHandle{s, pending}
-
-	for len(sh.pending) > 0 {
-		entity := sh.pending[len(sh.pending)-1].Entity
-		sh.pending[len(sh.pending)-1].Entity = nil
-		sh.pending = sh.pending[:len(sh.pending)-2]
+	sq := &updateStack{pending}
+	for sq.HasMore() {
+		_, entity := sq.Pop()
+		sh := &StepHandle{s, sq}
 		entity.Step(sh)
 	}
 
