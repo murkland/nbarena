@@ -122,10 +122,11 @@ type Sprites struct {
 }
 
 type Bundle struct {
-	Battletiles     *Battletiles
-	MegamanSprites  *CharacterSprites
-	ChargingSprites *ChargingSprites
-	BusterSprites   *Sprites
+	Battletiles        *Battletiles
+	MegamanSprites     *CharacterSprites
+	ChargingSprites    *ChargingSprites
+	BusterSprites      *Sprites
+	MuzzleFlashSprites *Sprites
 }
 
 func sheetToSprites(sheet *Sheet) *Sprites {
@@ -150,6 +151,7 @@ func Load(ctx context.Context) (*Bundle, error) {
 		}
 	}))
 	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", sheetToSprites))
+	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
 
 	if err := l.Load(); err != nil {
 		return nil, err

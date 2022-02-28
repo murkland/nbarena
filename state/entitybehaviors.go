@@ -114,19 +114,26 @@ func (eb *BusterEntityBehavior) Appearance(e *Entity, b *bundle.Bundle) draw.Nod
 
 	rootNode := &draw.OptionsNode{}
 
-	t := int(realElapsedTime)
-	if t >= len(b.MegamanSprites.BusterAnimation.Frames) {
-		t = len(b.MegamanSprites.BusterAnimation.Frames) - 1
+	megamanBusterAnimTime := int(realElapsedTime)
+	if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
+		megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
 	}
-
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[t]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
 
 	busterFrames := b.BusterSprites.Animations[0]
-	t2 := t
-	if t2 > len(busterFrames.Frames) {
-		t2 = len(busterFrames.Frames) - 1
+	busterAnimTime := int(realElapsedTime)
+	if busterAnimTime >= len(busterFrames.Frames) {
+		busterAnimTime = len(busterFrames.Frames) - 1
 	}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.BusterSprites.Image, busterFrames.Frames[t2]))
+	busterFrame := busterFrames.Frames[busterAnimTime]
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.BusterSprites.Image, busterFrame))
+
+	muzzleFlashAnimTime := int(realElapsedTime) - 1
+	if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
+		muzzleFlashNode := &draw.OptionsNode{}
+		muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]))
+		rootNode.Children = append(rootNode.Children, muzzleFlashNode)
+	}
 
 	return rootNode
 }
