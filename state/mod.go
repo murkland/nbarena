@@ -69,6 +69,10 @@ func (s *State) AddEntity(e *Entity) int {
 	return id
 }
 
+func (s *State) RemoveEntity(id int) {
+	delete(s.entities, id)
+}
+
 func (s *State) ElapsedTime() Ticks {
 	return s.elapsedTime
 }
@@ -160,6 +164,18 @@ func (sh *StepHandle) SpawnEntity(e *Entity) int {
 	id := sh.state.AddEntity(e)
 	sh.pending = append(sh.pending, entityAndID{id, e})
 	return id
+}
+
+func (sh *StepHandle) RemoveEntity(id int) {
+	sh.state.RemoveEntity(id)
+	pending := make([]entityAndID, 0, cap(sh.pending))
+	for _, eid := range sh.pending {
+		if eid.ID == id {
+			continue
+		}
+		pending = append(pending, eid)
+	}
+	sh.pending = pending
 }
 
 func (s *State) Step() {
