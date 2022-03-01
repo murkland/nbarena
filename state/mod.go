@@ -129,10 +129,7 @@ func (s *State) applyPlayerIntent(e *Entity, intent input.Intent, isOfferer bool
 			y++
 		}
 
-		tilePos := TilePosXY(x, y)
-		tile := &s.field.tiles[tilePos]
-		if tilePos != e.tilePos && e.isAlliedWithAnswerer == tile.isAlliedWithAnswerer && tile.CanEnter(e) {
-			e.StartMove(tilePos)
+		if e.StartMove(TilePosXY(x, y), &s.field) {
 			e.SetBehavior(&MoveEntityBehavior{})
 		}
 	}

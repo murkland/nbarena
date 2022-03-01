@@ -138,6 +138,7 @@ func (eb *BusterEntityBehavior) Step(e *Entity, sh *StepHandle) {
 			canStepOnHoleLikeTiles: true,
 			ignoresTileEffects:     true,
 			cannotFlinch:           true,
+			ignoresTileOwnership:   true,
 		})
 	}
 }
@@ -213,11 +214,10 @@ func (eb *busterShotEntityBehavior) Step(e *Entity, sh *StepHandle) {
 	if e.behaviorElapsedTime%2 == 1 {
 		x, y := e.tilePos.XY()
 		x += dxForward(e.isFlipped)
-		if x < 0 || x >= tileCols {
+		if !e.StartMove(TilePosXY(x, y), &sh.state.field) {
 			sh.RemoveEntity(e.id)
 			return
 		}
-		e.StartMove(TilePosXY(x, y))
 	} else {
 		e.FinishMove()
 

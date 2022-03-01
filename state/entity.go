@@ -85,6 +85,7 @@ type Entity struct {
 	ignoresTileEffects     bool
 	cannotFlinch           bool
 	fatalHitLeaves1HP      bool
+	ignoresTileOwnership   bool
 
 	chargingElapsedTime Ticks
 	powerShotChargeTime Ticks
@@ -115,7 +116,7 @@ func (e *Entity) Clone() *Entity {
 		e.isFlipped,
 		e.isDeleted,
 		e.hp, e.displayHP,
-		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP,
+		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP, e.ignoresTileOwnership,
 		e.chargingElapsedTime, e.powerShotChargeTime,
 		e.paralyzedTimeLeft,
 		e.confusedTimeLeft,
@@ -141,12 +142,25 @@ func (e *Entity) TilePos() TilePos {
 	return e.tilePos
 }
 
-func (e *Entity) StartMove(tilePos TilePos) {
+func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
+	x, y := tilePos.XY()
+	if x < 0 || x >= tileCols || y < 0 || y >= tileRows {
+		return false
+	}
+
+	tile := &field.tiles[tilePos]
+	if tilePos == e.tilePos ||
+		(!e.ignoresTileOwnership && e.isAlliedWithAnswerer != tile.isAlliedWithAnswerer) ||
+		!tile.CanEnter(e) {
+		return false
+	}
+
 	e.futureTilePos = tilePos
+	return true
 }
 
 func (e *Entity) FinishMove() {
-	e.futureTilePos = e.tilePos
+	e.tilePos = e.futureTilePos
 }
 
 func (e *Entity) HP() int {
