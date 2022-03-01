@@ -37,6 +37,9 @@ func New(randSource *syncrand.Source) State {
 
 			behavior: &IdleEntityBehavior{},
 
+			hp:        1000,
+			displayHP: 1000,
+
 			powerShotChargeTime: Ticks(50),
 
 			tilePos:       TilePosXY(2, 2),
@@ -45,12 +48,16 @@ func New(randSource *syncrand.Source) State {
 		AnswererEntityID: {
 			id: AnswererEntityID,
 
+			behavior: &IdleEntityBehavior{},
+
 			isFlipped:            true,
 			isAlliedWithAnswerer: true,
 
+			hp:        1000,
+			displayHP: 1000,
+
 			powerShotChargeTime: Ticks(50),
 
-			behavior:      &IdleEntityBehavior{},
 			tilePos:       TilePosXY(5, 2),
 			futureTilePos: TilePosXY(5, 2),
 		},

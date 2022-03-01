@@ -129,7 +129,11 @@ func (eb *BusterEntityBehavior) Step(e *Entity, sh *StepHandle) {
 				isPowerShot: eb.IsPowerShot,
 			},
 
-			tilePos:                TilePosXY(x, y),
+			tilePos: TilePosXY(x, y),
+
+			isFlipped:            e.isFlipped,
+			isAlliedWithAnswerer: e.isAlliedWithAnswerer,
+
 			hp:                     0,
 			canStepOnHoleLikeTiles: true,
 			ignoresTileEffects:     true,
@@ -206,6 +210,32 @@ func (eb *busterShotEntityBehavior) Interrupts(e *Entity) EntityBehaviorInterrup
 }
 
 func (eb *busterShotEntityBehavior) Step(e *Entity, sh *StepHandle) {
+	if e.behaviorElapsedTime%2 == 1 {
+		x, y := e.tilePos.XY()
+		x += dxForward(e.isFlipped)
+		if x < 0 || x >= tileCols {
+			sh.RemoveEntity(e.id)
+			return
+		}
+		e.futureTilePos = TilePosXY(x, y)
+	} else {
+		e.tilePos = e.futureTilePos
+
+		for _, e2 := range entitiesAt(sh.state, e.tilePos) {
+			if e2.isAlliedWithAnswerer == e.isAlliedWithAnswerer {
+				continue
+			}
+
+			damage := 10
+			if eb.isPowerShot {
+				damage *= 10
+			}
+			e2.currentHit.AddDamage(Damage{Base: damage})
+
+			sh.RemoveEntity(e.id)
+			return
+		}
+	}
 }
 
 type distanceMetric func(src TilePos, dest TilePos) int
@@ -257,4 +287,15 @@ func findNearestEntity(s *State, myEntityID int, pos TilePos, isAlliedWithAnswer
 	}
 
 	return targetID, bestDist
+}
+
+func entitiesAt(s *State, pos TilePos) []*Entity {
+	var entities []*Entity
+	for _, entity := range s.entities {
+		if entity.tilePos != pos {
+			continue
+		}
+		entities = append(entities, entity)
+	}
+	return entities
 }

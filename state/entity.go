@@ -350,20 +350,17 @@ func (e *Entity) Step(sh *StepHandle) {
 	}
 
 	// Update UI.
-	if e.displayHP != 0 {
-		var newDisplayHP int
-		dhp := e.displayHP - e.hp
-		if dhp < 0 {
-			newDisplayHP := e.displayHP - (-dhp >> 3) + 2
-			if newDisplayHP < e.hp {
-				newDisplayHP = e.hp
+	if e.displayHP != 0 && e.displayHP != e.hp {
+		if e.hp < e.displayHP {
+			e.displayHP -= ((e.displayHP-e.hp)>>3 + 4)
+			if e.displayHP < e.hp {
+				e.displayHP = e.hp
 			}
 		} else {
-			newDisplayHP := e.displayHP + (dhp >> 3) + 2
-			if newDisplayHP > e.hp {
-				newDisplayHP = e.hp
+			e.displayHP += ((e.hp-e.displayHP)>>3 + 4)
+			if e.displayHP > e.hp {
+				e.displayHP = e.hp
 			}
 		}
-		e.displayHP = newDisplayHP
 	}
 }
