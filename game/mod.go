@@ -32,6 +32,8 @@ type clientState struct {
 	committedState state.State
 	dirtyState     state.State
 
+	lastIncomingIntent input.Intent
+
 	incomingIntents *ringbuf.RingBuf[input.Intent]
 	outgoingIntents *ringbuf.RingBuf[input.Intent]
 }
@@ -72,6 +74,7 @@ func (cs *clientState) fastForward() error {
 			answerwerIntent = theirIntent
 		}
 
+		cs.lastIncomingIntent = theirIntent
 		cs.committedState.Step()
 		cs.committedState.Apply(offererIntent, answerwerIntent)
 	}
@@ -81,9 +84,11 @@ func (cs *clientState) fastForward() error {
 		var offererIntent input.Intent
 		var answerwerIntent input.Intent
 		if cs.isAnswerer {
+			offererIntent = cs.lastIncomingIntent
 			answerwerIntent = intent
 		} else {
 			offererIntent = intent
+			answerwerIntent = cs.lastIncomingIntent
 		}
 
 		cs.dirtyState.Step()
