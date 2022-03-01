@@ -141,8 +141,12 @@ func (e *Entity) TilePos() TilePos {
 	return e.tilePos
 }
 
-func (e *Entity) SetTilePos(tilePos TilePos) {
-	e.tilePos = tilePos
+func (e *Entity) StartMove(tilePos TilePos) {
+	e.futureTilePos = tilePos
+}
+
+func (e *Entity) FinishMove() {
+	e.futureTilePos = e.tilePos
 }
 
 func (e *Entity) HP() int {

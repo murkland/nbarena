@@ -52,7 +52,7 @@ func (eb *MoveEntityBehavior) Clone() EntityBehavior {
 
 func (eb *MoveEntityBehavior) Step(e *Entity, sh *StepHandle) {
 	if e.behaviorElapsedTime == 3 {
-		e.tilePos = e.futureTilePos
+		e.FinishMove()
 	}
 	if e.behaviorElapsedTime == 6+moveEndlagTicks {
 		e.SetBehavior(&IdleEntityBehavior{})
@@ -217,9 +217,9 @@ func (eb *busterShotEntityBehavior) Step(e *Entity, sh *StepHandle) {
 			sh.RemoveEntity(e.id)
 			return
 		}
-		e.futureTilePos = TilePosXY(x, y)
+		e.StartMove(TilePosXY(x, y))
 	} else {
-		e.tilePos = e.futureTilePos
+		e.FinishMove()
 
 		for _, e2 := range entitiesAt(sh.state, e.tilePos) {
 			if e2.isAlliedWithAnswerer == e.isAlliedWithAnswerer {
