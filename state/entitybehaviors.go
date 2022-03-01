@@ -129,7 +129,8 @@ func (eb *BusterEntityBehavior) Step(e *Entity, sh *StepHandle) {
 				isPowerShot: eb.IsPowerShot,
 			},
 
-			tilePos: TilePosXY(x, y),
+			tilePos:       TilePosXY(x, y),
+			futureTilePos: TilePosXY(x, y),
 
 			isFlipped:            e.isFlipped,
 			isAlliedWithAnswerer: e.isAlliedWithAnswerer,

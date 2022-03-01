@@ -168,6 +168,8 @@ type StepHandle struct {
 }
 
 func (sh *StepHandle) SpawnEntity(e *Entity) {
+	e.behaviorElapsedTime = -1
+	e.elapsedTime = -1
 	sh.state.AddEntity(e)
 	sh.sq.Push(e)
 }
