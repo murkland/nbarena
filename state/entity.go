@@ -62,6 +62,8 @@ func (h *Hit) Merge(h2 Hit) {
 }
 
 type Entity struct {
+	id int
+
 	elapsedTime Ticks
 
 	behaviorElapsedTime Ticks
@@ -105,6 +107,7 @@ type Entity struct {
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
+		e.id,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(),
 		e.tilePos, e.futureTilePos,

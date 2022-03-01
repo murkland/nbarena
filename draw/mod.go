@@ -30,6 +30,9 @@ func (n *OptionsNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) 
 	o.ColorM.Concat(opts.ColorM)
 
 	for _, c := range n.Children {
+		if c == nil {
+			continue
+		}
 		c.Draw(screen, &o)
 	}
 }

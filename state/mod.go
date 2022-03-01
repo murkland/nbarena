@@ -33,6 +33,8 @@ func New(randSource *syncrand.Source) State {
 	field := newField()
 	entities := map[int]*Entity{
 		OffererEntityID: {
+			id: OffererEntityID,
+
 			behavior: &IdleEntityBehavior{},
 
 			powerShotChargeTime: Ticks(50),
@@ -41,6 +43,8 @@ func New(randSource *syncrand.Source) State {
 			futureTilePos: TilePosXY(2, 2),
 		},
 		AnswererEntityID: {
+			id: AnswererEntityID,
+
 			isFlipped:            true,
 			isAlliedWithAnswerer: true,
 
@@ -62,11 +66,10 @@ func New(randSource *syncrand.Source) State {
 	}
 }
 
-func (s *State) AddEntity(e *Entity) int {
-	id := s.nextEntityID
-	s.entities[id] = e
+func (s *State) AddEntity(e *Entity) {
+	e.id = s.nextEntityID
+	s.entities[e.id] = e
 	s.nextEntityID++
-	return id
 }
 
 func (s *State) RemoveEntity(id int) {
@@ -160,10 +163,9 @@ type StepHandle struct {
 	sq    *updateStack
 }
 
-func (sh *StepHandle) SpawnEntity(e *Entity) int {
-	id := sh.state.AddEntity(e)
-	sh.sq.Push(id, e)
-	return id
+func (sh *StepHandle) SpawnEntity(e *Entity) {
+	sh.state.AddEntity(e)
+	sh.sq.Push(e)
 }
 
 func (sh *StepHandle) RemoveEntity(id int) {
@@ -172,7 +174,7 @@ func (sh *StepHandle) RemoveEntity(id int) {
 }
 
 type updateStack struct {
-	pending []entityAndID
+	pending []*Entity
 }
 
 func (sq *updateStack) HasMore() bool {
@@ -180,38 +182,38 @@ func (sq *updateStack) HasMore() bool {
 }
 
 func (sq *updateStack) Remove(id int) {
-	pending := make([]entityAndID, 0, cap(sq.pending))
-	for _, eid := range sq.pending {
-		if eid.ID == id {
+	pending := make([]*Entity, 0, cap(sq.pending))
+	for _, entity := range sq.pending {
+		if entity.id == id {
 			continue
 		}
-		pending = append(pending, eid)
+		pending = append(pending, entity)
 	}
 	sq.pending = pending
 }
 
-func (sq *updateStack) Push(id int, entity *Entity) {
-	sq.pending = append(sq.pending, entityAndID{id, entity})
+func (sq *updateStack) Push(entity *Entity) {
+	sq.pending = append(sq.pending, entity)
 }
 
-func (sq *updateStack) Pop() (int, *Entity) {
-	eid := &sq.pending[len(sq.pending)-1]
-	entity := eid.Entity
-	eid.Entity = nil
+func (sq *updateStack) Pop() *Entity {
+	slot := &sq.pending[len(sq.pending)-1]
+	entity := *slot
+	*slot = nil
 	sq.pending = sq.pending[: len(sq.pending)-1 : cap(sq.pending)]
-	return eid.ID, entity
+	return entity
 }
 
 func (s *State) Step() {
 	s.elapsedTime++
 
 	// Step entities in a random order.
-	pending := make([]entityAndID, 0, len(s.entities))
-	for id, entity := range s.entities {
-		pending = append(pending, entityAndID{id, entity})
+	pending := make([]*Entity, 0, len(s.entities))
+	for _, entity := range s.entities {
+		pending = append(pending, entity)
 	}
 	sort.Slice(pending, func(i, j int) bool {
-		return pending[i].ID < pending[j].ID
+		return pending[i].id < pending[j].id
 	})
 	rand.New(s.randSource).Shuffle(len(pending), func(i, j int) {
 		pending[i], pending[j] = pending[j], pending[i]
@@ -219,7 +221,7 @@ func (s *State) Step() {
 
 	sq := &updateStack{pending}
 	for sq.HasMore() {
-		_, entity := sq.Pop()
+		entity := sq.Pop()
 		sh := &StepHandle{s, sq}
 		entity.Step(sh)
 	}
