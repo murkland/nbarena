@@ -44,7 +44,12 @@ func main() {
 		log.Fatalf("failed to load bundle: %s", err)
 	}
 
-	peerConn, err := webrtc.NewPeerConnection(webrtc.Configuration{
+	api, err := WebRTCAPI()
+	if err != nil {
+		log.Fatalf("failed to get WebRTC API: %s", err)
+	}
+
+	peerConn, err := api.NewPeerConnection(webrtc.Configuration{
 		ICEServers: iceServers,
 	})
 	if err != nil {
@@ -73,7 +78,9 @@ func main() {
 		}
 	}
 
-	log.Printf("connected!")
+	log.Printf("signaling complete!")
+	log.Printf("local SDP: %s", peerConn.LocalDescription().SDP)
+	log.Printf("remote SDP: %s", peerConn.RemoteDescription().SDP)
 
 	randSource, seed, err := netsyncrand.Negotiate(ctx, dc)
 	if err != nil {
