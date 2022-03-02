@@ -24,6 +24,7 @@ func (eb *Idle) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 }
 
 func (eb *Idle) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	frame := b.MegamanSprites.IdleAnimation.Frames[0]
+	frames := b.MegamanSprites.IdleAnimation.Frames
+	frame := frames[int(e.BehaviorElapsedTime())%len(frames)]
 	return draw.ImageWithFrame(b.MegamanSprites.Image, frame)
 }
