@@ -54,7 +54,7 @@ func makeDebugOutline(bounds image.Rectangle) *ebiten.Image {
 
 func (n *ImageNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
 	screen.DrawImage(n.Image, opts)
-	if *debugDrawImageNodeOutlines {
+	if *debugDrawImageNodeOutlines && n.Image.Bounds().Dx() > 0 && n.Image.Bounds().Dy() > 0 {
 		opts2 := *opts
 		opts2.ColorM.Reset()
 		screen.DrawImage(makeDebugOutline(n.Image.Bounds()), &opts2)
