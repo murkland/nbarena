@@ -30,7 +30,7 @@ func New(randSource *syncrand.Source) State {
 		Field: newField(),
 
 		Entities:     map[int]*Entity{},
-		nextEntityID: 0,
+		nextEntityID: 1,
 	}
 }
 
