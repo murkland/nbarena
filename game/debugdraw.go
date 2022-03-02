@@ -44,9 +44,9 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 
 	var entity *state.Entity
 	if !g.cs.isAnswerer {
-		entity = g.cs.dirtyState.Entity(state.OffererEntityID)
+		entity = g.cs.dirtyState.Entities[g.cs.OffererEntityID]
 	} else {
-		entity = g.cs.dirtyState.Entity(state.AnswererEntityID)
+		entity = g.cs.dirtyState.Entities[g.cs.AnswererEntityID]
 	}
 
 	delay := g.medianDelay()

@@ -11,13 +11,13 @@ type Tile struct {
 	behaviorElapsedTime Ticks
 	behavior            TileBehavior
 
-	isAlliedWithAnswerer bool
+	IsAlliedWithAnswerer bool
 }
 
 func (t Tile) Clone() Tile {
 	return Tile{
 		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
-		t.isAlliedWithAnswerer,
+		t.IsAlliedWithAnswerer,
 	}
 }
 
@@ -33,8 +33,8 @@ func (t *Tile) SetBehavior(b TileBehavior) {
 	t.behavior = b
 }
 
-func (t *Tile) IsAlliedWithAnswerer() bool {
-	return t.isAlliedWithAnswerer
+func (t *Tile) BehaviorElapsedTime() Ticks {
+	return t.behaviorElapsedTime
 }
 
 func (t *Tile) Step() {
@@ -51,23 +51,23 @@ func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
 		return nil
 	}
 	tiles := b.Battletiles.OffererTiles
-	if t.isAlliedWithAnswerer {
+	if t.IsAlliedWithAnswerer {
 		tiles = b.Battletiles.AnswererTiles
 	}
 	return t.behavior.Appearance(t, y, b, tiles)
 }
 
-const tileRows = 5
-const tileCols = 8
+const TileRows = 5
+const TileCols = 8
 
 type TilePos int
 
 func TilePosXY(x int, y int) TilePos {
-	return TilePos(y*tileCols + x)
+	return TilePos(y*TileCols + x)
 }
 
 func (p TilePos) XY() (int, int) {
-	return int(p) % tileCols, int(p) / tileCols
+	return int(p) % TileCols, int(p) / TileCols
 }
 
 type TileBehavior interface {
@@ -91,7 +91,7 @@ func (tb *HoleTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *
 }
 
 func (tb *HoleTileBehavior) CanEnter(t *Tile, e *Entity) bool {
-	return e.CanStepOnHoleLikeTiles()
+	return e.Traits.CanStepOnHoleLikeTiles
 }
 func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity) {}
 func (tb *HoleTileBehavior) OnLeave(t *Tile, e *Entity) {}
@@ -110,7 +110,7 @@ func (tb *BrokenTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles
 }
 
 func (tb *BrokenTileBehavior) CanEnter(t *Tile, e *Entity) bool {
-	return e.CanStepOnHoleLikeTiles()
+	return e.Traits.CanStepOnHoleLikeTiles
 }
 func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity) {}
 func (tb *BrokenTileBehavior) OnLeave(t *Tile, e *Entity) {}
@@ -160,7 +160,7 @@ func (tb *CrackedTile) CanEnter(t *Tile, e *Entity) bool {
 func (tb *CrackedTile) OnEnter(t *Tile, e *Entity) {
 }
 func (tb *CrackedTile) OnLeave(t *Tile, e *Entity) {
-	if e.IgnoresTileEffects() {
+	if e.Traits.IgnoresTileEffects {
 		return
 	}
 	t.SetBehavior(&BrokenTileBehavior{})

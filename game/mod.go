@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
+	"github.com/yumland/yumbattle/behaviors"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/input"
@@ -28,6 +30,9 @@ const maxPendingIntents = 60
 
 type clientState struct {
 	isAnswerer bool
+
+	OffererEntityID  int
+	AnswererEntityID int
 
 	committedState state.State
 	dirtyState     state.State
@@ -76,7 +81,7 @@ func (cs *clientState) fastForward() error {
 
 		cs.lastIncomingIntent = theirIntent
 		cs.committedState.Step()
-		cs.committedState.Apply(offererIntent, answerwerIntent)
+		applyPlayerIntents(&cs.committedState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
@@ -92,7 +97,7 @@ func (cs *clientState) fastForward() error {
 		}
 
 		cs.dirtyState.Step()
-		cs.dirtyState.Apply(offererIntent, answerwerIntent)
+		applyPlayerIntents(&cs.dirtyState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
 	return nil
@@ -120,11 +125,46 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
 
 	s := state.New(rng)
+	var offererEntityID int
+	{
+		e := &state.Entity{
+			HP:        1000,
+			DisplayHP: 1000,
+
+			PowerShotChargeTime: state.Ticks(50),
+
+			TilePos:       state.TilePosXY(2, 2),
+			FutureTilePos: state.TilePosXY(2, 2),
+		}
+		e.SetBehavior(&behaviors.Idle{})
+		offererEntityID = s.AddEntity(e)
+	}
+
+	var answererEntityID int
+	{
+		e := &state.Entity{
+			HP:        1000,
+			DisplayHP: 1000,
+
+			PowerShotChargeTime: state.Ticks(50),
+
+			IsFlipped:            true,
+			IsAlliedWithAnswerer: true,
+
+			TilePos:       state.TilePosXY(5, 2),
+			FutureTilePos: state.TilePosXY(5, 2),
+		}
+		e.SetBehavior(&behaviors.Idle{})
+		answererEntityID = s.AddEntity(e)
+	}
 
 	g := &Game{
 		bundle: b,
 		dc:     dc,
 		cs: &clientState{
+			OffererEntityID:  offererEntityID,
+			AnswererEntityID: answererEntityID,
+
 			isAnswerer: isAnswerer,
 
 			committedState: s,
@@ -306,6 +346,67 @@ func (g *Game) Update() error {
 	}
 
 	return nil
+}
+
+func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
+	interrupts := e.Interrupts()
+	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.ChargingElapsedTime > 0) {
+		e.ChargingElapsedTime++
+	}
+
+	if interrupts.OnCharge && !intent.ChargeBasicWeapon && e.ChargingElapsedTime > 0 {
+		// Release buster shot.
+		e.SetBehavior(&behaviors.Buster{IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
+		e.ChargingElapsedTime = 0
+	}
+
+	interrupts = e.Interrupts()
+	if interrupts.OnMove {
+		dir := intent.Direction
+		if e.ConfusedTimeLeft > 0 {
+			dir = dir.FlipH().FlipV()
+		}
+
+		x, y := e.TilePos.XY()
+		if dir&input.DirectionLeft != 0 {
+			x--
+		}
+		if dir&input.DirectionRight != 0 {
+			x++
+		}
+		if dir&input.DirectionUp != 0 {
+			y--
+		}
+		if dir&input.DirectionDown != 0 {
+			y++
+		}
+
+		if e.StartMove(state.TilePosXY(x, y), &s.Field) {
+			e.SetBehavior(&behaviors.Teleport{})
+		}
+	}
+}
+
+func applyPlayerIntents(s *state.State, offererEntityID int, offererIntent input.Intent, answererEntityID int, answererIntent input.Intent) {
+	intents := []struct {
+		isOfferer bool
+		intent    input.Intent
+	}{
+		{true, offererIntent},
+		{false, answererIntent},
+	}
+	rand.New(s.RandSource).Shuffle(len(intents), func(i, j int) {
+		intents[i], intents[j] = intents[j], intents[i]
+	})
+	for _, wrapped := range intents {
+		var entity *state.Entity
+		if wrapped.isOfferer {
+			entity = s.Entities[offererEntityID]
+		} else {
+			entity = s.Entities[answererEntityID]
+		}
+		applyPlayerIntent(s, entity, wrapped.intent, wrapped.isOfferer)
+	}
 }
 
 func (g *Game) RunBackgroundTasks(ctx context.Context) error {

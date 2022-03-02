@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 )
@@ -15,50 +16,12 @@ var (
 	debugDrawEntityMarker = flag.Bool("debug_draw_entity_markers", false, "draw entity markers")
 )
 
-type Damage struct {
-	Base int
-
-	ParalyzeTime Ticks
-	DoubleDamage bool
-	AttackPlus   int
-}
-
-type Hit struct {
-	TotalDamage int
-
-	FlashTime      Ticks
-	ParalyzeTime   Ticks
-	ConfuseTime    Ticks
-	BlindTime      Ticks
-	ImmobilizeTime Ticks
-	FreezeTime     Ticks
-	BubbleTime     Ticks
-
-	// ???
-	Drag bool
-}
-
-func (h *Hit) AddDamage(d Damage) {
-	v := d.Base + d.AttackPlus
-	if d.DoubleDamage {
-		v *= 2
-	}
-	h.TotalDamage += v
-	if d.ParalyzeTime > 0 {
-		h.ParalyzeTime = d.ParalyzeTime
-	}
-}
-
-func (h *Hit) Merge(h2 Hit) {
-	h.TotalDamage += h2.TotalDamage
-
-	// TODO: Verify this is correct behavior.
-	h.ParalyzeTime = h2.ParalyzeTime
-	h.ConfuseTime = h2.ConfuseTime
-	h.BlindTime = h2.BlindTime
-	h.ImmobilizeTime = h2.ImmobilizeTime
-	h.FreezeTime = h2.FreezeTime
-	h.BubbleTime = h2.BubbleTime
+type EntityTraits struct {
+	CanStepOnHoleLikeTiles bool
+	IgnoresTileEffects     bool
+	CannotFlinch           bool
+	FatalHitLeaves1HP      bool
+	IgnoresTileOwnership   bool
 }
 
 type Entity struct {
@@ -69,41 +32,45 @@ type Entity struct {
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
 
-	tilePos       TilePos
-	futureTilePos TilePos
+	TilePos       TilePos
+	FutureTilePos TilePos
 
-	isAlliedWithAnswerer bool
+	IsAlliedWithAnswerer bool
 
-	isFlipped bool
+	IsFlipped bool
 
 	isDeleted bool
 
-	hp        int
-	displayHP int
+	HP        int
+	DisplayHP int
 
-	canStepOnHoleLikeTiles bool
-	ignoresTileEffects     bool
-	cannotFlinch           bool
-	fatalHitLeaves1HP      bool
-	ignoresTileOwnership   bool
+	Traits EntityTraits
 
-	chargingElapsedTime Ticks
-	powerShotChargeTime Ticks
+	ChargingElapsedTime Ticks
+	PowerShotChargeTime Ticks
 
-	paralyzedTimeLeft   Ticks
-	confusedTimeLeft    Ticks
-	blindedTimeLeft     Ticks
-	immobilizedTimeLeft Ticks
-	flashingTimeLeft    Ticks
-	invincibleTimeLeft  Ticks
-	frozenTimeLeft      Ticks
-	bubbledTimeLeft     Ticks
+	ParalyzedTimeLeft   Ticks
+	ConfusedTimeLeft    Ticks
+	BlindedTimeLeft     Ticks
+	ImmobilizedTimeLeft Ticks
+	FlashingTimeLeft    Ticks
+	InvincibleTimeLeft  Ticks
+	FrozenTimeLeft      Ticks
+	BubbledTimeLeft     Ticks
 
-	currentHit Hit
+	IsAngry        bool
+	IsBeingDragged bool
+	IsSliding      bool
 
-	isAngry        bool
-	isBeingDragged bool
-	isSliding      bool
+	CurrentHit Hit
+}
+
+func (e *Entity) ID() int {
+	return e.id
+}
+
+func (e *Entity) Interrupts() EntityBehaviorInterrupts {
+	return e.behavior.Interrupts(e)
 }
 
 func (e *Entity) Clone() *Entity {
@@ -111,25 +78,16 @@ func (e *Entity) Clone() *Entity {
 		e.id,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(),
-		e.tilePos, e.futureTilePos,
-		e.isAlliedWithAnswerer,
-		e.isFlipped,
+		e.TilePos, e.FutureTilePos,
+		e.IsAlliedWithAnswerer,
+		e.IsFlipped,
 		e.isDeleted,
-		e.hp, e.displayHP,
-		e.canStepOnHoleLikeTiles, e.ignoresTileEffects, e.cannotFlinch, e.fatalHitLeaves1HP, e.ignoresTileOwnership,
-		e.chargingElapsedTime, e.powerShotChargeTime,
-		e.paralyzedTimeLeft,
-		e.confusedTimeLeft,
-		e.blindedTimeLeft,
-		e.immobilizedTimeLeft,
-		e.flashingTimeLeft,
-		e.invincibleTimeLeft,
-		e.frozenTimeLeft,
-		e.bubbledTimeLeft,
-		e.currentHit,
-		e.isAngry,
-		e.isBeingDragged,
-		e.isSliding,
+		e.HP, e.DisplayHP,
+		e.Traits,
+		e.ChargingElapsedTime, e.PowerShotChargeTime,
+		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
+		e.IsAngry, e.IsBeingDragged, e.IsSliding,
+		e.CurrentHit,
 	}
 }
 
@@ -138,45 +96,29 @@ func (e *Entity) SetBehavior(behavior EntityBehavior) {
 	e.behavior = behavior
 }
 
-func (e *Entity) TilePos() TilePos {
-	return e.tilePos
+func (e *Entity) BehaviorElapsedTime() Ticks {
+	return e.behaviorElapsedTime
 }
 
 func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
 	x, y := tilePos.XY()
-	if x < 0 || x >= tileCols || y < 0 || y >= tileRows {
+	if x < 0 || x >= TileCols || y < 0 || y >= TileRows {
 		return false
 	}
 
-	tile := &field.tiles[tilePos]
-	if tilePos == e.tilePos ||
-		(!e.ignoresTileOwnership && e.isAlliedWithAnswerer != tile.isAlliedWithAnswerer) ||
+	tile := &field.Tiles[tilePos]
+	if tilePos == e.TilePos ||
+		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
 		!tile.CanEnter(e) {
 		return false
 	}
 
-	e.futureTilePos = tilePos
+	e.FutureTilePos = tilePos
 	return true
 }
 
 func (e *Entity) FinishMove() {
-	e.tilePos = e.futureTilePos
-}
-
-func (e *Entity) HP() int {
-	return e.hp
-}
-
-func (e *Entity) SetHP(hp int) {
-	e.hp = hp
-}
-
-func (e *Entity) CanStepOnHoleLikeTiles() bool {
-	return e.canStepOnHoleLikeTiles
-}
-
-func (e *Entity) IgnoresTileEffects() bool {
-	return e.ignoresTileEffects
+	e.TilePos = e.FutureTilePos
 }
 
 var debugEntityMarkerImage *ebiten.Image
@@ -184,34 +126,34 @@ var debugEntityMarkerImageOnce sync.Once
 
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	x, y := e.tilePos.XY()
+	x, y := e.TilePos.XY()
 	rootNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth+tileRenderedWidth/2), float64((y-1)*tileRenderedHeight+tileRenderedHeight/2))
 
 	characterNode := &draw.OptionsNode{}
-	if e.isFlipped {
+	if e.IsFlipped {
 		characterNode.Opts.GeoM.Scale(-1, 1)
 	}
-	if e.frozenTimeLeft > 0 {
+	if e.FrozenTimeLeft > 0 {
 		// TODO: Render ice.
 		characterNode.Opts.ColorM.Translate(float64(0xa5)/float64(0xff), float64(0xa5)/float64(0xff), float64(0xff)/float64(0xff), 0.0)
 	}
-	if e.paralyzedTimeLeft > 0 && (e.elapsedTime/2)%2 == 1 {
+	if e.ParalyzedTimeLeft > 0 && (e.elapsedTime/2)%2 == 1 {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 0.0, 0.0)
 	}
-	if e.flashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
+	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
 
-	if e.chargingElapsedTime >= 10 {
+	if e.ChargingElapsedTime >= 10 {
 		chargingNode := &draw.OptionsNode{}
 		characterNode.Children = append(characterNode.Children, chargingNode)
 
 		frames := b.ChargingSprites.ChargingAnimation.Frames
-		if e.chargingElapsedTime >= e.powerShotChargeTime {
+		if e.ChargingElapsedTime >= e.PowerShotChargeTime {
 			frames = b.ChargingSprites.ChargedAnimation.Frames
 		}
-		frame := frames[int(e.chargingElapsedTime)%len(frames)]
+		frame := frames[int(e.ChargingElapsedTime)%len(frames)]
 		chargingNode.Children = append(chargingNode.Children, draw.ImageWithFrame(b.ChargingSprites.Image, frame))
 	}
 
@@ -237,148 +179,160 @@ func (e *Entity) Step(sh *StepHandle) {
 	e.elapsedTime++
 
 	// Set anger, if required.
-	if e.currentHit.TotalDamage >= 300 {
-		e.isAngry = true
+	if e.CurrentHit.TotalDamage >= 300 {
+		e.IsAngry = true
 	}
 
 	// TODO: Process poison damage.
 
 	// Process hit damage.
-	mustLeave1HP := e.hp > 1 && e.fatalHitLeaves1HP
-	e.hp -= e.currentHit.TotalDamage
-	if e.hp < 0 {
-		e.hp = 0
+	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
+	e.HP -= e.CurrentHit.TotalDamage
+	if e.HP < 0 {
+		e.HP = 0
 	}
 	if mustLeave1HP {
-		e.hp = 1
+		e.HP = 1
 	}
-	e.currentHit.TotalDamage = 0
+	e.CurrentHit.TotalDamage = 0
 
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.behaviorElapsedTime++
 	e.behavior.Step(e, sh)
 
-	if !e.currentHit.Drag {
-		if !e.isBeingDragged /* && !e.isInTimestop */ {
+	if !e.CurrentHit.Drag {
+		if !e.IsBeingDragged /* && !e.isInTimestop */ {
 			// Process flashing.
-			if e.currentHit.FlashTime > 0 {
-				e.flashingTimeLeft = e.currentHit.FlashTime
-				e.currentHit.FlashTime = 0
+			if e.CurrentHit.FlashTime > 0 {
+				e.FlashingTimeLeft = e.CurrentHit.FlashTime
+				e.CurrentHit.FlashTime = 0
 			}
-			if e.flashingTimeLeft > 0 {
-				e.flashingTimeLeft--
+			if e.FlashingTimeLeft > 0 {
+				e.FlashingTimeLeft--
 			}
 
 			// Process paralyzed.
-			if e.currentHit.ParalyzeTime > 0 {
-				e.paralyzedTimeLeft = e.currentHit.ParalyzeTime
-				e.currentHit.ConfuseTime = 0
-				e.currentHit.ParalyzeTime = 0
+			if e.CurrentHit.ParalyzeTime > 0 {
+				e.ParalyzedTimeLeft = e.CurrentHit.ParalyzeTime
+				e.CurrentHit.ConfuseTime = 0
+				e.CurrentHit.ParalyzeTime = 0
 			}
-			if e.paralyzedTimeLeft > 0 {
-				e.paralyzedTimeLeft--
-				e.frozenTimeLeft = 0
-				e.bubbledTimeLeft = 0
-				e.confusedTimeLeft = 0
+			if e.ParalyzedTimeLeft > 0 {
+				e.ParalyzedTimeLeft--
+				e.FrozenTimeLeft = 0
+				e.BubbledTimeLeft = 0
+				e.ConfusedTimeLeft = 0
 			}
 
 			// Process frozen.
-			if e.currentHit.FreezeTime > 0 {
-				e.frozenTimeLeft = e.currentHit.FreezeTime
-				e.paralyzedTimeLeft = 0
-				e.currentHit.BubbleTime = 0
-				e.currentHit.ConfuseTime = 0
-				e.currentHit.FreezeTime = 0
+			if e.CurrentHit.FreezeTime > 0 {
+				e.FrozenTimeLeft = e.CurrentHit.FreezeTime
+				e.ParalyzedTimeLeft = 0
+				e.CurrentHit.BubbleTime = 0
+				e.CurrentHit.ConfuseTime = 0
+				e.CurrentHit.FreezeTime = 0
 			}
-			if e.frozenTimeLeft > 0 {
-				e.frozenTimeLeft--
-				e.bubbledTimeLeft = 0
-				e.confusedTimeLeft = 0
+			if e.FrozenTimeLeft > 0 {
+				e.FrozenTimeLeft--
+				e.BubbledTimeLeft = 0
+				e.ConfusedTimeLeft = 0
 			}
 
 			// Process bubbled.
-			if e.currentHit.BubbleTime > 0 {
-				e.bubbledTimeLeft = e.currentHit.BubbleTime
-				e.confusedTimeLeft = 0
-				e.paralyzedTimeLeft = 0
-				e.frozenTimeLeft = 0
-				e.currentHit.ConfuseTime = 0
-				e.currentHit.BubbleTime = 0
+			if e.CurrentHit.BubbleTime > 0 {
+				e.BubbledTimeLeft = e.CurrentHit.BubbleTime
+				e.ConfusedTimeLeft = 0
+				e.ParalyzedTimeLeft = 0
+				e.FrozenTimeLeft = 0
+				e.CurrentHit.ConfuseTime = 0
+				e.CurrentHit.BubbleTime = 0
 			}
-			if e.bubbledTimeLeft > 0 {
-				e.bubbledTimeLeft--
-				e.confusedTimeLeft = 0
+			if e.BubbledTimeLeft > 0 {
+				e.BubbledTimeLeft--
+				e.ConfusedTimeLeft = 0
 			}
 
 			// Process confused.
-			if e.currentHit.ConfuseTime > 0 {
-				e.confusedTimeLeft = e.currentHit.ConfuseTime
-				e.paralyzedTimeLeft = 0
-				e.frozenTimeLeft = 0
-				e.bubbledTimeLeft = 0
-				e.currentHit.FreezeTime = 0
-				e.currentHit.BubbleTime = 0
-				e.currentHit.ParalyzeTime = 0
-				e.currentHit.ConfuseTime = 0
+			if e.CurrentHit.ConfuseTime > 0 {
+				e.ConfusedTimeLeft = e.CurrentHit.ConfuseTime
+				e.ParalyzedTimeLeft = 0
+				e.FrozenTimeLeft = 0
+				e.BubbledTimeLeft = 0
+				e.CurrentHit.FreezeTime = 0
+				e.CurrentHit.BubbleTime = 0
+				e.CurrentHit.ParalyzeTime = 0
+				e.CurrentHit.ConfuseTime = 0
 			}
-			if e.confusedTimeLeft > 0 {
-				e.confusedTimeLeft--
+			if e.ConfusedTimeLeft > 0 {
+				e.ConfusedTimeLeft--
 			}
 
 			// Process immobilized.
-			if e.currentHit.ImmobilizeTime > 0 {
-				e.immobilizedTimeLeft = e.currentHit.ImmobilizeTime
-				e.currentHit.ImmobilizeTime = 0
+			if e.CurrentHit.ImmobilizeTime > 0 {
+				e.ImmobilizedTimeLeft = e.CurrentHit.ImmobilizeTime
+				e.CurrentHit.ImmobilizeTime = 0
 			}
-			if e.immobilizedTimeLeft > 0 {
-				e.immobilizedTimeLeft--
+			if e.ImmobilizedTimeLeft > 0 {
+				e.ImmobilizedTimeLeft--
 			}
 
 			// Process blinded.
-			if e.currentHit.BlindTime > 0 {
-				e.blindedTimeLeft = e.currentHit.BlindTime
-				e.currentHit.BlindTime = 0
+			if e.CurrentHit.BlindTime > 0 {
+				e.BlindedTimeLeft = e.CurrentHit.BlindTime
+				e.CurrentHit.BlindTime = 0
 			}
-			if e.blindedTimeLeft > 0 {
-				e.blindedTimeLeft--
+			if e.BlindedTimeLeft > 0 {
+				e.BlindedTimeLeft--
 			}
 
 			// Process invincible.
-			if e.invincibleTimeLeft > 0 {
-				e.invincibleTimeLeft--
+			if e.InvincibleTimeLeft > 0 {
+				e.InvincibleTimeLeft--
 			}
 		} else {
 			// TODO: Interrupt player.
 		}
 	} else {
-		e.currentHit.Drag = false
+		e.CurrentHit.Drag = false
 
-		e.frozenTimeLeft = 0
-		e.bubbledTimeLeft = 0
-		e.paralyzedTimeLeft = 0
-		e.currentHit.BubbleTime = 0
-		e.currentHit.FreezeTime = 0
+		e.FrozenTimeLeft = 0
+		e.BubbledTimeLeft = 0
+		e.ParalyzedTimeLeft = 0
+		e.CurrentHit.BubbleTime = 0
+		e.CurrentHit.FreezeTime = 0
 
 		if false {
-			e.paralyzedTimeLeft = 0
+			e.ParalyzedTimeLeft = 0
 		}
 
 		// TODO: Interrupt player.
 	}
 
 	// Update UI.
-	if e.displayHP != 0 && e.displayHP != e.hp {
-		if e.hp < e.displayHP {
-			e.displayHP -= ((e.displayHP-e.hp)>>3 + 4)
-			if e.displayHP < e.hp {
-				e.displayHP = e.hp
+	if e.DisplayHP != 0 && e.DisplayHP != e.HP {
+		if e.HP < e.DisplayHP {
+			e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
+			if e.DisplayHP < e.HP {
+				e.DisplayHP = e.HP
 			}
 		} else {
-			e.displayHP += ((e.hp-e.displayHP)>>3 + 4)
-			if e.displayHP > e.hp {
-				e.displayHP = e.hp
+			e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
+			if e.DisplayHP > e.HP {
+				e.DisplayHP = e.HP
 			}
 		}
 	}
+}
+
+type EntityBehaviorInterrupts struct {
+	OnMove   bool
+	OnCharge bool
+}
+
+type EntityBehavior interface {
+	clone.Cloner[EntityBehavior]
+	Appearance(e *Entity, b *bundle.Bundle) draw.Node
+	Step(e *Entity, sh *StepHandle)
+	Interrupts(e *Entity) EntityBehaviorInterrupts
 }

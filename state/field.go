@@ -15,44 +15,44 @@ func (c ColumnInfo) Clone() ColumnInfo {
 }
 
 type Field struct {
-	tiles      []Tile
-	columnInfo []ColumnInfo
+	Tiles      []Tile
+	ColumnInfo []ColumnInfo
 }
 
 func (f Field) Clone() Field {
-	return Field{clone.Slice(f.tiles), clone.Slice(f.columnInfo)}
+	return Field{clone.Slice(f.Tiles), clone.Slice(f.ColumnInfo)}
 }
 
 func newField() Field {
-	tiles := make([]Tile, tileCols*tileRows)
-	for j := 0; j < tileRows; j++ {
-		for i := 0; i < tileCols; i++ {
+	tiles := make([]Tile, TileCols*TileRows)
+	for j := 0; j < TileRows; j++ {
+		for i := 0; i < TileCols; i++ {
 			t := &tiles[int(TilePosXY(i, j))]
-			if i >= 1 && i < 7 && j >= 1 && j < 4 {
+			if i >= 1 && i < TileCols-1 && j >= 1 && j < TileRows-1 {
 				t.behavior = &NormalTileBehavior{}
 			}
-			t.isAlliedWithAnswerer = i >= 4
+			t.IsAlliedWithAnswerer = i >= TileCols/2
 		}
 	}
-	return Field{tiles, make([]ColumnInfo, tileCols)}
+	return Field{tiles, make([]ColumnInfo, TileCols)}
 }
 
 func (f *Field) Step() {
-	for j := range f.columnInfo {
-		if f.columnInfo[j].allySwapTimeLeft > 0 {
-			f.columnInfo[j].allySwapTimeLeft--
-			if f.columnInfo[j].allySwapTimeLeft <= 0 {
-				for i := 0; i < tileCols; i++ {
-					t := &f.tiles[int(TilePosXY(i, j))]
+	for j := range f.ColumnInfo {
+		if f.ColumnInfo[j].allySwapTimeLeft > 0 {
+			f.ColumnInfo[j].allySwapTimeLeft--
+			if f.ColumnInfo[j].allySwapTimeLeft <= 0 {
+				for i := 0; i < TileCols; i++ {
+					t := &f.Tiles[int(TilePosXY(i, j))]
 					// TODO: Check if tile is occupied: if occupied, do not switch ally.
-					t.isAlliedWithAnswerer = !t.isAlliedWithAnswerer
+					t.IsAlliedWithAnswerer = !t.IsAlliedWithAnswerer
 				}
 			}
 		}
 	}
 
-	for i := range f.tiles {
-		f.tiles[i].Step()
+	for i := range f.Tiles {
+		f.Tiles[i].Step()
 	}
 }
 
@@ -63,7 +63,7 @@ const (
 
 func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 	optsNode := &draw.OptionsNode{}
-	for i, tile := range f.tiles {
+	for i, tile := range f.Tiles {
 		x, y := TilePos(i).XY()
 		node := tile.Appearance(y, b)
 		if node == nil {
