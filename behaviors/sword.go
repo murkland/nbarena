@@ -46,7 +46,7 @@ func (eb *Sword) Clone() state.EntityBehavior {
 
 func (eb *Sword) Step(e *state.Entity, sh *state.StepHandle) {
 	// TODO: Everything.
-	if e.BehaviorElapsedTime() == 22 {
+	if e.BehaviorElapsedTime() == 21 {
 		e.SetBehavior(&Idle{})
 	}
 }
@@ -57,18 +57,16 @@ func (eb *Sword) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 
 func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	if e.BehaviorElapsedTime() < 21 {
-		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
-		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.Animations[eb.AnimIndex].Frames[e.BehaviorElapsedTime()]))
-		if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
-			slashNode := &draw.OptionsNode{Layer: 9}
-			rootNode.Children = append(rootNode.Children, slashNode)
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.Animations[eb.AnimIndex].Frames[e.BehaviorElapsedTime()]))
 
-			slashAnim := slashAnimation(b, eb.Range)
-			slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.SlashSprites.SwordImage, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
-		}
-	} else {
-		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation.Frames[0]))
+	if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
+		slashNode := &draw.OptionsNode{Layer: 9}
+		rootNode.Children = append(rootNode.Children, slashNode)
+
+		slashAnim := slashAnimation(b, eb.Range)
+		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.SlashSprites.SwordImage, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
 	}
+
 	return rootNode
 }
