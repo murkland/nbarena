@@ -115,8 +115,7 @@ func (cs *clientState) fastForward() error {
 }
 
 type Game struct {
-	sceneGeoM ebiten.GeoM
-	dc        *ctxwebrtc.DataChannel
+	dc *ctxwebrtc.DataChannel
 
 	compositor *draw.Compositor
 
@@ -296,29 +295,22 @@ func (g *Game) handleConn(ctx context.Context) error {
 	}
 }
 
-func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
-	scaleFactor := outsideWidth / sceneWidth
-	if s := outsideHeight / sceneHeight; s < scaleFactor {
+func makeSceneGeoM(bounds image.Rectangle) ebiten.GeoM {
+	scaleFactor := bounds.Dx() / sceneWidth
+	if s := bounds.Dy() / sceneHeight; s < scaleFactor {
 		scaleFactor = s
 	}
 
 	insideWidth := sceneWidth * scaleFactor
 	insideHeight := sceneHeight * scaleFactor
 
-	g.sceneGeoM = ebiten.GeoM{}
-	g.sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
-	g.sceneGeoM.Translate(float64((outsideWidth-insideWidth)/2), float64((outsideHeight-insideHeight)/2))
+	var sceneGeoM ebiten.GeoM
+	sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
+	sceneGeoM.Translate(float64((bounds.Dx()-insideWidth)/2), float64((bounds.Dy()-insideHeight)/2))
+	return sceneGeoM
+}
 
-	oldBounds := image.Rect(0, 0, 0, 0)
-	if g.compositor != nil {
-		oldBounds = g.compositor.Bounds()
-	}
-	newBounds := image.Rect(0, 0, outsideWidth, outsideHeight)
-
-	if oldBounds != newBounds {
-		g.compositor = draw.NewCompositor(newBounds, 9)
-	}
-
+func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
@@ -344,11 +336,19 @@ var (
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	if g.compositor == nil {
+		g.compositor = draw.NewCompositor(screen.Bounds(), 9)
+	}
+
+	if g.compositor.Bounds() != screen.Bounds() {
+		g.compositor = draw.NewCompositor(screen.Bounds(), 9)
+	}
+
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
 	rootNode := &draw.OptionsNode{}
-	sceneNode := &draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
+	sceneNode := &draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: makeSceneGeoM(screen.Bounds())}}
 	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
 	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
