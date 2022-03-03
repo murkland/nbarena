@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/moreio"
 	"github.com/yumland/pngsheet"
 	"github.com/yumland/yumbattle/loader"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 )
 
 type Sheet struct {
@@ -109,6 +112,26 @@ func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*Characte
 	})
 }
 
+func makeFontFaceLoader(path string, size int) func(ctx context.Context) (font.Face, error) {
+	return func(ctx context.Context) (font.Face, error) {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+
+		fnt, err := opentype.ParseReaderAt(f)
+		if err != nil {
+			return nil, err
+		}
+
+		return opentype.NewFace(fnt, &opentype.FaceOptions{
+			Size:    16,
+			DPI:     72,
+			Hinting: font.HintingNone,
+		})
+	}
+}
+
 type ChargingSprites struct {
 	Image *ebiten.Image
 
@@ -127,6 +150,7 @@ type Bundle struct {
 	ChargingSprites    *ChargingSprites
 	BusterSprites      *Sprites
 	MuzzleFlashSprites *Sprites
+	FontBold           font.Face
 }
 
 func sheetToSprites(sheet *Sheet) *Sprites {
@@ -152,6 +176,7 @@ func Load(ctx context.Context) (*Bundle, error) {
 	}))
 	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", sheetToSprites))
 	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
+	loader.Add(ctx, l, &b.FontBold, makeFontFaceLoader("assets/fonts/FontBold.ttf", 16))
 
 	if err := l.Load(); err != nil {
 		return nil, err

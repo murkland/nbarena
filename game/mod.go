@@ -3,12 +3,15 @@ package game
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/keegancsmith/nth"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/ringbuf"
@@ -41,6 +44,13 @@ type clientState struct {
 
 	incomingIntents *ringbuf.RingBuf[input.Intent]
 	outgoingIntents *ringbuf.RingBuf[input.Intent]
+}
+
+func (cs *clientState) SelfEntityID() int {
+	if cs.isAnswerer {
+		return cs.AnswererEntityID
+	}
+	return cs.OffererEntityID
 }
 
 func (cs *clientState) fastForward() error {
@@ -299,6 +309,27 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
+func makeHPGradient(color0 color.Color, color1 color.Color, color2 color.Color) *ebiten.Image {
+	gradientImage := ebiten.NewImage(1, 10)
+	gradientImage.Set(0, 0, color0)
+	gradientImage.Set(0, 1, color0)
+	gradientImage.Set(0, 2, color0)
+	gradientImage.Set(0, 3, color1)
+	gradientImage.Set(0, 4, color2)
+	gradientImage.Set(0, 5, color2)
+	gradientImage.Set(0, 6, color1)
+	gradientImage.Set(0, 7, color0)
+	gradientImage.Set(0, 8, color0)
+	gradientImage.Set(0, 9, color0)
+	return gradientImage
+}
+
+var (
+	hpNeutralGradient = makeHPGradient(color.RGBA{0xCE, 0xE7, 0xFF, 0xFF}, color.RGBA{0xE7, 0xE7, 0xFF, 0xFF}, color.RGBA{0xF7, 0xF7, 0xF7, 0xFF})
+	hpLossGradient    = makeHPGradient(color.RGBA{0xFF, 0xA5, 0x21, 0xFF}, color.RGBA{0xFF, 0xC6, 0x63, 0xFF}, color.RGBA{0xFF, 0xEF, 0xAD, 0xFF})
+	hpGainGradient    = makeHPGradient(color.RGBA{0x39, 0xFF, 0x94, 0xFF}, color.RGBA{0x84, 0xFF, 0xC6, 0xFF}, color.RGBA{0xD7, 0xFF, 0xF7, 0xFF})
+)
+
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
@@ -306,9 +337,54 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	rootNode := &draw.OptionsNode{}
 	sceneNode := &draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: g.sceneGeoM}}
 	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
+	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
 	rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
 	rootNode.Draw(screen, &ebiten.DrawImageOptions{})
+}
+
+func (g *Game) uiAppearance() draw.Node {
+	rootNode := &draw.OptionsNode{}
+	{
+		self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
+
+		hpText := strconv.Itoa(int(self.DisplayHP))
+		rect := text.BoundString(g.bundle.FontBold, hpText)
+
+		textOnlyImage := ebiten.NewImage(rect.Max.X, rect.Dy())
+		{
+			opts := &ebiten.DrawImageOptions{}
+			opts.GeoM.Translate(float64(0), float64(-rect.Min.Y))
+			text.DrawWithOptions(textOnlyImage, hpText, g.bundle.FontBold, opts)
+		}
+
+		gradientImage := hpNeutralGradient
+		if self.DisplayHP > self.HP {
+			gradientImage = hpLossGradient
+		} else if self.DisplayHP < self.HP {
+			gradientImage = hpGainGradient
+		}
+
+		hpTextImage := ebiten.NewImage(textOnlyImage.Bounds().Dx(), textOnlyImage.Bounds().Dy())
+		{
+			opts := &ebiten.DrawImageOptions{}
+			opts.GeoM.Scale(float64(hpTextImage.Bounds().Dx()), 1.0)
+			hpTextImage.DrawImage(gradientImage, opts)
+		}
+
+		{
+			opts := &ebiten.DrawImageOptions{}
+			opts.CompositeMode = ebiten.CompositeModeDestinationIn
+			hpTextImage.DrawImage(textOnlyImage, opts)
+		}
+
+		hpPlaqueNode := &draw.OptionsNode{}
+		hpPlaqueNode.Opts.GeoM.Translate(float64(-hpTextImage.Bounds().Dx()+39), float64(3))
+		hpPlaqueNode.Children = append(hpPlaqueNode.Children, &draw.ImageNode{Image: hpTextImage})
+		rootNode.Children = append(rootNode.Children, hpPlaqueNode)
+	}
+
+	return rootNode
 }
 
 func (g *Game) Update() error {
