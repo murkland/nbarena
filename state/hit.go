@@ -20,7 +20,8 @@ type Hit struct {
 	BubbleTime     Ticks
 
 	// ???
-	Drag bool
+	Drag   bool
+	Flinch bool
 }
 
 func (h *Hit) AddDamage(d Damage) {
@@ -58,5 +59,8 @@ func (h *Hit) Merge(h2 Hit) {
 	}
 	if h2.FlashTime > 0 {
 		h.FlashTime = h2.FlashTime
+	}
+	if h2.Flinch {
+		h.Flinch = true
 	}
 }

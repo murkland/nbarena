@@ -347,6 +347,11 @@ func (e *Entity) Step(sh *StepHandle) {
 		// TODO: Interrupt player.
 	}
 
+	if e.currentHit.Flinch && !e.Traits.CannotFlinch {
+		// TODO: Flinch the player.
+	}
+	e.currentHit.Flinch = false
+
 	// Update UI.
 	if e.DisplayHP != 0 && e.DisplayHP != e.HP {
 		if e.HP == 0 {
