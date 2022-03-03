@@ -60,9 +60,9 @@ type CharacterSprites struct {
 
 	IdleAnimation                *pngsheet.Animation
 	FlinchEndAnimation           *pngsheet.Animation
-	FlinchingAnimation           *pngsheet.Animation
-	MoveEndAnimation             *pngsheet.Animation
-	MoveStartAnimation           *pngsheet.Animation
+	FlinchAnimation              *pngsheet.Animation
+	TeleportEndAnimation         *pngsheet.Animation
+	TeleportStartAnimation       *pngsheet.Animation
 	SlashAnimation               *pngsheet.Animation
 	ThrowAnimation               *pngsheet.Animation
 	BraceEndAnimation            *pngsheet.Animation
@@ -93,9 +93,9 @@ func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*Characte
 
 			IdleAnimation:                sheet.Info.Animations[0],
 			FlinchEndAnimation:           sheet.Info.Animations[1],
-			FlinchingAnimation:           sheet.Info.Animations[2],
-			MoveEndAnimation:             sheet.Info.Animations[3],
-			MoveStartAnimation:           sheet.Info.Animations[4],
+			FlinchAnimation:              sheet.Info.Animations[2],
+			TeleportEndAnimation:         sheet.Info.Animations[3],
+			TeleportStartAnimation:       sheet.Info.Animations[4],
 			SlashAnimation:               sheet.Info.Animations[5],
 			ThrowAnimation:               sheet.Info.Animations[6],
 			BraceEndAnimation:            sheet.Info.Animations[7],

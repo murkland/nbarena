@@ -83,9 +83,11 @@ func (eb *Sword) Step(e *state.Entity, sh *state.StepHandle) {
 			if entity.FlashingTimeLeft == 0 {
 				var h state.Hit
 				h.FlashTime = 120
-				h.Flinch = true
 				h.AddDamage(state.Damage{Base: eb.Damage})
 				entity.AddHit(h)
+				if !entity.Traits.CannotFlinch {
+					entity.SetBehavior(&Flinch{})
+				}
 			}
 		}
 	}

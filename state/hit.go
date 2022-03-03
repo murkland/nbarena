@@ -20,8 +20,7 @@ type Hit struct {
 	BubbleTime     Ticks
 
 	// ???
-	Flinch bool
-	Drag   bool
+	Drag bool
 }
 
 func (h *Hit) AddDamage(d Damage) {
