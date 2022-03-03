@@ -15,25 +15,60 @@ var (
 	debugDrawImageNodeOutlines = flag.Bool("debug_draw_image_node_outlines", false, "draw image node outlines")
 )
 
+type Compositor struct {
+	currentLayer *ebiten.Image
+	layers       []*ebiten.Image
+}
+
+func NewCompositor(rect image.Rectangle, numLayers int) *Compositor {
+	layers := make([]*ebiten.Image, numLayers)
+	for i := 0; i < numLayers; i++ {
+		layers[i] = ebiten.NewImage(rect.Dx(), rect.Dy())
+	}
+	return &Compositor{layers[0], layers}
+}
+
+func (c *Compositor) Bounds() image.Rectangle {
+	return c.layers[0].Bounds()
+}
+
+func (c *Compositor) Clear() {
+	for _, layer := range c.layers {
+		layer.Clear()
+	}
+}
+
+func (c *Compositor) Draw(screen *ebiten.Image) {
+	for _, layer := range c.layers {
+		screen.DrawImage(layer, &ebiten.DrawImageOptions{})
+	}
+}
+
 type Node interface {
-	Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions)
+	Draw(compositor *Compositor, opts *ebiten.DrawImageOptions)
 }
 
 type OptionsNode struct {
 	Opts     ebiten.DrawImageOptions
+	Layer    int
 	Children []Node
 }
 
-func (n *OptionsNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
+func (n *OptionsNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
 	o := n.Opts
 	o.GeoM.Concat(opts.GeoM)
 	o.ColorM.Concat(opts.ColorM)
+
+	layer := compositor.currentLayer
+	if n.Layer != 0 {
+		layer = compositor.layers[n.Layer-1]
+	}
 
 	for _, c := range n.Children {
 		if c == nil {
 			continue
 		}
-		c.Draw(screen, &o)
+		c.Draw(&Compositor{layer, compositor.layers}, &o)
 	}
 }
 
@@ -52,12 +87,12 @@ func makeDebugOutline(bounds image.Rectangle) *ebiten.Image {
 	return img
 }
 
-func (n *ImageNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
-	screen.DrawImage(n.Image, opts)
+func (n *ImageNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
+	compositor.currentLayer.DrawImage(n.Image, opts)
 	if *debugDrawImageNodeOutlines && n.Image.Bounds().Dx() > 0 && n.Image.Bounds().Dy() > 0 {
 		opts2 := *opts
 		opts2.ColorM.Reset()
-		screen.DrawImage(makeDebugOutline(n.Image.Bounds()), &opts2)
+		compositor.currentLayer.DrawImage(makeDebugOutline(n.Image.Bounds()), &opts2)
 	}
 }
 
@@ -80,11 +115,11 @@ type TextNode struct {
 	Text string
 }
 
-func (n *TextNode) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
+func (n *TextNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
 	o := *opts
 	bounds := text.BoundString(n.Face, n.Text)
 	o.GeoM = ebiten.GeoM{}
 	o.GeoM.Translate(0, float64(-bounds.Min.Y))
 	o.GeoM.Concat(opts.GeoM)
-	text.DrawWithOptions(screen, n.Text, n.Face, &o)
+	text.DrawWithOptions(compositor.currentLayer, n.Text, n.Face, &o)
 }

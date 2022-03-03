@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"image"
 	"image/color"
 	"math/rand"
 	"strconv"
@@ -116,6 +117,8 @@ func (cs *clientState) fastForward() error {
 type Game struct {
 	sceneGeoM ebiten.GeoM
 	dc        *ctxwebrtc.DataChannel
+
+	compositor *draw.Compositor
 
 	cs   *clientState
 	csMu sync.Mutex
@@ -306,6 +309,16 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	g.sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
 	g.sceneGeoM.Translate(float64(outsideWidth-insideWidth)/2, float64(outsideHeight-insideHeight)/2)
 
+	oldBounds := image.Rect(0, 0, 0, 0)
+	if g.compositor != nil {
+		oldBounds = g.compositor.Bounds()
+	}
+	newBounds := image.Rect(0, 0, outsideWidth, outsideHeight)
+
+	if oldBounds != newBounds {
+		g.compositor = draw.NewCompositor(newBounds, 9)
+	}
+
 	return outsideWidth, outsideHeight
 }
 
@@ -340,7 +353,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
 	rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
-	rootNode.Draw(screen, &ebiten.DrawImageOptions{})
+
+	g.compositor.Clear()
+	rootNode.Draw(g.compositor, &ebiten.DrawImageOptions{})
+	g.compositor.Draw(screen)
 }
 
 func (g *Game) uiAppearance() draw.Node {

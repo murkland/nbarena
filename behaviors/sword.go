@@ -61,7 +61,7 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.Animations[eb.AnimIndex].Frames[e.BehaviorElapsedTime()]))
 		if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
-			slashNode := &draw.OptionsNode{}
+			slashNode := &draw.OptionsNode{Layer: 9}
 			rootNode.Children = append(rootNode.Children, slashNode)
 
 			slashAnim := slashAnimation(b, eb.Range)
