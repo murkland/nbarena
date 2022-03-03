@@ -101,10 +101,12 @@ func (cs *clientState) fastForward() error {
 		var answerwerIntent input.Intent
 		if cs.isAnswerer {
 			offererIntent = cs.lastIncomingIntent
+			offererIntent.Direction = input.DirectionNone
 			answerwerIntent = intent
 		} else {
 			offererIntent = intent
 			answerwerIntent = cs.lastIncomingIntent
+			answerwerIntent.Direction = input.DirectionNone
 		}
 
 		cs.dirtyState.Step()
