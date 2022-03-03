@@ -415,8 +415,8 @@ func (g *Game) Update() error {
 	defer g.csMu.Unlock()
 
 	highWaterMark := int(g.medianDelay()*time.Duration(ebiten.MaxTPS())/2/time.Second+1) - g.inputFrameDelay
-	if highWaterMark < 0 {
-		highWaterMark = 0
+	if highWaterMark < 1 {
+		highWaterMark = 1
 	}
 
 	if g.cs.outgoingIntents.Used() >= highWaterMark {
