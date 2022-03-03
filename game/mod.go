@@ -307,7 +307,7 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 
 	g.sceneGeoM = ebiten.GeoM{}
 	g.sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
-	g.sceneGeoM.Translate(float64(outsideWidth-insideWidth)/2, float64(outsideHeight-insideHeight)/2)
+	g.sceneGeoM.Translate(float64((outsideWidth-insideWidth)/2), float64((outsideHeight-insideHeight)/2))
 
 	oldBounds := image.Rect(0, 0, 0, 0)
 	if g.compositor != nil {
