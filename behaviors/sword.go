@@ -5,6 +5,7 @@ import (
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/state"
+	"github.com/yumland/yumbattle/state/query"
 )
 
 type SwordRange int
@@ -55,8 +56,40 @@ func swordTargetCenter(e *state.Entity) state.TilePos {
 	return state.TilePosXY(x, y)
 }
 
+func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state.Entity {
+	x, y := e.TilePos.XY()
+	dx := query.DXForward(e.IsFlipped)
+	var entities []*state.Entity
+	entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y))...)
+
+	switch r {
+	case WideSwordRange:
+		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
+		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
+	case LongSwordRange:
+		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
+	case VeryLongSwordRange:
+		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
+		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+3*dx, y))...)
+	}
+
+	return entities
+}
+
 func (eb *Sword) Step(e *state.Entity, sh *state.StepHandle) {
-	// TODO: Everything.
+	// Only hits while the slash is coming out.
+	if e.BehaviorElapsedTime() == 9 {
+		for _, entity := range swordTargetEntities(sh.State, e, eb.Range) {
+			if entity.FlashingTimeLeft == 0 {
+				var h state.Hit
+				h.FlashTime = 120
+				h.Flinch = true
+				h.AddDamage(state.Damage{Base: eb.Damage})
+				entity.AddHit(h)
+			}
+		}
+	}
+
 	if e.BehaviorElapsedTime() == 21 {
 		e.SetBehavior(&Idle{})
 	}

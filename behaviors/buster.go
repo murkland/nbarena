@@ -4,6 +4,7 @@ import (
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/state"
+	"github.com/yumland/yumbattle/state/query"
 )
 
 type Buster struct {
@@ -48,7 +49,7 @@ func (eb *Buster) Step(e *state.Entity, sh *state.StepHandle) {
 	}
 
 	if realElapsedTime == 1 {
-		_, d := findNearestEntity(sh.State, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, horizontalDistance)
+		_, d := query.FindNearestEntity(sh.State, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
 		eb.cooldownTime = busterCooldownDurations[0][d]
 
 		x, y := e.TilePos.XY()
@@ -149,7 +150,7 @@ func (eb *busterShot) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts
 func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 	if e.BehaviorElapsedTime()%2 == 1 {
 		x, y := e.TilePos.XY()
-		x += dxForward(e.IsFlipped)
+		x += query.DXForward(e.IsFlipped)
 		if !e.StartMove(state.TilePosXY(x, y), &sh.State.Field) {
 			sh.RemoveEntity(e.ID())
 			return
@@ -157,7 +158,7 @@ func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 	} else {
 		e.FinishMove()
 
-		for _, e2 := range entitiesAt(sh.State, e.TilePos) {
+		for _, e2 := range query.EntitiesAt(sh.State, e.TilePos) {
 			if e2.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
 				continue
 			}
@@ -174,66 +175,4 @@ func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 			return
 		}
 	}
-}
-
-type distanceMetric func(src state.TilePos, dest state.TilePos) int
-
-func dxForward(isFlipped bool) int {
-	if isFlipped {
-		return -1
-	}
-	return 1
-}
-
-func isInFrontOf(x int, targetX int, isFlipped bool) bool {
-	if isFlipped {
-		return targetX < x
-	}
-	return targetX > x
-}
-
-func horizontalDistance(src state.TilePos, dest state.TilePos) int {
-	x1, _ := src.XY()
-	x2, _ := dest.XY()
-	if x1 > x2 {
-		return x1 - x2
-	}
-	return x2 - x1
-}
-
-func findNearestEntity(s *state.State, myEntityID int, pos state.TilePos, isAlliedWithAnswerer bool, isFlipped bool, distance distanceMetric) (int, int) {
-	x, _ := pos.XY()
-
-	bestDist := state.TileCols
-
-	var targetID int
-	for _, cand := range s.Entities {
-		if cand.ID() == myEntityID || cand.IsAlliedWithAnswerer == isAlliedWithAnswerer {
-			continue
-		}
-
-		candX, _ := cand.FutureTilePos.XY()
-
-		if !isInFrontOf(x, candX, isFlipped) {
-			continue
-		}
-
-		if d := distance(pos, cand.FutureTilePos); d >= 0 && d < bestDist {
-			targetID = cand.ID()
-			bestDist = d
-		}
-	}
-
-	return targetID, bestDist
-}
-
-func entitiesAt(s *state.State, pos state.TilePos) []*state.Entity {
-	var entities []*state.Entity
-	for _, e := range s.Entities {
-		if e.TilePos != pos {
-			continue
-		}
-		entities = append(entities, e)
-	}
-	return entities
 }
