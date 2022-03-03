@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"log"
-	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pion/webrtc/v3"
@@ -18,23 +18,50 @@ import (
 	"github.com/yumland/yumbattle/netsyncrand"
 )
 
+var defaultWebRTCConfig = (func() string {
+	cfg := webrtc.Configuration{
+		ICEServers: []webrtc.ICEServer{
+			{
+				URLs: []string{"stun:stun.l.google.com:19302"},
+			},
+			{
+				URLs: []string{"stun:stun1.l.google.com:19302"},
+			},
+			{
+				URLs: []string{"stun:stun2.l.google.com:19302"},
+			},
+			{
+				URLs: []string{"stun:stun3.l.google.com:19302"},
+			},
+			{
+				URLs: []string{"stun:stun4.l.google.com:19302"},
+			},
+		},
+	}
+	s, err := json.Marshal(cfg)
+	if err != nil {
+		panic(err)
+	}
+	return string(s)
+})()
+
 var (
 	connectAddr      = flag.String("connect_addr", "http://localhost:12345", "address to connect to")
 	answer           = flag.Bool("answer", false, "if true, answers a session instead of offers")
 	sessionID        = flag.String("session_id", "test-session", "session to join to")
-	stunServers      = flag.String("stun_servers", "stun.l.google.com:19302,stun1.l.google.com:19302,stun2.l.google.com:19302,stun3.l.google.com:19302,stun4.l.google.com:19302", "stun servers")
+	webrtcConfig     = flag.String("webrtc_config", defaultWebRTCConfig, "webrtc configuration")
 	delaysWindowSize = flag.Int("delays_window_size", 5, "size of window for calculating delay")
 )
 
 func main() {
 	moreflag.Parse()
 
-	var iceServers []webrtc.ICEServer
-	for _, url := range strings.Split(*stunServers, ",") {
-		iceServers = append(iceServers, webrtc.ICEServer{URLs: []string{"stun:" + url}})
+	var peerConnConfig webrtc.Configuration
+	if err := json.Unmarshal([]byte(*webrtcConfig), &peerConnConfig); err != nil {
+		log.Fatalf("failed to parse webrtc config: %s", err)
 	}
 
-	log.Printf("connecting to %s, answer = %t, session_id = %s (using ICE servers: %+v)", *connectAddr, *answer, *sessionID, iceServers)
+	log.Printf("connecting to %s, answer = %t, session_id = %s (using peer config: %+v)", *connectAddr, *answer, *sessionID, peerConnConfig)
 
 	signorClient := signorclient.New(*connectAddr)
 	ctx := context.Background()
@@ -49,9 +76,7 @@ func main() {
 		log.Fatalf("failed to get WebRTC API: %s", err)
 	}
 
-	peerConn, err := api.NewPeerConnection(webrtc.Configuration{
-		ICEServers: iceServers,
-	})
+	peerConn, err := api.NewPeerConnection(peerConnConfig)
 	if err != nil {
 		log.Fatalf("failed to create RTC peer connection: %s", err)
 	}
