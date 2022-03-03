@@ -38,9 +38,9 @@ func (c *Compositor) Clear() {
 	}
 }
 
-func (c *Compositor) Draw(screen *ebiten.Image) {
+func (c *Compositor) Draw(screen *ebiten.Image, opts *ebiten.DrawImageOptions) {
 	for _, layer := range c.layers {
-		screen.DrawImage(layer, &ebiten.DrawImageOptions{})
+		screen.DrawImage(layer, opts)
 	}
 }
 

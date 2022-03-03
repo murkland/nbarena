@@ -295,19 +295,12 @@ func (g *Game) handleConn(ctx context.Context) error {
 	}
 }
 
-func makeSceneGeoM(bounds image.Rectangle) ebiten.GeoM {
-	scaleFactor := bounds.Dx() / sceneWidth
-	if s := bounds.Dy() / sceneHeight; s < scaleFactor {
-		scaleFactor = s
+func scaleFactor(bounds image.Rectangle) int {
+	k := bounds.Dx() / sceneWidth
+	if s := bounds.Dy() / sceneHeight; s < k {
+		k = s
 	}
-
-	insideWidth := sceneWidth * scaleFactor
-	insideHeight := sceneHeight * scaleFactor
-
-	var sceneGeoM ebiten.GeoM
-	sceneGeoM.Scale(float64(scaleFactor), float64(scaleFactor))
-	sceneGeoM.Translate(float64((bounds.Dx()-insideWidth)/2), float64((bounds.Dy()-insideHeight)/2))
-	return sceneGeoM
+	return k
 }
 
 func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
@@ -336,15 +329,19 @@ var (
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.compositor == nil || g.compositor.Bounds() != screen.Bounds() {
-		g.compositor = draw.NewCompositor(screen.Bounds(), 9)
+	k := scaleFactor(screen.Bounds())
+	compositorBounds := image.Rect(0, 0, sceneWidth*k, sceneHeight*k)
+
+	if g.compositor == nil || g.compositor.Bounds() != compositorBounds {
+		g.compositor = draw.NewCompositor(compositorBounds, 9)
 	}
 
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
 	rootNode := &draw.OptionsNode{}
-	sceneNode := &draw.OptionsNode{Opts: ebiten.DrawImageOptions{GeoM: makeSceneGeoM(screen.Bounds())}}
+	sceneNode := &draw.OptionsNode{}
+	sceneNode.Opts.GeoM.Scale(float64(k), float64(k))
 	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
 	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
@@ -352,7 +349,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	g.compositor.Clear()
 	rootNode.Draw(g.compositor, &ebiten.DrawImageOptions{})
-	g.compositor.Draw(screen)
+
+	var opts ebiten.DrawImageOptions
+	opts.GeoM.Translate(float64((screen.Bounds().Dx()-g.compositor.Bounds().Dx())/2), float64((screen.Bounds().Dy()-g.compositor.Bounds().Dy())/2))
+	g.compositor.Draw(screen, &opts)
 }
 
 func (g *Game) uiAppearance() draw.Node {
