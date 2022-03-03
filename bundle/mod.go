@@ -149,6 +149,7 @@ type Bundle struct {
 	ChargingSprites    *ChargingSprites
 	BusterSprites      *Sprites
 	MuzzleFlashSprites *Sprites
+	SwordSprites       *Sprites
 	FontBold           font.Face
 }
 
@@ -173,6 +174,7 @@ func Load(ctx context.Context) (*Bundle, error) {
 			ChargedAnimation:  sheet.Info.Animations[2],
 		}
 	}))
+	loader.Add(ctx, l, &b.SwordSprites, makeSpriteLoader("assets/sprites/0069.png", sheetToSprites))
 	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", sheetToSprites))
 	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
 	loader.Add(ctx, l, &b.FontBold, makeFontFaceLoader("assets/fonts/FontBold.ttf", 16))

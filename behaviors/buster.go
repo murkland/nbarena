@@ -9,6 +9,7 @@ import (
 type Buster struct {
 	IsPowerShot  bool
 	isJammed     bool
+	AnimIndex    int
 	cooldownTime state.Ticks
 }
 
@@ -24,6 +25,7 @@ func (eb *Buster) Clone() state.EntityBehavior {
 	return &Buster{
 		eb.IsPowerShot,
 		eb.isJammed,
+		eb.AnimIndex,
 		eb.cooldownTime,
 	}
 }
@@ -97,7 +99,7 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterEndAnimation.Frames[0]))
 	}
 
-	busterFrames := b.BusterSprites.Animations[0]
+	busterFrames := b.BusterSprites.Animations[eb.AnimIndex]
 	busterAnimTime := int(realElapsedTime)
 	if busterAnimTime >= len(busterFrames.Frames) {
 		busterAnimTime = len(busterFrames.Frames) - 1
