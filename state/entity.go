@@ -4,9 +4,11 @@ import (
 	"flag"
 	"image"
 	"image/color"
+	"strconv"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/yumland/clone"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
@@ -172,6 +174,35 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithOrigin(debugEntityMarkerImage, image.Point{2, 2}))
 	}
 
+	if e.HP > 0 && e.IsAlliedWithAnswerer {
+		hpNode := &draw.OptionsNode{}
+		rootNode.Children = append(rootNode.Children, hpNode)
+
+		// Render HP.
+		hpText := strconv.Itoa(int(e.DisplayHP))
+		rect := text.BoundString(b.FontBold, hpText)
+		hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(rect.Dy()/2))
+
+		for dx := -1; dx <= 1; dx++ {
+			for dy := -1; dy <= 1; dy++ {
+				strokeNode := &draw.OptionsNode{}
+				hpNode.Children = append(hpNode.Children, strokeNode)
+				strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
+				strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
+				strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+			}
+
+			fillNode := &draw.OptionsNode{}
+			hpNode.Children = append(hpNode.Children, fillNode)
+			if e.DisplayHP > e.HP {
+				fillNode.Opts.ColorM.Scale(float64(0xFF)/float64(0xFF), float64(0x84)/float64(0xFF), float64(0x5A)/float64(0xFF), 1.0)
+			} else if e.DisplayHP < e.HP {
+				fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
+			}
+			fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+		}
+	}
+
 	return rootNode
 }
 
@@ -311,15 +342,19 @@ func (e *Entity) Step(sh *StepHandle) {
 
 	// Update UI.
 	if e.DisplayHP != 0 && e.DisplayHP != e.HP {
-		if e.HP < e.DisplayHP {
-			e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
-			if e.DisplayHP < e.HP {
-				e.DisplayHP = e.HP
-			}
+		if e.HP == 0 {
+			e.DisplayHP = 0
 		} else {
-			e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
-			if e.DisplayHP > e.HP {
-				e.DisplayHP = e.HP
+			if e.HP < e.DisplayHP {
+				e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
+				if e.DisplayHP < e.HP {
+					e.DisplayHP = e.HP
+				}
+			} else {
+				e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
+				if e.DisplayHP > e.HP {
+					e.DisplayHP = e.HP
+				}
 			}
 		}
 	}
