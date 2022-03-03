@@ -57,8 +57,8 @@ func (f *Field) Step() {
 }
 
 const (
-	tileRenderedWidth  = 40
-	tileRenderedHeight = 24
+	TileRenderedWidth  = 40
+	TileRenderedHeight = 24
 )
 
 func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
@@ -71,14 +71,14 @@ func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 		}
 
 		childNode := &draw.OptionsNode{}
-		childNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth), float64((y-1)*tileRenderedHeight))
+		childNode.Opts.GeoM.Translate(float64((x-1)*TileRenderedWidth), float64((y-1)*TileRenderedHeight))
 		childNode.Children = append(childNode.Children, node)
 		optsNode.Children = append(optsNode.Children, childNode)
 	}
 
 	for x := 1; x < 7; x++ {
 		childNode := &draw.OptionsNode{}
-		childNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth), float64((4-1)*tileRenderedHeight))
+		childNode.Opts.GeoM.Translate(float64((x-1)*TileRenderedWidth), float64((4-1)*TileRenderedHeight))
 		frame := b.Battletiles.Info.Animations[len(b.Battletiles.Info.Animations)-1].Frames[0]
 		tiles := b.Battletiles.OffererTiles
 		if x > 3 {

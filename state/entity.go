@@ -130,7 +130,7 @@ var debugEntityMarkerImageOnce sync.Once
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.TilePos.XY()
-	rootNode.Opts.GeoM.Translate(float64((x-1)*tileRenderedWidth+tileRenderedWidth/2), float64((y-1)*tileRenderedHeight+tileRenderedHeight/2))
+	rootNode.Opts.GeoM.Translate(float64((x-1)*TileRenderedWidth+TileRenderedWidth/2), float64((y-1)*TileRenderedHeight+TileRenderedHeight/2))
 
 	characterNode := &draw.OptionsNode{}
 	if e.IsFlipped {
