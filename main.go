@@ -80,6 +80,18 @@ func main() {
 		log.Fatalf("failed to create RTC peer connection: %s", err)
 	}
 
+	peerConnOkCh := make(chan bool)
+	peerConn.OnConnectionStateChange(func(pcs webrtc.PeerConnectionState) {
+		switch pcs {
+		case webrtc.PeerConnectionStateConnected:
+			peerConnOkCh <- true
+			close(peerConnOkCh)
+		case webrtc.PeerConnectionStateFailed:
+			peerConnOkCh <- false
+			close(peerConnOkCh)
+		}
+	})
+
 	rtcDc, err := peerConn.CreateDataChannel("game", &webrtc.DataChannelInit{
 		ID:         clone.P(uint16(1)),
 		Negotiated: clone.P(true),
@@ -105,6 +117,13 @@ func main() {
 	log.Printf("signaling complete!")
 	log.Printf("local SDP: %s", peerConn.LocalDescription().SDP)
 	log.Printf("remote SDP: %s", peerConn.RemoteDescription().SDP)
+
+	peerConnOk := <-peerConnOkCh
+	if peerConnOk {
+		log.Printf("connected!")
+	} else {
+		log.Fatalf("failed to connect")
+	}
 
 	randSource, seed, err := netsyncrand.Negotiate(ctx, dc)
 	if err != nil {
