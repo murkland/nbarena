@@ -33,6 +33,7 @@ type Entity struct {
 
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
+	lastInterrupts      EntityBehaviorInterrupts
 
 	TilePos       TilePos
 	FutureTilePos TilePos
@@ -71,15 +72,15 @@ func (e *Entity) ID() int {
 	return e.id
 }
 
-func (e *Entity) Interrupts() EntityBehaviorInterrupts {
-	return e.behavior.Interrupts(e)
+func (e *Entity) LastInterrupts() EntityBehaviorInterrupts {
+	return e.lastInterrupts
 }
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
-		e.behaviorElapsedTime, e.behavior.Clone(),
+		e.behaviorElapsedTime, e.behavior.Clone(), e.lastInterrupts,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
@@ -207,6 +208,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 }
 
 func (e *Entity) Step(sh *StepHandle) {
+	e.lastInterrupts = e.behavior.Interrupts(e)
+
 	e.elapsedTime++
 
 	// Set anger, if required.

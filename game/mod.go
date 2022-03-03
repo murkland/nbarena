@@ -437,7 +437,8 @@ func (g *Game) Update() error {
 }
 
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
-	interrupts := e.Interrupts()
+	interrupts := e.LastInterrupts()
+
 	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.ChargingElapsedTime > 0) {
 		e.ChargingElapsedTime++
 	}
@@ -448,7 +449,6 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 		e.ChargingElapsedTime = 0
 	}
 
-	interrupts = e.Interrupts()
 	if interrupts.OnMove {
 		dir := intent.Direction
 		if e.ConfusedTimeLeft > 0 {
