@@ -1,22 +1,44 @@
 package behaviors
 
 import (
+	"github.com/yumland/pngsheet"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
 	"github.com/yumland/yumbattle/state"
 )
 
+type SwordRange int
+
+const (
+	ShortSwordRange    SwordRange = 0
+	WideSwordRange     SwordRange = 1
+	LongSwordRange     SwordRange = 2
+	VeryLongSwordRange SwordRange = 3
+)
+
+func slashAnimation(b *bundle.Bundle, r SwordRange) *pngsheet.Animation {
+	switch r {
+	case ShortSwordRange:
+		return b.SlashSprites.ShortAnimation
+	case WideSwordRange:
+		return b.SlashSprites.WideAnimation
+	case LongSwordRange:
+		return b.SlashSprites.LongAnimation
+	case VeryLongSwordRange:
+		return b.SlashSprites.VeryLongAnimation
+	}
+	return nil
+}
+
 type Sword struct {
-	Rows      int
-	Cols      int
+	Range     SwordRange
 	Damage    int
 	AnimIndex int
 }
 
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
-		eb.Rows,
-		eb.Cols,
+		eb.Range,
 		eb.Damage,
 		eb.AnimIndex,
 	}
@@ -38,6 +60,13 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	if e.BehaviorElapsedTime() < 21 {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.Animations[eb.AnimIndex].Frames[e.BehaviorElapsedTime()]))
+		if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
+			slashNode := &draw.OptionsNode{}
+			rootNode.Children = append(rootNode.Children, slashNode)
+
+			slashAnim := slashAnimation(b, eb.Range)
+			slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.SlashSprites.SwordImage, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
+		}
 	} else {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation.Frames[0]))
 	}

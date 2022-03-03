@@ -432,7 +432,7 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 
 	if interrupts.OnCharge && !intent.ChargeBasicWeapon && e.ChargingElapsedTime > 0 {
 		// Release buster shot.
-		e.SetBehavior(&behaviors.Buster{IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime, AnimIndex: 0})
+		e.SetBehavior(&behaviors.Buster{IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
 		e.ChargingElapsedTime = 0
 	}
 

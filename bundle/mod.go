@@ -138,6 +138,16 @@ type ChargingSprites struct {
 	ChargedAnimation  *pngsheet.Animation
 }
 
+type SlashSprites struct {
+	SwordImage *ebiten.Image
+	BladeImage *ebiten.Image
+
+	WideAnimation     *pngsheet.Animation
+	LongAnimation     *pngsheet.Animation
+	ShortAnimation    *pngsheet.Animation
+	VeryLongAnimation *pngsheet.Animation
+}
+
 type Sprites struct {
 	Image      *ebiten.Image
 	Animations []*pngsheet.Animation
@@ -150,6 +160,7 @@ type Bundle struct {
 	BusterSprites      *Sprites
 	MuzzleFlashSprites *Sprites
 	SwordSprites       *Sprites
+	SlashSprites       *SlashSprites
 	FontBold           font.Face
 }
 
@@ -177,6 +188,26 @@ func Load(ctx context.Context) (*Bundle, error) {
 	loader.Add(ctx, l, &b.SwordSprites, makeSpriteLoader("assets/sprites/0069.png", sheetToSprites))
 	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", sheetToSprites))
 	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
+	loader.Add(ctx, l, &b.SlashSprites, makeSpriteLoader("assets/sprites/0089.png", func(sheet *Sheet) *SlashSprites {
+		img := sheet.Image.(*image.Paletted)
+		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
+		img.Palette = palette[0 : 0+16]
+
+		swordImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[16 : 16+16]
+		bladeImage := ebiten.NewImageFromImage(img)
+
+		return &SlashSprites{
+			SwordImage: swordImage,
+			BladeImage: bladeImage,
+
+			WideAnimation:     sheet.Info.Animations[0],
+			LongAnimation:     sheet.Info.Animations[1],
+			ShortAnimation:    sheet.Info.Animations[2],
+			VeryLongAnimation: sheet.Info.Animations[3],
+		}
+	}))
 	loader.Add(ctx, l, &b.FontBold, makeFontFaceLoader("assets/fonts/FontBold.ttf", 16))
 
 	if err := l.Load(); err != nil {
