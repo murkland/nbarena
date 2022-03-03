@@ -7,7 +7,7 @@ require (
 	github.com/sanity-io/litter v1.5.2
 	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
 	github.com/yumland/moreflag v0.0.0-20220225175327-26465a223095
-	github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2
+	github.com/yumland/moreio v0.0.0-20220303082958-a5488c86983f
 	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
 	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
 	golang.org/x/exp v0.0.0-20220218215828-6cf2b201936e

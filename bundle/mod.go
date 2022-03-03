@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/moreio"
@@ -114,7 +113,7 @@ func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*Characte
 
 func makeFontFaceLoader(path string, size int) func(ctx context.Context) (font.Face, error) {
 	return func(ctx context.Context) (font.Face, error) {
-		f, err := os.Open(path)
+		f, err := moreio.Open(ctx, path)
 		if err != nil {
 			return nil, err
 		}

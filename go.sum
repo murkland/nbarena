@@ -119,6 +119,10 @@ github.com/yumland/moreflag v0.0.0-20220225175327-26465a223095 h1:IyJzJEemPZnZzw
 github.com/yumland/moreflag v0.0.0-20220225175327-26465a223095/go.mod h1:8JP2Mtlex0bEW7gFL6yKhpPV9g8FaRKLsdF/z+nKD4E=
 github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2 h1:Y3MPkVTqtlx5QBea7KrlkrOV68Dgh4z2sF85ABC5jNM=
 github.com/yumland/moreio v0.0.0-20220225184215-7a71a1a753b2/go.mod h1:OtCc7Z/0khJFcir7jWuPNu/Xqb2AbWf9amZc6zGxbiE=
+github.com/yumland/moreio v0.0.0-20220303082907-5a4cf9fb6640 h1:SbabIqmq78QuVBSWbOhv+voige5WXfjSyryWbMhWAcA=
+github.com/yumland/moreio v0.0.0-20220303082907-5a4cf9fb6640/go.mod h1:OtCc7Z/0khJFcir7jWuPNu/Xqb2AbWf9amZc6zGxbiE=
+github.com/yumland/moreio v0.0.0-20220303082958-a5488c86983f h1:VA0fIKgFFVbPQbB2uKCA9mtrXiGpGRDRv7K9fssW9a4=
+github.com/yumland/moreio v0.0.0-20220303082958-a5488c86983f/go.mod h1:OtCc7Z/0khJFcir7jWuPNu/Xqb2AbWf9amZc6zGxbiE=
 github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 h1:y1KJloRWYkATfDAl3opJi1/kzH6dmjNvUpOn51oaQSw=
 github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499/go.mod h1:U09K8Yc+Ai/d5U2SO0gHBM+5eJ3dy6jBBvsmr8FVr0w=
 github.com/yumland/pngsheet v0.0.0-20220224190134-a22187872889 h1:bwRB/Ovmsg6cwsGQUHcS8mmwkd/jHU4S4sg8EvK3ks4=
