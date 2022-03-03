@@ -8,6 +8,8 @@ import (
 	"github.com/yumland/syncrand"
 	"github.com/yumland/yumbattle/bundle"
 	"github.com/yumland/yumbattle/draw"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 type Ticks int
@@ -151,7 +153,19 @@ func (s *State) Appearance(b *bundle.Bundle) draw.Node {
 	}
 	{
 		entitiesNode := &draw.OptionsNode{}
-		for _, entity := range s.Entities {
+		entities := maps.Values(s.Entities)
+		slices.SortFunc(entities, func(a *Entity, b *Entity) bool {
+			x1, y1 := a.TilePos.XY()
+			x2, y2 := b.TilePos.XY()
+			if y1 != y2 {
+				return y1 < y2
+			}
+			if x1 != x2 {
+				return x1 < x2
+			}
+			return a.ID() < b.ID()
+		})
+		for _, entity := range entities {
 			node := entity.Appearance(b)
 			if node == nil {
 				continue
