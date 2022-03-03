@@ -126,11 +126,13 @@ type Game struct {
 
 	paused bool
 
+	inputFrameDelay int
+
 	delayRingbuf   *ringbuf.RingBuf[time.Duration]
 	delayRingbufMu sync.RWMutex
 }
 
-func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int) *Game {
+func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int, inputFrameDelay int) *Game {
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("yumbattle")
 	const defaultScale = 4
@@ -185,7 +187,8 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			incomingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 			outgoingIntents: ringbuf.New[input.Intent](maxPendingIntents),
 		},
-		delayRingbuf: ringbuf.New[time.Duration](delaysWindowSize),
+		inputFrameDelay: inputFrameDelay,
+		delayRingbuf:    ringbuf.New[time.Duration](delaysWindowSize),
 	}
 	return g
 }
@@ -411,7 +414,12 @@ func (g *Game) Update() error {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
-	if g.cs.outgoingIntents.Used() >= int(g.medianDelay()*time.Duration(ebiten.MaxTPS())/2/time.Second+1) {
+	highWaterMark := int(g.medianDelay()*time.Duration(ebiten.MaxTPS())/2/time.Second+1) - g.inputFrameDelay
+	if highWaterMark < 0 {
+		highWaterMark = 0
+	}
+
+	if g.cs.outgoingIntents.Used() >= highWaterMark {
 		// Pause until we have enough space.
 		return nil
 	}

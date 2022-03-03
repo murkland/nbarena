@@ -50,6 +50,7 @@ var (
 	sessionID        = flag.String("session_id", "test-session", "session to join to")
 	webrtcConfig     = flag.String("webrtc_config", defaultWebRTCConfig, "webrtc configuration")
 	delaysWindowSize = flag.Int("delays_window_size", 5, "size of window for calculating delay")
+	inputFrameDelay  = flag.Int("input_frame_delay", 0, "additional input frame delay, if any")
 )
 
 func main() {
@@ -132,7 +133,7 @@ func main() {
 
 	log.Printf("negotiated rng, seed: %s", hex.EncodeToString(seed))
 
-	g := game.New(b, dc, randSource, isAnswerer, *delaysWindowSize)
+	g := game.New(b, dc, randSource, isAnswerer, *delaysWindowSize, *inputFrameDelay)
 	go func() {
 		if err := g.RunBackgroundTasks(ctx); err != nil {
 			log.Fatalf("error running background tasks: %s", err)

@@ -37,7 +37,7 @@ func init() {
 
 func (g *Game) makeDebugDrawNode() draw.Node {
 	colorM := ebiten.ColorM{}
-	colorM.Translate(0.0, 1.0, 0.0, 0.0)
+	colorM.Scale(0.0, 1.0, 0.0, 1.0)
 
 	geoM := ebiten.GeoM{}
 	geoM.Translate(12, 12)
