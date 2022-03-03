@@ -336,11 +336,7 @@ var (
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.compositor == nil {
-		g.compositor = draw.NewCompositor(screen.Bounds(), 9)
-	}
-
-	if g.compositor.Bounds() != screen.Bounds() {
+	if g.compositor == nil || g.compositor.Bounds() != screen.Bounds() {
 		g.compositor = draw.NewCompositor(screen.Bounds(), 9)
 	}
 
