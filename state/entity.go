@@ -65,7 +65,7 @@ type Entity struct {
 	IsBeingDragged bool
 	IsSliding      bool
 
-	CurrentHit Hit
+	currentHit Hit
 }
 
 func (e *Entity) ID() int {
@@ -90,7 +90,7 @@ func (e *Entity) Clone() *Entity {
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsBeingDragged, e.IsSliding,
-		e.CurrentHit,
+		e.currentHit,
 	}
 }
 
@@ -207,13 +207,17 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
+func (e *Entity) AddHit(hit Hit) {
+	e.currentHit.Merge(hit)
+}
+
 func (e *Entity) Step(sh *StepHandle) {
 	e.lastInterrupts = e.behavior.Interrupts(e)
 
 	e.elapsedTime++
 
 	// Set anger, if required.
-	if e.CurrentHit.TotalDamage >= 300 {
+	if e.currentHit.TotalDamage >= 300 {
 		e.IsAngry = true
 	}
 
@@ -221,36 +225,36 @@ func (e *Entity) Step(sh *StepHandle) {
 
 	// Process hit damage.
 	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
-	e.HP -= e.CurrentHit.TotalDamage
+	e.HP -= e.currentHit.TotalDamage
 	if e.HP < 0 {
 		e.HP = 0
 	}
 	if mustLeave1HP {
 		e.HP = 1
 	}
-	e.CurrentHit.TotalDamage = 0
+	e.currentHit.TotalDamage = 0
 
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.behaviorElapsedTime++
 	e.behavior.Step(e, sh)
 
-	if !e.CurrentHit.Drag {
+	if !e.currentHit.Drag {
 		if !e.IsBeingDragged /* && !e.isInTimestop */ {
 			// Process flashing.
-			if e.CurrentHit.FlashTime > 0 {
-				e.FlashingTimeLeft = e.CurrentHit.FlashTime
-				e.CurrentHit.FlashTime = 0
+			if e.currentHit.FlashTime > 0 {
+				e.FlashingTimeLeft = e.currentHit.FlashTime
+				e.currentHit.FlashTime = 0
 			}
 			if e.FlashingTimeLeft > 0 {
 				e.FlashingTimeLeft--
 			}
 
 			// Process paralyzed.
-			if e.CurrentHit.ParalyzeTime > 0 {
-				e.ParalyzedTimeLeft = e.CurrentHit.ParalyzeTime
-				e.CurrentHit.ConfuseTime = 0
-				e.CurrentHit.ParalyzeTime = 0
+			if e.currentHit.ParalyzeTime > 0 {
+				e.ParalyzedTimeLeft = e.currentHit.ParalyzeTime
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.ParalyzeTime = 0
 			}
 			if e.ParalyzedTimeLeft > 0 {
 				e.ParalyzedTimeLeft--
@@ -260,12 +264,12 @@ func (e *Entity) Step(sh *StepHandle) {
 			}
 
 			// Process frozen.
-			if e.CurrentHit.FreezeTime > 0 {
-				e.FrozenTimeLeft = e.CurrentHit.FreezeTime
+			if e.currentHit.FreezeTime > 0 {
+				e.FrozenTimeLeft = e.currentHit.FreezeTime
 				e.ParalyzedTimeLeft = 0
-				e.CurrentHit.BubbleTime = 0
-				e.CurrentHit.ConfuseTime = 0
-				e.CurrentHit.FreezeTime = 0
+				e.currentHit.BubbleTime = 0
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.FreezeTime = 0
 			}
 			if e.FrozenTimeLeft > 0 {
 				e.FrozenTimeLeft--
@@ -274,13 +278,13 @@ func (e *Entity) Step(sh *StepHandle) {
 			}
 
 			// Process bubbled.
-			if e.CurrentHit.BubbleTime > 0 {
-				e.BubbledTimeLeft = e.CurrentHit.BubbleTime
+			if e.currentHit.BubbleTime > 0 {
+				e.BubbledTimeLeft = e.currentHit.BubbleTime
 				e.ConfusedTimeLeft = 0
 				e.ParalyzedTimeLeft = 0
 				e.FrozenTimeLeft = 0
-				e.CurrentHit.ConfuseTime = 0
-				e.CurrentHit.BubbleTime = 0
+				e.currentHit.ConfuseTime = 0
+				e.currentHit.BubbleTime = 0
 			}
 			if e.BubbledTimeLeft > 0 {
 				e.BubbledTimeLeft--
@@ -288,33 +292,33 @@ func (e *Entity) Step(sh *StepHandle) {
 			}
 
 			// Process confused.
-			if e.CurrentHit.ConfuseTime > 0 {
-				e.ConfusedTimeLeft = e.CurrentHit.ConfuseTime
+			if e.currentHit.ConfuseTime > 0 {
+				e.ConfusedTimeLeft = e.currentHit.ConfuseTime
 				e.ParalyzedTimeLeft = 0
 				e.FrozenTimeLeft = 0
 				e.BubbledTimeLeft = 0
-				e.CurrentHit.FreezeTime = 0
-				e.CurrentHit.BubbleTime = 0
-				e.CurrentHit.ParalyzeTime = 0
-				e.CurrentHit.ConfuseTime = 0
+				e.currentHit.FreezeTime = 0
+				e.currentHit.BubbleTime = 0
+				e.currentHit.ParalyzeTime = 0
+				e.currentHit.ConfuseTime = 0
 			}
 			if e.ConfusedTimeLeft > 0 {
 				e.ConfusedTimeLeft--
 			}
 
 			// Process immobilized.
-			if e.CurrentHit.ImmobilizeTime > 0 {
-				e.ImmobilizedTimeLeft = e.CurrentHit.ImmobilizeTime
-				e.CurrentHit.ImmobilizeTime = 0
+			if e.currentHit.ImmobilizeTime > 0 {
+				e.ImmobilizedTimeLeft = e.currentHit.ImmobilizeTime
+				e.currentHit.ImmobilizeTime = 0
 			}
 			if e.ImmobilizedTimeLeft > 0 {
 				e.ImmobilizedTimeLeft--
 			}
 
 			// Process blinded.
-			if e.CurrentHit.BlindTime > 0 {
-				e.BlindedTimeLeft = e.CurrentHit.BlindTime
-				e.CurrentHit.BlindTime = 0
+			if e.currentHit.BlindTime > 0 {
+				e.BlindedTimeLeft = e.currentHit.BlindTime
+				e.currentHit.BlindTime = 0
 			}
 			if e.BlindedTimeLeft > 0 {
 				e.BlindedTimeLeft--
@@ -328,13 +332,13 @@ func (e *Entity) Step(sh *StepHandle) {
 			// TODO: Interrupt player.
 		}
 	} else {
-		e.CurrentHit.Drag = false
+		e.currentHit.Drag = false
 
 		e.FrozenTimeLeft = 0
 		e.BubbledTimeLeft = 0
 		e.ParalyzedTimeLeft = 0
-		e.CurrentHit.BubbleTime = 0
-		e.CurrentHit.FreezeTime = 0
+		e.currentHit.BubbleTime = 0
+		e.currentHit.FreezeTime = 0
 
 		if false {
 			e.ParalyzedTimeLeft = 0

@@ -166,7 +166,9 @@ func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 			if eb.isPowerShot {
 				damage *= 10
 			}
-			e2.CurrentHit.AddDamage(state.Damage{Base: damage})
+			var h state.Hit
+			h.AddDamage(state.Damage{Base: damage})
+			e2.AddHit(h)
 
 			sh.RemoveEntity(e.ID())
 			return

@@ -38,10 +38,25 @@ func (h *Hit) Merge(h2 Hit) {
 	h.TotalDamage += h2.TotalDamage
 
 	// TODO: Verify this is correct behavior.
-	h.ParalyzeTime = h2.ParalyzeTime
-	h.ConfuseTime = h2.ConfuseTime
-	h.BlindTime = h2.BlindTime
-	h.ImmobilizeTime = h2.ImmobilizeTime
-	h.FreezeTime = h2.FreezeTime
-	h.BubbleTime = h2.BubbleTime
+	if h2.ParalyzeTime > 0 {
+		h.ParalyzeTime = h2.ParalyzeTime
+	}
+	if h2.ConfuseTime > 0 {
+		h.ConfuseTime = h2.ConfuseTime
+	}
+	if h2.BlindTime > 0 {
+		h.BlindTime = h2.BlindTime
+	}
+	if h2.ImmobilizeTime > 0 {
+		h.ImmobilizeTime = h2.ImmobilizeTime
+	}
+	if h2.FreezeTime > 0 {
+		h.FreezeTime = h2.FreezeTime
+	}
+	if h2.BubbleTime > 0 {
+		h.BubbleTime = h2.BubbleTime
+	}
+	if h2.FlashTime > 0 {
+		h.FlashTime = h2.FlashTime
+	}
 }
