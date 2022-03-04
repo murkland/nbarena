@@ -45,17 +45,6 @@ func (eb *Sword) Clone() state.EntityBehavior {
 	}
 }
 
-func swordTargetCenter(e *state.Entity) state.TilePos {
-	x, y := e.TilePos.XY()
-	if !e.IsFlipped {
-		x++
-	} else {
-		x--
-	}
-
-	return state.TilePosXY(x, y)
-}
-
 func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state.Entity {
 	x, y := e.TilePos.XY()
 	dx := query.DXForward(e.IsFlipped)
