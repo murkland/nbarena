@@ -8,6 +8,7 @@ import (
 )
 
 type Buster struct {
+	BaseDamage   int
 	IsPowerShot  bool
 	isJammed     bool
 	AnimIndex    int
@@ -24,6 +25,7 @@ func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 
 func (eb *Buster) Clone() state.EntityBehavior {
 	return &Buster{
+		eb.BaseDamage,
 		eb.IsPowerShot,
 		eb.isJammed,
 		eb.AnimIndex,
@@ -73,9 +75,7 @@ func (eb *Buster) Step(e *state.Entity, sh *state.StepHandle) {
 				IgnoresTileOwnership:   true,
 			},
 		}
-		e.SetBehavior(&busterShot{
-			isPowerShot: eb.IsPowerShot,
-		})
+		e.SetBehavior(&busterShot{eb.BaseDamage, eb.IsPowerShot})
 		sh.SpawnEntity(e)
 	}
 }
@@ -131,11 +131,13 @@ func (eb *Buster) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 }
 
 type busterShot struct {
+	baseDamage  int
 	isPowerShot bool
 }
 
 func (eb *busterShot) Clone() state.EntityBehavior {
 	return &busterShot{
+		eb.baseDamage,
 		eb.isPowerShot,
 	}
 }
@@ -164,7 +166,7 @@ func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 				continue
 			}
 
-			damage := 10
+			damage := eb.baseDamage
 			if eb.isPowerShot {
 				damage *= 10
 			}

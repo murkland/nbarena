@@ -2,7 +2,6 @@ package state
 
 import (
 	"math/rand"
-	"sort"
 
 	"github.com/yumland/clone"
 	"github.com/yumland/syncrand"
@@ -113,16 +112,16 @@ func (sq *updateStack) Pop() *Entity {
 	return entity
 }
 
-func (s *State) Step() {
+type HitResolver func(e *Entity, h Hit)
+
+func (s *State) Step(hr HitResolver) {
 	s.elapsedTime++
 
 	// Step Entities in a random order.
-	pending := make([]*Entity, 0, len(s.Entities))
-	for _, entity := range s.Entities {
-		pending = append(pending, entity)
-	}
-	sort.Slice(pending, func(i, j int) bool {
-		return pending[i].id < pending[j].id
+	pending := maps.Values(s.Entities)
+	done := make([]*Entity, 0, len(pending))
+	slices.SortFunc(pending, func(a *Entity, b *Entity) bool {
+		return a.ID() < b.ID()
 	})
 	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
 		pending[i], pending[j] = pending[j], pending[i]
@@ -130,9 +129,34 @@ func (s *State) Step() {
 
 	sq := &updateStack{pending}
 	for sq.HasMore() {
-		entity := sq.Pop()
+		e := sq.Pop()
 		sh := &StepHandle{s, sq}
-		entity.Step(sh)
+		e.Step(sh)
+		done = append(done, e)
+	}
+
+	for _, e := range done {
+		hr(e, e.currentHit)
+		e.currentHit = Hit{}
+
+		// Update UI.
+		if e.DisplayHP != 0 && e.DisplayHP != e.HP {
+			if e.HP == 0 {
+				e.DisplayHP = 0
+			} else {
+				if e.HP < e.DisplayHP {
+					e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
+					if e.DisplayHP < e.HP {
+						e.DisplayHP = e.HP
+					}
+				} else {
+					e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
+					if e.DisplayHP > e.HP {
+						e.DisplayHP = e.HP
+					}
+				}
+			}
+		}
 	}
 
 	s.Field.Step()

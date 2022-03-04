@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"math/rand"
 	"strconv"
 	"sync"
 	"time"
@@ -91,7 +90,7 @@ func (cs *clientState) fastForward() error {
 		}
 
 		cs.lastIncomingIntent = theirIntent
-		cs.committedState.Step()
+		cs.committedState.Step(resolveHit)
 		applyPlayerIntents(&cs.committedState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
@@ -109,7 +108,7 @@ func (cs *clientState) fastForward() error {
 			answerwerIntent.Direction = input.DirectionNone
 		}
 
-		cs.dirtyState.Step()
+		cs.dirtyState.Step(resolveHit)
 		applyPlayerIntents(&cs.dirtyState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
@@ -444,67 +443,6 @@ func (g *Game) Update() error {
 	}
 
 	return nil
-}
-
-func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
-	interrupts := e.LastInterrupts()
-
-	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.ChargingElapsedTime > 0) {
-		e.ChargingElapsedTime++
-	}
-
-	if interrupts.OnCharge && !intent.ChargeBasicWeapon && e.ChargingElapsedTime > 0 {
-		// Release buster shot.
-		e.SetBehavior(&behaviors.Buster{IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
-		e.ChargingElapsedTime = 0
-	}
-
-	if interrupts.OnMove {
-		dir := intent.Direction
-		if e.ConfusedTimeLeft > 0 {
-			dir = dir.FlipH().FlipV()
-		}
-
-		x, y := e.TilePos.XY()
-		if dir&input.DirectionLeft != 0 {
-			x--
-		}
-		if dir&input.DirectionRight != 0 {
-			x++
-		}
-		if dir&input.DirectionUp != 0 {
-			y--
-		}
-		if dir&input.DirectionDown != 0 {
-			y++
-		}
-
-		if e.StartMove(state.TilePosXY(x, y), &s.Field) {
-			e.SetBehavior(&behaviors.Teleport{})
-		}
-	}
-}
-
-func applyPlayerIntents(s *state.State, offererEntityID int, offererIntent input.Intent, answererEntityID int, answererIntent input.Intent) {
-	intents := []struct {
-		isOfferer bool
-		intent    input.Intent
-	}{
-		{true, offererIntent},
-		{false, answererIntent},
-	}
-	rand.New(s.RandSource).Shuffle(len(intents), func(i, j int) {
-		intents[i], intents[j] = intents[j], intents[i]
-	})
-	for _, wrapped := range intents {
-		var entity *state.Entity
-		if wrapped.isOfferer {
-			entity = s.Entities[offererEntityID]
-		} else {
-			entity = s.Entities[answererEntityID]
-		}
-		applyPlayerIntent(s, entity, wrapped.intent, wrapped.isOfferer)
-	}
 }
 
 func (g *Game) RunBackgroundTasks(ctx context.Context) error {
