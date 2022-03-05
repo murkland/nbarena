@@ -13,6 +13,7 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 
 	if intent.Action == input.ActionUseChip && e.ChipLockoutTimeLeft == 0 {
 		// TODO: Use the chip.
+		return
 	}
 
 	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.ChargingElapsedTime > 0) {
