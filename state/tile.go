@@ -29,6 +29,10 @@ func (t *Tile) CanEnter(e *Entity) bool {
 	return t.behavior.CanEnter(t, e)
 }
 
+func (t *Tile) Behavior() TileBehavior {
+	return t.behavior
+}
+
 func (t *Tile) SetBehavior(b TileBehavior) {
 	t.behaviorElapsedTime = 0
 	t.behavior = b

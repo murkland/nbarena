@@ -29,6 +29,9 @@ type EntityTraits struct {
 type Entity struct {
 	id int
 
+	IsPendingStep     bool
+	IsPendingDeletion bool
+
 	elapsedTime Ticks
 
 	behaviorElapsedTime Ticks
@@ -65,7 +68,7 @@ type Entity struct {
 	IsBeingDragged bool
 	IsSliding      bool
 
-	currentHit Hit
+	CurrentHit Hit
 }
 
 func (e *Entity) ID() int {
@@ -79,6 +82,7 @@ func (e *Entity) LastInterrupts() EntityBehaviorInterrupts {
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
+		e.IsPendingStep, e.IsPendingDeletion,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(), e.lastInterrupts,
 		e.TilePos, e.FutureTilePos,
@@ -90,8 +94,12 @@ func (e *Entity) Clone() *Entity {
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsBeingDragged, e.IsSliding,
-		e.currentHit,
+		e.CurrentHit,
 	}
+}
+
+func (e *Entity) Behavior() EntityBehavior {
+	return e.behavior
 }
 
 func (e *Entity) SetBehavior(behavior EntityBehavior) {
@@ -211,18 +219,14 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (e *Entity) AddHit(hit Hit) {
-	e.currentHit.Merge(hit)
-}
-
-func (e *Entity) Step(sh *StepHandle) {
+func (e *Entity) Step(s *State) {
 	e.lastInterrupts = e.behavior.Interrupts(e)
 
 	e.elapsedTime++
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.behaviorElapsedTime++
-	e.behavior.Step(e, sh)
+	e.behavior.Step(e, s)
 }
 
 type EntityBehaviorInterrupts struct {
@@ -233,6 +237,6 @@ type EntityBehaviorInterrupts struct {
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
-	Step(e *Entity, sh *StepHandle)
+	Step(e *Entity, s *State)
 	Interrupts(e *Entity) EntityBehaviorInterrupts
 }

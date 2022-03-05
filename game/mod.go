@@ -22,6 +22,7 @@ import (
 	"github.com/yumland/yumbattle/input"
 	"github.com/yumland/yumbattle/packets"
 	"github.com/yumland/yumbattle/state"
+	"github.com/yumland/yumbattle/step"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/sync/errgroup"
 )
@@ -90,7 +91,7 @@ func (cs *clientState) fastForward() error {
 		}
 
 		cs.lastIncomingIntent = theirIntent
-		cs.committedState.Step(resolveHit)
+		step.Step(&cs.committedState)
 		applyPlayerIntents(&cs.committedState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
@@ -108,7 +109,7 @@ func (cs *clientState) fastForward() error {
 			answerwerIntent.Direction = input.DirectionNone
 		}
 
-		cs.dirtyState.Step(resolveHit)
+		step.Step(&cs.dirtyState)
 		applyPlayerIntents(&cs.dirtyState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
@@ -277,7 +278,7 @@ func (g *Game) handleConn(ctx context.Context) error {
 				g.csMu.Lock()
 				defer g.csMu.Unlock()
 
-				nextTick := uint32(int(g.cs.committedState.ElapsedTime()) + g.cs.incomingIntents.Used() + 1)
+				nextTick := uint32(int(g.cs.committedState.ElapsedTime) + g.cs.incomingIntents.Used() + 1)
 				if p.ForTick != nextTick {
 					return fmt.Errorf("expected intent for %d but it was for %d", nextTick, p.ForTick)
 				}
@@ -426,7 +427,7 @@ func (g *Game) Update() error {
 	}
 
 	intent := input.CurrentIntent()
-	forTick := uint32(g.cs.dirtyState.ElapsedTime() + 1)
+	forTick := uint32(g.cs.dirtyState.ElapsedTime + 1)
 
 	ctx := context.Background()
 

@@ -1,8 +1,12 @@
-package game
+package step
 
 import (
+	"math/rand"
+
 	"github.com/yumland/yumbattle/behaviors"
 	"github.com/yumland/yumbattle/state"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 func resolveHit(e *state.Entity, hit state.Hit) {
@@ -136,4 +140,72 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 		e.SetBehavior(&behaviors.Flinch{})
 	}
 	hit.Flinch = false
+}
+
+func Step(s *state.State) {
+	s.ElapsedTime++
+
+	// Mark all entities as pending step.
+	for _, e := range s.Entities {
+		e.IsPendingStep = true
+	}
+
+	// Step all entities in a random order.
+	for {
+		pending := make([]*state.Entity, 0, len(s.Entities))
+		for _, e := range s.Entities {
+			if !e.IsPendingStep {
+				continue
+			}
+			pending = append(pending, e)
+		}
+		if len(pending) == 0 {
+			break
+		}
+
+		slices.SortFunc(pending, func(a *state.Entity, b *state.Entity) bool {
+			return a.ID() < b.ID()
+		})
+		rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
+			pending[i], pending[j] = pending[j], pending[i]
+		})
+		for _, e := range pending {
+			e.Step(s)
+			e.IsPendingStep = false
+		}
+	}
+
+	// Resolve any hits.
+	for _, e := range maps.Values(s.Entities) {
+		resolveHit(e, e.CurrentHit)
+		e.CurrentHit = state.Hit{}
+
+		// Update UI.
+		if e.DisplayHP != 0 && e.DisplayHP != e.HP {
+			if e.HP == 0 {
+				e.DisplayHP = 0
+			} else {
+				if e.HP < e.DisplayHP {
+					e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
+					if e.DisplayHP < e.HP {
+						e.DisplayHP = e.HP
+					}
+				} else {
+					e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
+					if e.DisplayHP > e.HP {
+						e.DisplayHP = e.HP
+					}
+				}
+			}
+		}
+	}
+
+	// Delete any entities pending deletion.
+	for k, e := range s.Entities {
+		if e.IsPendingDeletion {
+			delete(s.Entities, k)
+		}
+	}
+
+	s.Field.Step(s)
 }

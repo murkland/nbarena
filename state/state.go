@@ -1,8 +1,6 @@
 package state
 
 import (
-	"math/rand"
-
 	"github.com/yumland/clone"
 	"github.com/yumland/syncrand"
 	"github.com/yumland/yumbattle/bundle"
@@ -14,7 +12,7 @@ import (
 type Ticks int
 
 type State struct {
-	elapsedTime Ticks
+	ElapsedTime Ticks
 
 	RandSource *syncrand.Source
 
@@ -37,6 +35,9 @@ func New(randSource *syncrand.Source) State {
 
 func (s *State) AddEntity(e *Entity) int {
 	e.id = s.nextEntityID
+	e.elapsedTime = -1
+	e.behaviorElapsedTime = -1
+	e.IsPendingStep = true
 	s.Entities[e.id] = e
 	s.nextEntityID++
 	return e.id
@@ -46,120 +47,13 @@ func (s *State) RemoveEntity(id int) {
 	delete(s.Entities, id)
 }
 
-func (s *State) ElapsedTime() Ticks {
-	return s.elapsedTime
-}
-
 func (s State) Clone() State {
 	return State{
-		s.elapsedTime,
+		s.ElapsedTime,
 		s.RandSource.Clone(),
 		s.Field.Clone(),
 		clone.Map(s.Entities), s.nextEntityID,
 	}
-}
-
-type entityAndID struct {
-	ID     int
-	Entity *Entity
-}
-
-type StepHandle struct {
-	State *State
-	sq    *updateStack
-}
-
-func (sh *StepHandle) SpawnEntity(e *Entity) {
-	e.behaviorElapsedTime = -1
-	e.elapsedTime = -1
-	sh.State.AddEntity(e)
-	sh.sq.Push(e)
-}
-
-func (sh *StepHandle) RemoveEntity(id int) {
-	sh.State.RemoveEntity(id)
-	sh.sq.Remove(id)
-}
-
-type updateStack struct {
-	pending []*Entity
-}
-
-func (sq *updateStack) HasMore() bool {
-	return len(sq.pending) > 0
-}
-
-func (sq *updateStack) Remove(id int) {
-	pending := make([]*Entity, 0, cap(sq.pending))
-	for _, entity := range sq.pending {
-		if entity.id == id {
-			continue
-		}
-		pending = append(pending, entity)
-	}
-	sq.pending = pending
-}
-
-func (sq *updateStack) Push(entity *Entity) {
-	sq.pending = append(sq.pending, entity)
-}
-
-func (sq *updateStack) Pop() *Entity {
-	slot := &sq.pending[len(sq.pending)-1]
-	entity := *slot
-	*slot = nil
-	sq.pending = sq.pending[: len(sq.pending)-1 : cap(sq.pending)]
-	return entity
-}
-
-type HitResolver func(e *Entity, h Hit)
-
-func (s *State) Step(hr HitResolver) {
-	s.elapsedTime++
-
-	// Step Entities in a random order.
-	pending := maps.Values(s.Entities)
-	done := make([]*Entity, 0, len(pending))
-	slices.SortFunc(pending, func(a *Entity, b *Entity) bool {
-		return a.ID() < b.ID()
-	})
-	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
-		pending[i], pending[j] = pending[j], pending[i]
-	})
-
-	sq := &updateStack{pending}
-	for sq.HasMore() {
-		e := sq.Pop()
-		sh := &StepHandle{s, sq}
-		e.Step(sh)
-		done = append(done, e)
-	}
-
-	for _, e := range done {
-		hr(e, e.currentHit)
-		e.currentHit = Hit{}
-
-		// Update UI.
-		if e.DisplayHP != 0 && e.DisplayHP != e.HP {
-			if e.HP == 0 {
-				e.DisplayHP = 0
-			} else {
-				if e.HP < e.DisplayHP {
-					e.DisplayHP -= ((e.DisplayHP-e.HP)>>3 + 4)
-					if e.DisplayHP < e.HP {
-						e.DisplayHP = e.HP
-					}
-				} else {
-					e.DisplayHP += ((e.HP-e.DisplayHP)>>3 + 4)
-					if e.DisplayHP > e.HP {
-						e.DisplayHP = e.HP
-					}
-				}
-			}
-		}
-	}
-
-	s.Field.Step(s)
 }
 
 const (

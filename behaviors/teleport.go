@@ -16,7 +16,7 @@ func (eb *Teleport) Clone() state.EntityBehavior {
 	return &Teleport{}
 }
 
-func (eb *Teleport) Step(e *state.Entity, sh *state.StepHandle) {
+func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime() == 3 {
 		e.FinishMove()
 	}

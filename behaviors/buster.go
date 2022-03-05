@@ -43,7 +43,7 @@ var busterCooldownDurations = [][]state.Ticks{
 	{3, 4, 5, 6, 7, 8},     // Lv5
 }
 
-func (eb *Buster) Step(e *state.Entity, sh *state.StepHandle) {
+func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
 
 	if realElapsedTime == 5+eb.cooldownTime {
@@ -51,7 +51,7 @@ func (eb *Buster) Step(e *state.Entity, sh *state.StepHandle) {
 	}
 
 	if realElapsedTime == 1 {
-		_, d := query.FindNearestEntity(sh.State, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
+		_, d := query.FindNearestEntity(s, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
 		eb.cooldownTime = busterCooldownDurations[0][d]
 
 		x, y := e.TilePos.XY()
@@ -76,7 +76,7 @@ func (eb *Buster) Step(e *state.Entity, sh *state.StepHandle) {
 			},
 		}
 		e.SetBehavior(&busterShot{eb.BaseDamage, eb.IsPowerShot})
-		sh.SpawnEntity(e)
+		s.AddEntity(e)
 	}
 }
 
@@ -150,18 +150,18 @@ func (eb *busterShot) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts
 	return state.EntityBehaviorInterrupts{}
 }
 
-func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
+func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime()%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
-		if !e.StartMove(state.TilePosXY(x, y), &sh.State.Field) {
-			sh.RemoveEntity(e.ID())
+		if !e.StartMove(state.TilePosXY(x, y), &s.Field) {
+			e.IsPendingDeletion = true
 			return
 		}
 	} else {
 		e.FinishMove()
 
-		for _, e2 := range query.EntitiesAt(sh.State, e.TilePos) {
+		for _, e2 := range query.EntitiesAt(s, e.TilePos) {
 			if e2.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
 				continue
 			}
@@ -172,9 +172,9 @@ func (eb *busterShot) Step(e *state.Entity, sh *state.StepHandle) {
 			}
 			var h state.Hit
 			h.AddDamage(state.Damage{Base: damage})
-			e2.AddHit(h)
+			e2.CurrentHit.Merge(h)
 
-			sh.RemoveEntity(e.ID())
+			e.IsPendingDeletion = true
 			return
 		}
 	}

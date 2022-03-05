@@ -13,7 +13,7 @@ func (eb *Idle) Clone() state.EntityBehavior {
 	return &Idle{}
 }
 
-func (eb *Idle) Step(e *state.Entity, sh *state.StepHandle) {
+func (eb *Idle) Step(e *state.Entity, s *state.State) {
 }
 
 func (eb *Idle) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
