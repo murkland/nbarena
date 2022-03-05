@@ -97,11 +97,10 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 			continue
 		}
 
-		damage := eb.damage
 		var h state.Hit
 		h.Flinch = true
 		h.FlashTime = state.DefaultFlashTime
-		h.AddDamage(state.Damage{Base: damage})
+		h.AddDamage(state.Damage{Base: eb.damage})
 		target.CurrentHit.Merge(h)
 
 		e.IsPendingDeletion = true
