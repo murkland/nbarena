@@ -10,6 +10,14 @@ import (
 )
 
 func resolveHit(e *state.Entity, hit state.Hit) {
+	if e.CurrentHit.RemovesFlashing {
+		e.FlashingTimeLeft = 0
+	}
+
+	if e.FlashingTimeLeft > 0 {
+		hit = state.Hit{}
+	}
+
 	// Set anger, if required.
 	if hit.TotalDamage >= 300 {
 		e.IsAngry = true
