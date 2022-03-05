@@ -1,15 +1,15 @@
-module github.com/yumland/nbarena
+module github.com/murkland/nbarena
 
 go 1.18
 
 require (
 	github.com/keegancsmith/nth v0.0.0-20160926112203-ee21de2f07b8
 	github.com/sanity-io/litter v1.5.2
-	github.com/yumland/clone v0.0.0-20220221223031-811338b75512
-	github.com/yumland/moreflag v0.0.0-20220225175327-26465a223095
-	github.com/yumland/moreio v0.0.0-20220303082958-a5488c86983f
-	github.com/yumland/signor v0.0.0-20220219084825-9ef56c0bada0
-	github.com/yumland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
+	github.com/murkland/clone v0.0.0-20220221223031-811338b75512
+	github.com/murkland/moreflag v0.0.0-20220225175327-26465a223095
+	github.com/murkland/moreio v0.0.0-20220303082958-a5488c86983f
+	github.com/murkland/signor v0.0.0-20220219084825-9ef56c0bada0
+	github.com/murkland/syncrand v0.0.0-20220219084837-8ec974aaaaa7
 	golang.org/x/exp v0.0.0-20220218215828-6cf2b201936e
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -18,7 +18,7 @@ require (
 require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
-	github.com/yumland/pngchunks v0.0.0-20220219084845-29962d363499 // indirect
+	github.com/murkland/pngchunks v0.0.0-20220219084845-29962d363499 // indirect
 	golang.org/x/exp/shiny v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
 	golang.org/x/text v0.3.7 // indirect
@@ -45,9 +45,9 @@ require (
 	github.com/pion/udp v0.1.1 // indirect
 	github.com/pion/webrtc/v3 v3.1.23
 	github.com/twitchtv/twirp v8.1.1+incompatible // indirect
-	github.com/yumland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a
-	github.com/yumland/pngsheet v0.0.0-20220224190134-a22187872889
-	github.com/yumland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6
+	github.com/murkland/ctxwebrtc v0.0.0-20220219084904-0047e4d7874a
+	github.com/murkland/pngsheet v0.0.0-20220224190134-a22187872889
+	github.com/murkland/ringbuf v0.0.0-20220219084926-2cdb7c664ab6
 	golang.org/x/crypto v0.0.0-20220213190939-1e6e3497d506 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect

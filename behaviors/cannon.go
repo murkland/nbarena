@@ -1,10 +1,10 @@
 package behaviors
 
 import (
-	"github.com/yumland/nbarena/bundle"
-	"github.com/yumland/nbarena/draw"
-	"github.com/yumland/nbarena/state"
-	"github.com/yumland/nbarena/state/query"
+	"github.com/murkland/nbarena/bundle"
+	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/state"
+	"github.com/murkland/nbarena/state/query"
 )
 
 type Cannon struct {

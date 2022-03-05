@@ -7,7 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/yumland/pngsheet"
+	"github.com/murkland/pngsheet"
 	"golang.org/x/image/font"
 )
 

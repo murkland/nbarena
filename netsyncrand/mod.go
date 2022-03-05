@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/yumland/ctxwebrtc"
-	"github.com/yumland/nbarena/packets"
-	"github.com/yumland/syncrand"
+	"github.com/murkland/ctxwebrtc"
+	"github.com/murkland/nbarena/packets"
+	"github.com/murkland/syncrand"
 )
 
 func Negotiate(ctx context.Context, dc *ctxwebrtc.DataChannel) (*syncrand.Source, []byte, error) {

@@ -1,10 +1,10 @@
 package behaviors
 
 import (
-	"github.com/yumland/nbarena/bundle"
-	"github.com/yumland/nbarena/draw"
-	"github.com/yumland/nbarena/state"
-	"github.com/yumland/pngsheet"
+	"github.com/murkland/nbarena/bundle"
+	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/state"
+	"github.com/murkland/pngsheet"
 )
 
 const teleportEndlagTicks = 6

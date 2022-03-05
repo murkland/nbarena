@@ -3,8 +3,8 @@ package step
 import (
 	"math/rand"
 
-	"github.com/yumland/nbarena/behaviors"
-	"github.com/yumland/nbarena/state"
+	"github.com/murkland/nbarena/behaviors"
+	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )

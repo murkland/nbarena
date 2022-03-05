@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/sanity-io/litter"
-	"github.com/yumland/nbarena/draw"
-	"github.com/yumland/nbarena/state"
+	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/state"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
