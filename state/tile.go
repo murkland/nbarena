@@ -11,13 +11,14 @@ type Tile struct {
 	behaviorElapsedTime Ticks
 	behavior            TileBehavior
 
-	IsAlliedWithAnswerer bool
+	IsAlliedWithAnswerer       bool
+	ShouldBeAlliedWithAnswerer bool
 }
 
 func (t Tile) Clone() Tile {
 	return Tile{
 		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
-		t.IsAlliedWithAnswerer,
+		t.IsAlliedWithAnswerer, t.ShouldBeAlliedWithAnswerer,
 	}
 }
 

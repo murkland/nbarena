@@ -32,6 +32,7 @@ func newField() Field {
 				t.behavior = &NormalTileBehavior{}
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
+			t.ShouldBeAlliedWithAnswerer = t.IsAlliedWithAnswerer
 		}
 	}
 	return Field{tiles, make([]ColumnInfo, TileCols)}
@@ -44,8 +45,7 @@ func (f *Field) Step(s *State) {
 			if f.ColumnInfo[j].allySwapTimeLeft <= 0 {
 				for i := 0; i < TileCols; i++ {
 					t := &f.Tiles[int(TilePosXY(i, j))]
-					// TODO: Check if tile is occupied: if occupied, do not switch ally.
-					t.IsAlliedWithAnswerer = !t.IsAlliedWithAnswerer
+					t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
 				}
 			}
 		}
