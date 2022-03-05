@@ -32,16 +32,14 @@ func slashAnimation(b *bundle.Bundle, r SwordRange) *pngsheet.Animation {
 }
 
 type Sword struct {
-	Range     SwordRange
-	Damage    int
-	AnimIndex int
+	Range  SwordRange
+	Damage int
 }
 
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
 		eb.Range,
 		eb.Damage,
-		eb.AnimIndex,
 	}
 }
 
@@ -96,7 +94,7 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 	swordNode := &draw.OptionsNode{Layer: 9}
 	rootNode.Children = append(rootNode.Children, swordNode)
-	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.Animations[eb.AnimIndex].Frames[e.BehaviorElapsedTime()]))
+	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorElapsedTime()]))
 
 	if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
 		slashNode := &draw.OptionsNode{Layer: 8}

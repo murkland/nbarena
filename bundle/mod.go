@@ -148,6 +148,18 @@ type SlashSprites struct {
 	VeryLongAnimation *pngsheet.Animation
 }
 
+type SwordSprites struct {
+	Image *ebiten.Image
+
+	BaseAnimation *pngsheet.Animation
+}
+
+type BusterSprites struct {
+	Image *ebiten.Image
+
+	BaseAnimation *pngsheet.Animation
+}
+
 type Sprites struct {
 	Image      *ebiten.Image
 	Animations []*pngsheet.Animation
@@ -157,9 +169,9 @@ type Bundle struct {
 	Battletiles        *Battletiles
 	MegamanSprites     *CharacterSprites
 	ChargingSprites    *ChargingSprites
-	BusterSprites      *Sprites
+	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
-	SwordSprites       *Sprites
+	SwordSprites       *SwordSprites
 	SlashSprites       *SlashSprites
 	FontBold           font.Face
 }
@@ -185,8 +197,20 @@ func Load(ctx context.Context) (*Bundle, error) {
 			ChargedAnimation:  sheet.Info.Animations[2],
 		}
 	}))
-	loader.Add(ctx, l, &b.SwordSprites, makeSpriteLoader("assets/sprites/0069.png", sheetToSprites))
-	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", sheetToSprites))
+	loader.Add(ctx, l, &b.SwordSprites, makeSpriteLoader("assets/sprites/0069.png", func(sheet *Sheet) *SwordSprites {
+		return &SwordSprites{
+			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
+
+			BaseAnimation: sheet.Info.Animations[0],
+		}
+	}))
+	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", func(sheet *Sheet) *BusterSprites {
+		return &BusterSprites{
+			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
+
+			BaseAnimation: sheet.Info.Animations[0],
+		}
+	}))
 	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
 	loader.Add(ctx, l, &b.SlashSprites, makeSpriteLoader("assets/sprites/0089.png", func(sheet *Sheet) *SlashSprites {
 		img := sheet.Image.(*image.Paletted)
