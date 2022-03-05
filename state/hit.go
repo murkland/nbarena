@@ -6,6 +6,8 @@ type Damage struct {
 	Base int
 
 	ParalyzeTime Ticks
+	Uninstall    bool
+	Skull        bool
 	DoubleDamage bool
 	AttackPlus   int
 }
