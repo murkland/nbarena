@@ -59,13 +59,13 @@ type CharacterSprites struct {
 	Image *ebiten.Image
 
 	IdleAnimation                *pngsheet.Animation
-	FlinchEndAnimation           *pngsheet.Animation
 	FlinchAnimation              *pngsheet.Animation
+	StuckAnimation               *pngsheet.Animation
 	TeleportEndAnimation         *pngsheet.Animation
 	TeleportStartAnimation       *pngsheet.Animation
 	SlashAnimation               *pngsheet.Animation
 	ThrowAnimation               *pngsheet.Animation
-	BraceEndAnimation            *pngsheet.Animation
+	BraceAnimation               *pngsheet.Animation
 	CannonAnimation              *pngsheet.Animation
 	FireAndSlideAnimation        *pngsheet.Animation
 	BusterEndAnimation           *pngsheet.Animation
@@ -92,13 +92,13 @@ func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*Characte
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
 			IdleAnimation:                sheet.Info.Animations[0],
-			FlinchEndAnimation:           sheet.Info.Animations[1],
-			FlinchAnimation:              sheet.Info.Animations[2],
+			FlinchAnimation:              sheet.Info.Animations[1],
+			StuckAnimation:               sheet.Info.Animations[2],
 			TeleportEndAnimation:         sheet.Info.Animations[3],
 			TeleportStartAnimation:       sheet.Info.Animations[4],
 			SlashAnimation:               sheet.Info.Animations[5],
 			ThrowAnimation:               sheet.Info.Animations[6],
-			BraceEndAnimation:            sheet.Info.Animations[7],
+			BraceAnimation:               sheet.Info.Animations[7],
 			CannonAnimation:              sheet.Info.Animations[8],
 			FireAndSlideAnimation:        sheet.Info.Animations[9],
 			BusterEndAnimation:           sheet.Info.Animations[10],

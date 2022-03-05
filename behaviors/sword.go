@@ -69,7 +69,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 		for _, entity := range swordTargetEntities(s, e, eb.Range) {
 			if entity.FlashingTimeLeft == 0 {
 				var h state.Hit
-				h.FlashTime = 120
+				h.FlashTime = state.DefaultFlashTime
 				h.AddDamage(state.Damage{Base: eb.Damage})
 				entity.CurrentHit.Merge(h)
 				if !entity.Traits.CannotFlinch {
@@ -77,9 +77,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				}
 			}
 		}
-	}
-
-	if e.BehaviorElapsedTime() == 21 {
+	} else if e.BehaviorElapsedTime() == 21 {
 		e.SetBehavior(&Idle{})
 	}
 }

@@ -1,5 +1,7 @@
 package state
 
+const DefaultFlashTime Ticks = 120
+
 type Damage struct {
 	Base int
 
@@ -20,8 +22,9 @@ type Hit struct {
 	BubbleTime     Ticks
 
 	// ???
-	Drag   bool
-	Flinch bool
+	RemovesFlashing bool
+	Drag            bool
+	Flinch          bool
 }
 
 func (h *Hit) AddDamage(d Damage) {

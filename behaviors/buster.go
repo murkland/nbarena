@@ -44,10 +44,6 @@ var busterCooldownDurations = [][]state.Ticks{
 func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
 
-	if realElapsedTime == 5+eb.cooldownTime {
-		e.SetBehavior(&Idle{})
-	}
-
 	if realElapsedTime == 1 {
 		_, d := query.FindNearestEntity(s, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
 		eb.cooldownTime = busterCooldownDurations[0][d]
@@ -59,7 +55,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 			x++
 		}
 
-		e := &state.Entity{
+		shot := &state.Entity{
 			TilePos:       state.TilePosXY(x, y),
 			FutureTilePos: state.TilePosXY(x, y),
 
@@ -73,8 +69,10 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 				IgnoresTileOwnership:   true,
 			},
 		}
-		e.SetBehavior(&busterShot{eb.BaseDamage, eb.IsPowerShot})
-		s.AddEntity(e)
+		shot.SetBehavior(&busterShot{eb.BaseDamage, eb.IsPowerShot})
+		s.AddEntity(shot)
+	} else if realElapsedTime == 5+eb.cooldownTime {
+		e.SetBehavior(&Idle{})
 	}
 }
 
@@ -156,24 +154,23 @@ func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 			e.IsPendingDeletion = true
 			return
 		}
-	} else {
 		e.FinishMove()
+	}
 
-		for _, e2 := range query.EntitiesAt(s, e.TilePos) {
-			if e2.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
-				continue
-			}
-
-			damage := eb.baseDamage
-			if eb.isPowerShot {
-				damage *= 10
-			}
-			var h state.Hit
-			h.AddDamage(state.Damage{Base: damage})
-			e2.CurrentHit.Merge(h)
-
-			e.IsPendingDeletion = true
-			return
+	for _, target := range query.EntitiesAt(s, e.TilePos) {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+			continue
 		}
+
+		damage := eb.baseDamage
+		if eb.isPowerShot {
+			damage *= 10
+		}
+		var h state.Hit
+		h.AddDamage(state.Damage{Base: damage})
+		target.CurrentHit.Merge(h)
+
+		e.IsPendingDeletion = true
+		return
 	}
 }

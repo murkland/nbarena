@@ -4,6 +4,7 @@ import (
 	"github.com/yumland/nbarena/bundle"
 	"github.com/yumland/nbarena/draw"
 	"github.com/yumland/nbarena/state"
+	"github.com/yumland/nbarena/state/query"
 )
 
 type Cannon struct {
@@ -17,8 +18,31 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
-	// TODO: Hitbox.
-	if e.BehaviorElapsedTime() == 29 {
+	if e.BehaviorElapsedTime() == 16 {
+		x, y := e.TilePos.XY()
+		if e.IsFlipped {
+			x--
+		} else {
+			x++
+		}
+
+		shot := &state.Entity{
+			TilePos:       state.TilePosXY(x, y),
+			FutureTilePos: state.TilePosXY(x, y),
+
+			IsFlipped:            e.IsFlipped,
+			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
+
+			Traits: state.EntityTraits{
+				CanStepOnHoleLikeTiles: true,
+				IgnoresTileEffects:     true,
+				CannotFlinch:           true,
+				IgnoresTileOwnership:   true,
+			},
+		}
+		shot.SetBehavior(&cannonShot{eb.Damage})
+		s.AddEntity(shot)
+	} else if e.BehaviorElapsedTime() == 29 {
 		e.SetBehavior(&Brace{})
 	}
 }
@@ -37,4 +61,50 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(b.CannonSprites.CannonImage, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
 
 	return rootNode
+}
+
+type cannonShot struct {
+	damage int
+}
+
+func (eb *cannonShot) Clone() state.EntityBehavior {
+	return &cannonShot{
+		eb.damage,
+	}
+}
+
+func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	return nil
+}
+
+func (eb *cannonShot) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
+	return state.EntityBehaviorInterrupts{}
+}
+
+func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
+	if e.BehaviorElapsedTime()%2 == 1 {
+		x, y := e.TilePos.XY()
+		x += query.DXForward(e.IsFlipped)
+		if !e.StartMove(state.TilePosXY(x, y), &s.Field) {
+			e.IsPendingDeletion = true
+			return
+		}
+		e.FinishMove()
+	}
+
+	for _, target := range query.EntitiesAt(s, e.TilePos) {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+			continue
+		}
+
+		damage := eb.damage
+		var h state.Hit
+		h.Flinch = true
+		h.FlashTime = state.DefaultFlashTime
+		h.AddDamage(state.Damage{Base: damage})
+		target.CurrentHit.Merge(h)
+
+		e.IsPendingDeletion = true
+		return
+	}
 }

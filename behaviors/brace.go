@@ -24,5 +24,5 @@ func (eb *Brace) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 }
 
 func (eb *Brace) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceEndAnimation.Frames[int(e.BehaviorElapsedTime())])
+	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceAnimation.Frames[int(e.BehaviorElapsedTime())])
 }

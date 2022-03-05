@@ -24,5 +24,5 @@ func (eb *Flinch) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 }
 
 func (eb *Flinch) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.FlinchEndAnimation.Frames[int(e.BehaviorElapsedTime())])
+	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.FlinchAnimation.Frames[int(e.BehaviorElapsedTime())])
 }
