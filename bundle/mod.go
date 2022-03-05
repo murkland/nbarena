@@ -148,6 +148,14 @@ type SlashSprites struct {
 	VeryLongAnimation *pngsheet.Animation
 }
 
+type CannonSprites struct {
+	CannonImage   *ebiten.Image
+	HiCannonImage *ebiten.Image
+	MCannonImage  *ebiten.Image
+
+	Animation *pngsheet.Animation
+}
+
 type SwordSprites struct {
 	Image *ebiten.Image
 
@@ -173,6 +181,7 @@ type Bundle struct {
 	MuzzleFlashSprites *Sprites
 	SwordSprites       *SwordSprites
 	SlashSprites       *SlashSprites
+	CannonSprites      *CannonSprites
 	FontBold           font.Face
 }
 
@@ -202,6 +211,27 @@ func Load(ctx context.Context) (*Bundle, error) {
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
 			BaseAnimation: sheet.Info.Animations[0],
+		}
+	}))
+	loader.Add(ctx, l, &b.CannonSprites, makeSpriteLoader("assets/sprites/0070.png", func(sheet *Sheet) *CannonSprites {
+		img := sheet.Image.(*image.Paletted)
+		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
+		img.Palette = palette[0 : 0+16]
+
+		cannonImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[16 : 16+16]
+		hiCannonImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[32 : 32+16]
+		mCannonImage := ebiten.NewImageFromImage(img)
+
+		return &CannonSprites{
+			CannonImage:   cannonImage,
+			HiCannonImage: hiCannonImage,
+			MCannonImage:  mCannonImage,
+
+			Animation: sheet.Info.Animations[0],
 		}
 	}))
 	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", func(sheet *Sheet) *BusterSprites {
