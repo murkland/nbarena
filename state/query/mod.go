@@ -1,6 +1,6 @@
 package query
 
-import "github.com/yumland/yumbattle/state"
+import "github.com/yumland/nbarena/state"
 
 type DistanceMetric func(src state.TilePos, dest state.TilePos) int
 

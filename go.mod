@@ -1,4 +1,4 @@
-module github.com/yumland/yumbattle
+module github.com/yumland/nbarena
 
 go 1.18
 

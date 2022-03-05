@@ -1,11 +1,11 @@
 package behaviors
 
 import (
+	"github.com/yumland/nbarena/bundle"
+	"github.com/yumland/nbarena/draw"
+	"github.com/yumland/nbarena/state"
+	"github.com/yumland/nbarena/state/query"
 	"github.com/yumland/pngsheet"
-	"github.com/yumland/yumbattle/bundle"
-	"github.com/yumland/yumbattle/draw"
-	"github.com/yumland/yumbattle/state"
-	"github.com/yumland/yumbattle/state/query"
 )
 
 type SwordRange int

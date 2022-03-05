@@ -2,8 +2,8 @@ package state
 
 import (
 	"github.com/yumland/clone"
-	"github.com/yumland/yumbattle/bundle"
-	"github.com/yumland/yumbattle/draw"
+	"github.com/yumland/nbarena/bundle"
+	"github.com/yumland/nbarena/draw"
 )
 
 type ColumnInfo struct {

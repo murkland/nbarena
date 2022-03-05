@@ -8,8 +8,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yumland/moreio"
+	"github.com/yumland/nbarena/loader"
 	"github.com/yumland/pngsheet"
-	"github.com/yumland/yumbattle/loader"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )

@@ -14,15 +14,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/keegancsmith/nth"
 	"github.com/yumland/ctxwebrtc"
+	"github.com/yumland/nbarena/behaviors"
+	"github.com/yumland/nbarena/bundle"
+	"github.com/yumland/nbarena/draw"
+	"github.com/yumland/nbarena/input"
+	"github.com/yumland/nbarena/packets"
+	"github.com/yumland/nbarena/state"
+	"github.com/yumland/nbarena/step"
 	"github.com/yumland/ringbuf"
 	"github.com/yumland/syncrand"
-	"github.com/yumland/yumbattle/behaviors"
-	"github.com/yumland/yumbattle/bundle"
-	"github.com/yumland/yumbattle/draw"
-	"github.com/yumland/yumbattle/input"
-	"github.com/yumland/yumbattle/packets"
-	"github.com/yumland/yumbattle/state"
-	"github.com/yumland/yumbattle/step"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/sync/errgroup"
 )
@@ -136,7 +136,7 @@ type Game struct {
 
 func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int, inputFrameDelay int) *Game {
 	ebiten.SetWindowResizable(true)
-	ebiten.SetWindowTitle("yumbattle")
+	ebiten.SetWindowTitle("nbarena")
 	const defaultScale = 4
 	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
 

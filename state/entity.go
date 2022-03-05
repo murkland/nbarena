@@ -10,8 +10,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/yumland/clone"
-	"github.com/yumland/yumbattle/bundle"
-	"github.com/yumland/yumbattle/draw"
+	"github.com/yumland/nbarena/bundle"
+	"github.com/yumland/nbarena/draw"
 )
 
 var (

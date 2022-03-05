@@ -3,9 +3,9 @@ package game
 import (
 	"math/rand"
 
-	"github.com/yumland/yumbattle/behaviors"
-	"github.com/yumland/yumbattle/input"
-	"github.com/yumland/yumbattle/state"
+	"github.com/yumland/nbarena/behaviors"
+	"github.com/yumland/nbarena/input"
+	"github.com/yumland/nbarena/state"
 )
 
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {

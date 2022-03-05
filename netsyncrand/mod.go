@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/yumland/ctxwebrtc"
+	"github.com/yumland/nbarena/packets"
 	"github.com/yumland/syncrand"
-	"github.com/yumland/yumbattle/packets"
 )
 
 func Negotiate(ctx context.Context, dc *ctxwebrtc.DataChannel) (*syncrand.Source, []byte, error) {

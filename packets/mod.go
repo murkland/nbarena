@@ -10,7 +10,7 @@ import (
 	"log"
 
 	"github.com/yumland/ctxwebrtc"
-	"github.com/yumland/yumbattle/input"
+	"github.com/yumland/nbarena/input"
 )
 
 var (

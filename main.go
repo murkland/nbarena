@@ -12,10 +12,10 @@ import (
 	"github.com/yumland/clone"
 	"github.com/yumland/ctxwebrtc"
 	"github.com/yumland/moreflag"
+	"github.com/yumland/nbarena/bundle"
+	"github.com/yumland/nbarena/game"
+	"github.com/yumland/nbarena/netsyncrand"
 	signorclient "github.com/yumland/signor/client"
-	"github.com/yumland/yumbattle/bundle"
-	"github.com/yumland/yumbattle/game"
-	"github.com/yumland/yumbattle/netsyncrand"
 )
 
 var defaultWebRTCConfig = (func() string {

@@ -3,8 +3,8 @@ package step
 import (
 	"math/rand"
 
-	"github.com/yumland/yumbattle/behaviors"
-	"github.com/yumland/yumbattle/state"
+	"github.com/yumland/nbarena/behaviors"
+	"github.com/yumland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
