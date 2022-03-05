@@ -52,6 +52,8 @@ type Entity struct {
 
 	Traits EntityTraits
 
+	ChipLockoutTimeLeft Ticks
+
 	ChargingElapsedTime Ticks
 	PowerShotChargeTime Ticks
 
@@ -91,6 +93,7 @@ func (e *Entity) Clone() *Entity {
 		e.isDeleted,
 		e.HP, e.DisplayHP,
 		e.Traits,
+		e.ChipLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsBeingDragged, e.IsSliding,
@@ -221,6 +224,10 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 func (e *Entity) Step(s *State) {
 	e.lastInterrupts = e.behavior.Interrupts(e)
+
+	if e.ChipLockoutTimeLeft > 0 {
+		e.ChipLockoutTimeLeft--
+	}
 
 	e.elapsedTime++
 	// Tick timers.
