@@ -159,7 +159,7 @@ func (s *State) Step(hr HitResolver) {
 		}
 	}
 
-	s.Field.Step()
+	s.Field.Step(s)
 }
 
 const (

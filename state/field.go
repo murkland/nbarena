@@ -37,7 +37,7 @@ func newField() Field {
 	return Field{tiles, make([]ColumnInfo, TileCols)}
 }
 
-func (f *Field) Step() {
+func (f *Field) Step(s *State) {
 	for j := range f.ColumnInfo {
 		if f.ColumnInfo[j].allySwapTimeLeft > 0 {
 			f.ColumnInfo[j].allySwapTimeLeft--

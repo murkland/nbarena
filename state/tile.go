@@ -63,6 +63,9 @@ const TileCols = 8
 type TilePos int
 
 func TilePosXY(x int, y int) TilePos {
+	if x < 0 || x > TileCols || y < 0 || y > TileRows {
+		return -1
+	}
 	return TilePos(y*TileCols + x)
 }
 

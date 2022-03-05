@@ -104,6 +104,10 @@ func (e *Entity) BehaviorElapsedTime() Ticks {
 }
 
 func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
+	if tilePos < 0 {
+		return false
+	}
+
 	x, y := tilePos.XY()
 	if x < 0 || x >= TileCols || y < 0 || y >= TileRows {
 		return false
