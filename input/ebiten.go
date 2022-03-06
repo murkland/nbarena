@@ -17,17 +17,20 @@ func PressedKeysToIntent(keys []ebiten.Key) Intent {
 			intent.Direction |= DirectionLeft
 		case ebiten.KeyRight:
 			intent.Direction |= DirectionRight
-		case ebiten.KeyZ:
-			if intent.Action == ActionNone {
-				// TODO: Need to figure out the actual intent.
-				intent.Action = ActionUseChip
-			}
-		case ebiten.KeyA, ebiten.KeyS:
-			intent.Action = ActionEndTurn
 		case ebiten.KeyX:
 			intent.ChargeBasicWeapon = true
 		}
 	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
+		// TODO: Need to figure out the actual intent.
+		intent.Action = ActionUseChip
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
+		intent.Action = ActionEndTurn
+	}
+
 	return intent
 }
 
