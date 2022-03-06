@@ -207,7 +207,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 			// Render HP.
 			hpText := strconv.Itoa(int(e.DisplayHP))
-			rect := text.BoundString(b.FontBold, hpText)
+			rect := text.BoundString(b.EnemyHPFont, hpText)
 			hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(rect.Dy()/2))
 
 			for dx := -1; dx <= 1; dx++ {
@@ -216,7 +216,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 					hpNode.Children = append(hpNode.Children, strokeNode)
 					strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
 					strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
-					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.EnemyHPFont})
 				}
 
 				fillNode := &draw.OptionsNode{}
@@ -226,7 +226,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 				} else if e.DisplayHP < e.HP {
 					fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
 				}
-				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.EnemyHPFont})
 			}
 		}
 	} else {

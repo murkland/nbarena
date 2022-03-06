@@ -4,11 +4,14 @@ import (
 	"context"
 	"image"
 	_ "image/png"
+	"io/ioutil"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/moreio"
 	"github.com/murkland/nbarena/loader"
 	"github.com/murkland/pngsheet"
+	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -174,6 +177,7 @@ type Bundle struct {
 	CannonSprites      *CannonSprites
 	ChipIconSprites    *Sprites
 	FontBold           font.Face
+	EnemyHPFont        font.Face
 }
 
 func sheetToSprites(sheet *Sheet) *Sprites {
@@ -255,6 +259,22 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/fonts/FontBold.ttf", &b.FontBold, makeFontFaceLoader(16))
+	loader.Add(ctx, l, "assets/fonts/enemyhp.bdf", &b.EnemyHPFont, func(ctx context.Context, f moreio.File) (font.Face, error) {
+		defer f.Close()
+
+		buf, err := ioutil.ReadAll(f)
+		if err != nil {
+			return nil, err
+		}
+
+		font, err := bdf.Parse(buf)
+		if err != nil {
+			return nil, err
+		}
+
+		log.Printf("%#v", font)
+		return font.NewFace(), nil
+	})
 
 	if err := l.Load(); err != nil {
 		return nil, err
