@@ -26,6 +26,9 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 	// TODO: Process poison damage.
 
 	// Process hit damage.
+	if hit.TotalDamage > 0 {
+		e.IsHit = true
+	}
 	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
 	e.HP -= hit.TotalDamage
 	if e.HP < 0 {
@@ -155,6 +158,8 @@ func Step(s *state.State) {
 
 	// Mark all entities as pending step.
 	for _, e := range s.Entities {
+		e.IsHit = false
+
 		e.IsPendingStep = true
 	}
 

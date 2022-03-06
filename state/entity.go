@@ -45,7 +45,9 @@ type Entity struct {
 
 	IsFlipped bool
 
-	isDeleted bool
+	IsDeleted bool
+
+	IsHit bool
 
 	HP        int
 	DisplayHP int
@@ -90,7 +92,8 @@ func (e *Entity) Clone() *Entity {
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
-		e.isDeleted,
+		e.IsDeleted,
+		e.IsHit,
 		e.HP, e.DisplayHP,
 		e.Traits,
 		e.ChipLockoutTimeLeft,
@@ -160,6 +163,9 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	}
 	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
+	}
+	if e.IsHit {
+		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
 
