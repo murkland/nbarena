@@ -11,8 +11,12 @@ import (
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
 	interrupts := e.LastInterrupts()
 
-	if intent.Action == input.ActionUseChip && e.ChipLockoutTimeLeft == 0 {
-		// TODO: Use the chip.
+	if intent.Action != input.ActionNone {
+		if intent.Action == input.ActionUseChip && e.ChipLockoutTimeLeft == 0 {
+			// TODO: Use the chip.
+			return
+		}
+
 		return
 	}
 
