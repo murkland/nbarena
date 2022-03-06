@@ -110,7 +110,6 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 			muzzleFlashNode := &draw.OptionsNode{Layer: 7}
 			muzzleFlashNode.Opts.GeoM.Translate(float64(state.TileRenderedWidth), float64(-26))
 			muzzleFlashFrame := b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]
-			// TODO: Figure out how to draw the muzzle flash.
 			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, muzzleFlashFrame))
 			rootNode.Children = append(rootNode.Children, muzzleFlashNode)
 		}
