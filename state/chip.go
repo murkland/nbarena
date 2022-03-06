@@ -3,6 +3,7 @@ package state
 type Chip struct {
 	Index           int
 	Name            string
+	Damage          int
 	BehaviorFactory func() EntityBehavior
 }
 
