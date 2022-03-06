@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/pion/webrtc/v3"
 	"github.com/murkland/clone"
 	"github.com/murkland/ctxwebrtc"
 	"github.com/murkland/moreflag"
@@ -16,6 +15,7 @@ import (
 	"github.com/murkland/nbarena/game"
 	"github.com/murkland/nbarena/netsyncrand"
 	signorclient "github.com/murkland/signor/client"
+	"github.com/pion/webrtc/v3"
 )
 
 var defaultWebRTCConfig = (func() string {
@@ -55,6 +55,12 @@ var (
 
 func main() {
 	moreflag.Parse()
+	ctx := context.Background()
+
+	b, err := bundle.Load(ctx, loaderCallback)
+	if err != nil {
+		log.Fatalf("failed to load bundle: %s", err)
+	}
 
 	var peerConnConfig webrtc.Configuration
 	if err := json.Unmarshal([]byte(*webrtcConfig), &peerConnConfig); err != nil {
@@ -64,14 +70,8 @@ func main() {
 	log.Printf("connecting to %s, answer = %t, session_id = %s (using peer config: %+v)", *connectAddr, *answer, *sessionID, peerConnConfig)
 
 	signorClient := signorclient.New(*connectAddr)
-	ctx := context.Background()
 
-	b, err := bundle.Load(ctx)
-	if err != nil {
-		log.Fatalf("failed to load bundle: %s", err)
-	}
-
-	api, err := WebRTCAPI()
+	api, err := webRTCAPI()
 	if err != nil {
 		log.Fatalf("failed to get WebRTC API: %s", err)
 	}

@@ -14,7 +14,7 @@ var (
 	webRTCListenAddr = flag.String("webrtc_listen_addr", "", "address to listen on for WebRTC")
 )
 
-func WebRTCAPI() (*webrtc.API, error) {
+func webRTCAPI() (*webrtc.API, error) {
 	var opts []func(*webrtc.API)
 
 	if *webRTCListenAddr != "" {
@@ -30,4 +30,8 @@ func WebRTCAPI() (*webrtc.API, error) {
 	}
 
 	return webrtc.NewAPI(opts...), nil
+}
+
+func loaderCallback(path string, i int, n int) {
+	log.Printf("loaded %d/%d: %s", i, n, path)
 }

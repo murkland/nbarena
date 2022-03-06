@@ -2,7 +2,6 @@ package bundle
 
 import (
 	"context"
-	"fmt"
 	"image"
 	_ "image/png"
 
@@ -19,16 +18,12 @@ type Sheet struct {
 	Image image.Image
 }
 
-func loadSheet(ctx context.Context, filename string) (*Sheet, error) {
-	f, err := moreio.Open(ctx, filename)
-	if err != nil {
-		return nil, fmt.Errorf("%w while loading %s", err, filename)
-	}
+func loadSheet(ctx context.Context, f moreio.File) (*Sheet, error) {
 	defer f.Close()
 
 	img, info, err := pngsheet.Load(f)
 	if err != nil {
-		return nil, fmt.Errorf("%w while loading %s", err, filename)
+		return nil, err
 	}
 
 	return &Sheet{info, img}, nil
@@ -40,8 +35,8 @@ type Battletiles struct {
 	AnswererTiles *ebiten.Image
 }
 
-func loadBattleTiles(ctx context.Context) (*Battletiles, error) {
-	sheet, err := loadSheet(ctx, "assets/battletiles.png")
+func loadBattletiles(ctx context.Context, f moreio.File) (*Battletiles, error) {
+	sheet, err := loadSheet(ctx, f)
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +71,9 @@ type CharacterSprites struct {
 	TwoHandedSlashAnimation      *pngsheet.Animation
 }
 
-func makeSpriteLoader[T any](path string, f func(sheet *Sheet) T) func(ctx context.Context) (T, error) {
-	return func(ctx context.Context) (T, error) {
-		sheet, err := loadSheet(ctx, path)
+func makeSpriteLoader[T any](f func(sheet *Sheet) T) func(ctx context.Context, file moreio.File) (T, error) {
+	return func(ctx context.Context, file moreio.File) (T, error) {
+		sheet, err := loadSheet(ctx, file)
 		if err != nil {
 			return *new(T), err
 		}
@@ -86,8 +81,8 @@ func makeSpriteLoader[T any](path string, f func(sheet *Sheet) T) func(ctx conte
 	}
 }
 
-func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*CharacterSprites, error) {
-	return makeSpriteLoader(path, func(sheet *Sheet) *CharacterSprites {
+func loadCharacterSprite(ctx context.Context, f moreio.File) (*CharacterSprites, error) {
+	return makeSpriteLoader(func(sheet *Sheet) *CharacterSprites {
 		return &CharacterSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
@@ -108,16 +103,11 @@ func makeCharacterSpriteLoader(path string) func(ctx context.Context) (*Characte
 			TwoHandedSlashStartAnimation: sheet.Info.Animations[18],
 			TwoHandedSlashAnimation:      sheet.Info.Animations[19],
 		}
-	})
+	})(ctx, f)
 }
 
-func makeFontFaceLoader(path string, size int) func(ctx context.Context) (font.Face, error) {
-	return func(ctx context.Context) (font.Face, error) {
-		f, err := moreio.Open(ctx, path)
-		if err != nil {
-			return nil, err
-		}
-
+func makeFontFaceLoader(size int) func(ctx context.Context, f moreio.File) (font.Face, error) {
+	return func(ctx context.Context, f moreio.File) (font.Face, error) {
 		fnt, err := opentype.ParseReaderAt(f)
 		if err != nil {
 			return nil, err
@@ -182,6 +172,7 @@ type Bundle struct {
 	SwordSprites       *SwordSprites
 	SlashSprites       *SlashSprites
 	CannonSprites      *CannonSprites
+	ChipIconSprites    *Sprites
 	FontBold           font.Face
 }
 
@@ -192,13 +183,13 @@ func sheetToSprites(sheet *Sheet) *Sprites {
 	}
 }
 
-func Load(ctx context.Context) (*Bundle, error) {
+func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) {
 	b := &Bundle{}
 
-	l, ctx := loader.New(ctx)
-	loader.Add(ctx, l, &b.Battletiles, loadBattleTiles)
-	loader.Add(ctx, l, &b.MegamanSprites, makeCharacterSpriteLoader("assets/sprites/0000.png"))
-	loader.Add(ctx, l, &b.ChargingSprites, makeSpriteLoader("assets/sprites/0274.png", func(sheet *Sheet) *ChargingSprites {
+	l, ctx := loader.New(ctx, loaderCallback)
+	loader.Add(ctx, l, "assets/battletiles.png", &b.Battletiles, loadBattletiles)
+	loader.Add(ctx, l, "assets/sprites/0000.png", &b.MegamanSprites, loadCharacterSprite)
+	loader.Add(ctx, l, "assets/sprites/0274.png", &b.ChargingSprites, makeSpriteLoader(func(sheet *Sheet) *ChargingSprites {
 		return &ChargingSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
@@ -206,14 +197,14 @@ func Load(ctx context.Context) (*Bundle, error) {
 			ChargedAnimation:  sheet.Info.Animations[2],
 		}
 	}))
-	loader.Add(ctx, l, &b.SwordSprites, makeSpriteLoader("assets/sprites/0069.png", func(sheet *Sheet) *SwordSprites {
+	loader.Add(ctx, l, "assets/sprites/0069.png", &b.SwordSprites, makeSpriteLoader(func(sheet *Sheet) *SwordSprites {
 		return &SwordSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
 			BaseAnimation: sheet.Info.Animations[0],
 		}
 	}))
-	loader.Add(ctx, l, &b.CannonSprites, makeSpriteLoader("assets/sprites/0070.png", func(sheet *Sheet) *CannonSprites {
+	loader.Add(ctx, l, "assets/sprites/0070.png", &b.CannonSprites, makeSpriteLoader(func(sheet *Sheet) *CannonSprites {
 		img := sheet.Image.(*image.Paletted)
 		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
 		img.Palette = palette[0 : 0+16]
@@ -234,15 +225,15 @@ func Load(ctx context.Context) (*Bundle, error) {
 			Animation: sheet.Info.Animations[0],
 		}
 	}))
-	loader.Add(ctx, l, &b.BusterSprites, makeSpriteLoader("assets/sprites/0072.png", func(sheet *Sheet) *BusterSprites {
+	loader.Add(ctx, l, "assets/sprites/0072.png", &b.BusterSprites, makeSpriteLoader(func(sheet *Sheet) *BusterSprites {
 		return &BusterSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
 			BaseAnimation: sheet.Info.Animations[0],
 		}
 	}))
-	loader.Add(ctx, l, &b.MuzzleFlashSprites, makeSpriteLoader("assets/sprites/0075.png", sheetToSprites))
-	loader.Add(ctx, l, &b.SlashSprites, makeSpriteLoader("assets/sprites/0089.png", func(sheet *Sheet) *SlashSprites {
+	loader.Add(ctx, l, "assets/sprites/0075.png", &b.MuzzleFlashSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0089.png", &b.SlashSprites, makeSpriteLoader(func(sheet *Sheet) *SlashSprites {
 		img := sheet.Image.(*image.Paletted)
 		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
 		img.Palette = palette[0 : 0+16]
@@ -262,7 +253,8 @@ func Load(ctx context.Context) (*Bundle, error) {
 			VeryLongAnimation: sheet.Info.Animations[3],
 		}
 	}))
-	loader.Add(ctx, l, &b.FontBold, makeFontFaceLoader("assets/fonts/FontBold.ttf", 16))
+	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/fonts/FontBold.ttf", &b.FontBold, makeFontFaceLoader(16))
 
 	if err := l.Load(); err != nil {
 		return nil, err
