@@ -25,6 +25,7 @@ type Hit struct {
 
 	// ???
 	RemovesFlashing bool
+	Counters        bool
 	Drag            bool
 	Flinch          bool
 }
@@ -67,5 +68,8 @@ func (h *Hit) Merge(h2 Hit) {
 	}
 	if h2.Flinch {
 		h.Flinch = true
+	}
+	if h2.Counters {
+		h.Counters = true
 	}
 }

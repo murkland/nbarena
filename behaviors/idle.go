@@ -18,8 +18,9 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 
 func (eb *Idle) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 	return state.EntityBehaviorInterrupts{
-		OnMove:   true,
-		OnCharge: true,
+		OnChipUse: true,
+		OnMove:    true,
+		OnCharge:  true,
 	}
 }
 

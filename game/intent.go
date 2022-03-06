@@ -12,8 +12,9 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 	interrupts := e.LastInterrupts()
 
 	if intent.Action != input.ActionNone {
-		if intent.Action == input.ActionUseChip && e.ChipLockoutTimeLeft == 0 {
+		if interrupts.OnChipUse && intent.Action == input.ActionUseChip && e.ChipUseLockoutTimeLeft == 0 {
 			// TODO: Use the chip.
+			e.SetBehavior(&behaviors.Sword{Damage: 80})
 			return
 		}
 

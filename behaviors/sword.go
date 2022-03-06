@@ -69,6 +69,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 		for _, entity := range swordTargetEntities(s, e, eb.Range) {
 			if entity.FlashingTimeLeft == 0 {
 				var h state.Hit
+				h.Counters = true
 				h.FlashTime = state.DefaultFlashTime
 				h.AddDamage(state.Damage{Base: eb.Damage})
 				entity.CurrentHit.Merge(h)

@@ -99,6 +99,7 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 
 		var h state.Hit
 		h.Flinch = true
+		h.Counters = true
 		h.FlashTime = state.DefaultFlashTime
 		h.AddDamage(state.Damage{Base: eb.damage})
 		target.CurrentHit.Merge(h)

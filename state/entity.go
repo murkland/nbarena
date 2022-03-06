@@ -54,7 +54,7 @@ type Entity struct {
 
 	Traits EntityTraits
 
-	ChipLockoutTimeLeft Ticks
+	ChipUseLockoutTimeLeft Ticks
 
 	ChargingElapsedTime Ticks
 	PowerShotChargeTime Ticks
@@ -71,6 +71,7 @@ type Entity struct {
 	IsAngry        bool
 	IsBeingDragged bool
 	IsSliding      bool
+	IsCounterable  bool
 
 	CurrentHit Hit
 }
@@ -96,10 +97,10 @@ func (e *Entity) Clone() *Entity {
 		e.IsHit,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		e.ChipLockoutTimeLeft,
+		e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
-		e.IsAngry, e.IsBeingDragged, e.IsSliding,
+		e.IsAngry, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
 		e.CurrentHit,
 	}
 }
@@ -231,8 +232,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 func (e *Entity) Step(s *State) {
 	e.lastInterrupts = e.behavior.Interrupts(e)
 
-	if e.ChipLockoutTimeLeft > 0 {
-		e.ChipLockoutTimeLeft--
+	if e.ChipUseLockoutTimeLeft > 0 {
+		e.ChipUseLockoutTimeLeft--
 	}
 
 	e.elapsedTime++
@@ -243,8 +244,9 @@ func (e *Entity) Step(s *State) {
 }
 
 type EntityBehaviorInterrupts struct {
-	OnMove   bool
-	OnCharge bool
+	OnMove    bool
+	OnChipUse bool
+	OnCharge  bool
 }
 
 type EntityBehavior interface {

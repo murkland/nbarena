@@ -151,6 +151,13 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 		e.SetBehavior(&behaviors.Flinch{})
 	}
 	hit.Flinch = false
+
+	if e.IsCounterable && hit.Counters {
+		e.ParalyzedTimeLeft = 150
+		e.FlashingTimeLeft = 0
+		// TODO: Set to staggered behavior.
+	}
+	hit.Counters = false
 }
 
 func Step(s *state.State) {
