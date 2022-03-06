@@ -16,6 +16,7 @@ import (
 	"github.com/murkland/ctxwebrtc"
 	"github.com/murkland/nbarena/behaviors"
 	"github.com/murkland/nbarena/bundle"
+	"github.com/murkland/nbarena/chips"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/packets"
@@ -147,6 +148,8 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
+			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
+
 			PowerShotChargeTime: state.Ticks(50),
 
 			TilePos:       state.TilePosXY(2, 2),
@@ -161,6 +164,8 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		e := &state.Entity{
 			HP:        1000,
 			DisplayHP: 1000,
+
+			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
 
 			PowerShotChargeTime: state.Ticks(50),
 

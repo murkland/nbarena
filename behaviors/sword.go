@@ -89,12 +89,12 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
 
-	swordNode := &draw.OptionsNode{Layer: 9}
+	swordNode := &draw.OptionsNode{Layer: 8}
 	rootNode.Children = append(rootNode.Children, swordNode)
 	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorElapsedTime()]))
 
 	if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
-		slashNode := &draw.OptionsNode{Layer: 8}
+		slashNode := &draw.OptionsNode{Layer: 7}
 		slashNode.Opts.GeoM.Translate(float64(state.TileRenderedWidth), float64(-16))
 		rootNode.Children = append(rootNode.Children, slashNode)
 

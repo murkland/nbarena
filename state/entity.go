@@ -56,6 +56,7 @@ type Entity struct {
 
 	Traits EntityTraits
 
+	Chips                  []Chip
 	CanUseChip             bool
 	ChipUseLockoutTimeLeft Ticks
 
@@ -99,7 +100,7 @@ func (e *Entity) Clone() *Entity {
 		e.IsDeleted,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		e.CanUseChip, e.ChipUseLockoutTimeLeft,
+		clone.Slice(e.Chips), e.CanUseChip, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
@@ -199,32 +200,48 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, draw.ImageWithOrigin(debugEntityMarkerImage, image.Point{2, 2}))
 	}
 
-	if e.HP > 0 && e.IsAlliedWithAnswerer {
-		hpNode := &draw.OptionsNode{}
-		rootNode.Children = append(rootNode.Children, hpNode)
+	if e.IsAlliedWithAnswerer {
+		if e.DisplayHP != 0 {
+			hpNode := &draw.OptionsNode{}
+			rootNode.Children = append(rootNode.Children, hpNode)
 
-		// Render HP.
-		hpText := strconv.Itoa(int(e.DisplayHP))
-		rect := text.BoundString(b.FontBold, hpText)
-		hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(rect.Dy()/2))
+			// Render HP.
+			hpText := strconv.Itoa(int(e.DisplayHP))
+			rect := text.BoundString(b.FontBold, hpText)
+			hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(rect.Dy()/2))
 
-		for dx := -1; dx <= 1; dx++ {
-			for dy := -1; dy <= 1; dy++ {
-				strokeNode := &draw.OptionsNode{}
-				hpNode.Children = append(hpNode.Children, strokeNode)
-				strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
-				strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
-				strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+			for dx := -1; dx <= 1; dx++ {
+				for dy := -1; dy <= 1; dy++ {
+					strokeNode := &draw.OptionsNode{}
+					hpNode.Children = append(hpNode.Children, strokeNode)
+					strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
+					strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
+					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+				}
+
+				fillNode := &draw.OptionsNode{}
+				hpNode.Children = append(hpNode.Children, fillNode)
+				if e.DisplayHP > e.HP {
+					fillNode.Opts.ColorM.Scale(float64(0xFF)/float64(0xFF), float64(0x84)/float64(0xFF), float64(0x5A)/float64(0xFF), 1.0)
+				} else if e.DisplayHP < e.HP {
+					fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
+				}
+				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
 			}
+		}
+	} else {
+		chipsNode := &draw.OptionsNode{}
+		chipsNode.Opts.GeoM.Translate(0, float64(-56))
+		rootNode.Children = append(rootNode.Children, chipsNode)
 
-			fillNode := &draw.OptionsNode{}
-			hpNode.Children = append(hpNode.Children, fillNode)
-			if e.DisplayHP > e.HP {
-				fillNode.Opts.ColorM.Scale(float64(0xFF)/float64(0xFF), float64(0x84)/float64(0xFF), float64(0x5A)/float64(0xFF), 1.0)
-			} else if e.DisplayHP < e.HP {
-				fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
-			}
-			fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.FontBold})
+		for i := len(e.Chips) - 1; i >= 0; i-- {
+			chip := e.Chips[i]
+
+			chipNode := &draw.OptionsNode{Layer: 9}
+			chipNode.Opts.GeoM.Translate(float64(-i*2), float64(-i*2))
+			chipsNode.Children = append(chipsNode.Children, chipNode)
+
+			chipNode.Children = append(chipNode.Children, draw.ImageWithFrame(b.ChipIconSprites.Image, b.ChipIconSprites.Animations[chip.Index].Frames[0]))
 		}
 	}
 

@@ -1,18 +1,29 @@
 package behaviors
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 )
 
+type CannonStyle int
+
+const (
+	CannonStyleCannon   CannonStyle = 0
+	CannonStyleHiCannon CannonStyle = 1
+	CannonStyleMCannon  CannonStyle = 2
+)
+
 type Cannon struct {
+	Style  CannonStyle
 	Damage int
 }
 
 func (eb *Cannon) Clone() state.EntityBehavior {
 	return &Cannon{
+		eb.Style,
 		eb.Damage,
 	}
 }
@@ -55,10 +66,19 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorElapsedTime()]))
 
-	cannonNode := &draw.OptionsNode{Layer: 9}
+	cannonNode := &draw.OptionsNode{Layer: 8}
 	cannonNode.Opts.GeoM.Translate(float64(16), float64(-24))
 	rootNode.Children = append(rootNode.Children, cannonNode)
-	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(b.CannonSprites.CannonImage, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
+	var img *ebiten.Image
+	switch eb.Style {
+	case CannonStyleCannon:
+		img = b.CannonSprites.CannonImage
+	case CannonStyleHiCannon:
+		img = b.CannonSprites.HiCannonImage
+	case CannonStyleMCannon:
+		img = b.CannonSprites.MCannonImage
+	}
+	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
 
 	return rootNode
 }

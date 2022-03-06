@@ -15,8 +15,11 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 		e.CanUseChip = true
 	}
 
-	if e.CanUseChip && intent.UseChip && interrupts.OnChipUse && e.ChipUseLockoutTimeLeft == 0 {
-		e.SetBehavior(&behaviors.Sword{Damage: 80})
+	if e.CanUseChip && intent.UseChip && interrupts.OnChipUse && e.ChipUseLockoutTimeLeft == 0 && len(e.Chips) > 0 {
+		chip := e.Chips[0]
+		copy(e.Chips, e.Chips[1:])
+		e.Chips = e.Chips[:len(e.Chips)-1]
+		e.SetBehavior(chip.BehaviorFactory())
 		e.CanUseChip = false
 		return
 	}
