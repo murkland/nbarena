@@ -56,6 +56,7 @@ type Entity struct {
 
 	Traits EntityTraits
 
+	CanUseChip             bool
 	ChipUseLockoutTimeLeft Ticks
 
 	ChargingElapsedTime Ticks
@@ -98,7 +99,7 @@ func (e *Entity) Clone() *Entity {
 		e.IsDeleted,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		e.ChipUseLockoutTimeLeft,
+		e.CanUseChip, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,

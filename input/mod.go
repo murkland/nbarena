@@ -34,16 +34,11 @@ func (d Direction) FlipV() Direction {
 
 type Action uint8
 
-const (
-	ActionNone    Action = 0
-	ActionUseChip Action = 1
-	ActionConfirm Action = 2
-	ActionCutIn   Action = 3
-	ActionEndTurn Action = 4
-)
-
 type Intent struct {
 	Direction         Direction
-	Action            Action
+	UseChip           bool
+	Confirm           bool
+	CutIn             bool
+	EndTurn           bool
 	ChargeBasicWeapon bool
 }

@@ -11,13 +11,13 @@ import (
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
 	interrupts := e.LastInterrupts()
 
-	if intent.Action != input.ActionNone {
-		if interrupts.OnChipUse && intent.Action == input.ActionUseChip && e.ChipUseLockoutTimeLeft == 0 {
-			// TODO: Use the chip.
-			e.SetBehavior(&behaviors.Sword{Damage: 80})
-			return
-		}
+	if !intent.UseChip {
+		e.CanUseChip = true
+	}
 
+	if e.CanUseChip && intent.UseChip && interrupts.OnChipUse && e.ChipUseLockoutTimeLeft == 0 {
+		e.SetBehavior(&behaviors.Sword{Damage: 80})
+		e.CanUseChip = false
 		return
 	}
 
@@ -25,7 +25,7 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 		e.ChargingElapsedTime++
 	}
 
-	if interrupts.OnCharge && !intent.ChargeBasicWeapon && e.ChargingElapsedTime > 0 {
+	if !intent.ChargeBasicWeapon && interrupts.OnCharge && e.ChargingElapsedTime > 0 {
 		// Release buster shot.
 		e.SetBehavior(&behaviors.Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
 		e.ChargingElapsedTime = 0
