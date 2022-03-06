@@ -6,7 +6,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.2.5
 	github.com/keegancsmith/nth v0.0.0-20160926112203-ee21de2f07b8
 	github.com/murkland/clone v0.0.0-20220305211650-2e9ef76f1dca
-	github.com/murkland/ctxwebrtc v0.0.0-20220305211651-10efaa055f91
+	github.com/murkland/ctxwebrtc v0.0.0-20220306073518-b5815ce4a060
 	github.com/murkland/moreflag v0.0.0-20220305211654-c2205a2290ac
 	github.com/murkland/moreio v0.0.0-20220305211655-3f4f0d40df7a
 	github.com/murkland/pngsheet v0.0.0-20220305212058-b7725a05d54a
