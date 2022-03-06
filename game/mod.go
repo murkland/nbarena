@@ -371,13 +371,13 @@ func (g *Game) uiAppearance() draw.Node {
 		self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
 
 		hpText := strconv.Itoa(int(self.DisplayHP))
-		rect := text.BoundString(g.bundle.FontBold, hpText)
+		rect := text.BoundString(g.bundle.TallFont, hpText)
 
 		textOnlyImage := ebiten.NewImage(rect.Max.X, rect.Dy())
 		{
 			opts := &ebiten.DrawImageOptions{}
 			opts.GeoM.Translate(float64(0), float64(-rect.Min.Y))
-			text.DrawWithOptions(textOnlyImage, hpText, g.bundle.FontBold, opts)
+			text.DrawWithOptions(textOnlyImage, hpText, g.bundle.TallFont, opts)
 		}
 
 		gradientImage := hpNeutralGradient
@@ -411,35 +411,35 @@ func (g *Game) uiAppearance() draw.Node {
 	if len(self.Chips) > 0 {
 		chip := self.Chips[0]
 
-		rect := text.BoundString(g.bundle.FontBold, chip.Name)
+		rect := text.BoundString(g.bundle.TallFont, chip.Name)
 
 		chipTextNode := &draw.OptionsNode{}
-		chipTextNode.Opts.GeoM.Translate(2, float64(sceneHeight-rect.Dy()-2))
+		chipTextNode.Opts.GeoM.Translate(1, float64(sceneHeight-12))
 		rootNode.Children = append(rootNode.Children, chipTextNode)
 
 		chipTextBgNode := &draw.OptionsNode{}
 		chipTextNode.Children = append(chipTextNode.Children, chipTextBgNode)
 		chipTextBgNode.Opts.ColorM.Translate(-1.0, -1.0, -1.0, 0.0)
 		chipTextBgNode.Opts.GeoM.Translate(float64(1), float64(1))
-		chipTextBgNode.Children = append(chipTextBgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.FontBold})
+		chipTextBgNode.Children = append(chipTextBgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.TallFont})
 
 		chipTextFgNode := &draw.OptionsNode{}
 		chipTextNode.Children = append(chipTextNode.Children, chipTextFgNode)
 		chipTextFgNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
-		chipTextFgNode.Children = append(chipTextFgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.FontBold})
+		chipTextFgNode.Children = append(chipTextFgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.TallFont})
 
 		chipDamageBgNode := &draw.OptionsNode{}
 		chipTextNode.Children = append(chipTextNode.Children, chipDamageBgNode)
 		chipDamageBgNode.Opts.ColorM.Translate(-1.0, -1.0, -1.0, 0.0)
 		chipDamageBgNode.Opts.GeoM.Translate(float64(rect.Max.X+2), 0)
 		chipDamageBgNode.Opts.GeoM.Translate(float64(1), float64(1))
-		chipDamageBgNode.Children = append(chipDamageBgNode.Children, &draw.TextNode{Text: strconv.Itoa(chip.Damage), Face: g.bundle.FontBold})
+		chipDamageBgNode.Children = append(chipDamageBgNode.Children, &draw.TextNode{Text: strconv.Itoa(chip.Damage), Face: g.bundle.TallFont})
 
 		chipDamageFgNode := &draw.OptionsNode{}
 		chipTextNode.Children = append(chipTextNode.Children, chipDamageFgNode)
 		chipDamageFgNode.Opts.GeoM.Translate(float64(rect.Max.X+2), 0)
 		chipDamageFgNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
-		chipDamageFgNode.Children = append(chipDamageFgNode.Children, &draw.TextNode{Text: strconv.Itoa(chip.Damage), Face: g.bundle.FontBold})
+		chipDamageFgNode.Children = append(chipDamageFgNode.Children, &draw.TextNode{Text: strconv.Itoa(chip.Damage), Face: g.bundle.TallFont})
 	}
 
 	return rootNode

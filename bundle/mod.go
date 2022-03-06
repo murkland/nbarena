@@ -5,7 +5,6 @@ import (
 	"image"
 	_ "image/png"
 	"io/ioutil"
-	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/moreio"
@@ -176,8 +175,24 @@ type Bundle struct {
 	SlashSprites       *SlashSprites
 	CannonSprites      *CannonSprites
 	ChipIconSprites    *Sprites
-	FontBold           font.Face
-	EnemyHPFont        font.Face
+	TallFont           font.Face
+	TinyNumFont        font.Face
+}
+
+func loadBDF(ctx context.Context, f moreio.File) (font.Face, error) {
+	defer f.Close()
+
+	buf, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+
+	font, err := bdf.Parse(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	return font.NewFace(), nil
 }
 
 func sheetToSprites(sheet *Sheet) *Sprites {
@@ -258,23 +273,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		}
 	}))
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/fonts/FontBold.ttf", &b.FontBold, makeFontFaceLoader(16))
-	loader.Add(ctx, l, "assets/fonts/enemyhp.bdf", &b.EnemyHPFont, func(ctx context.Context, f moreio.File) (font.Face, error) {
-		defer f.Close()
-
-		buf, err := ioutil.ReadAll(f)
-		if err != nil {
-			return nil, err
-		}
-
-		font, err := bdf.Parse(buf)
-		if err != nil {
-			return nil, err
-		}
-
-		log.Printf("%#v", font)
-		return font.NewFace(), nil
-	})
+	loader.Add(ctx, l, "assets/fonts/tall.bdf", &b.TallFont, loadBDF)
+	loader.Add(ctx, l, "assets/fonts/tinynum.bdf", &b.TinyNumFont, loadBDF)
 
 	if err := l.Load(); err != nil {
 		return nil, err
