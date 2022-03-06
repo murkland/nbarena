@@ -26,11 +26,15 @@ type EntityTraits struct {
 	IgnoresTileOwnership   bool
 }
 
+type EntityPerTickState struct {
+	IsStepped               bool
+	IsPendingDeletion       bool
+	DoubleDamageWasConsumed bool
+	Hit                     Hit
+}
+
 type Entity struct {
 	id int
-
-	IsPendingStep     bool
-	IsPendingDeletion bool
 
 	elapsedTime Ticks
 
@@ -46,8 +50,6 @@ type Entity struct {
 	IsFlipped bool
 
 	IsDeleted bool
-
-	IsHit bool
 
 	HP        int
 	DisplayHP int
@@ -74,7 +76,7 @@ type Entity struct {
 	IsSliding      bool
 	IsCounterable  bool
 
-	CurrentHit Hit
+	PerTickState EntityPerTickState
 }
 
 func (e *Entity) ID() int {
@@ -88,21 +90,19 @@ func (e *Entity) LastInterrupts() EntityBehaviorInterrupts {
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
-		e.IsPendingStep, e.IsPendingDeletion,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(), e.lastInterrupts,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDeleted,
-		e.IsHit,
 		e.HP, e.DisplayHP,
 		e.Traits,
 		e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
-		e.CurrentHit,
+		e.PerTickState,
 	}
 }
 
@@ -166,7 +166,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
-	if e.IsHit {
+	if e.PerTickState.Hit.TotalDamage > 0 {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
@@ -252,6 +252,9 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 	}
 	e.IsAngry = false
 	e.IsFullSynchro = false
+	if dmg.DoubleDamage {
+		e.PerTickState.DoubleDamageWasConsumed = true
+	}
 	return dmg
 }
 

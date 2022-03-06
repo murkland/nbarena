@@ -10,7 +10,7 @@ import (
 )
 
 func resolveHit(e *state.Entity, hit state.Hit) {
-	if e.CurrentHit.RemovesFlashing {
+	if e.PerTickState.Hit.RemovesFlashing {
 		e.FlashingTimeLeft = 0
 	}
 
@@ -26,9 +26,6 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 	// TODO: Process poison damage.
 
 	// Process hit damage.
-	if hit.TotalDamage > 0 {
-		e.IsHit = true
-	}
 	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
 	e.HP -= hit.TotalDamage
 	if e.HP < 0 {
@@ -163,18 +160,15 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 func Step(s *state.State) {
 	s.ElapsedTime++
 
-	// Mark all entities as pending step.
 	for _, e := range s.Entities {
-		e.IsHit = false
-
-		e.IsPendingStep = true
+		e.PerTickState = state.EntityPerTickState{}
 	}
 
 	// Step all entities in a random order.
 	for {
 		pending := make([]*state.Entity, 0, len(s.Entities))
 		for _, e := range s.Entities {
-			if !e.IsPendingStep {
+			if e.PerTickState.IsStepped {
 				continue
 			}
 			pending = append(pending, e)
@@ -191,14 +185,13 @@ func Step(s *state.State) {
 		})
 		for _, e := range pending {
 			e.Step(s)
-			e.IsPendingStep = false
+			e.PerTickState.IsStepped = true
 		}
 	}
 
 	// Resolve any hits.
 	for _, e := range maps.Values(s.Entities) {
-		resolveHit(e, e.CurrentHit)
-		e.CurrentHit = state.Hit{}
+		resolveHit(e, e.PerTickState.Hit)
 
 		// Update UI.
 		if e.DisplayHP != 0 && e.DisplayHP != e.HP {
@@ -222,7 +215,7 @@ func Step(s *state.State) {
 
 	// Delete any entities pending deletion.
 	for k, e := range s.Entities {
-		if e.IsPendingDeletion {
+		if e.PerTickState.IsPendingDeletion {
 			delete(s.Entities, k)
 		}
 	}

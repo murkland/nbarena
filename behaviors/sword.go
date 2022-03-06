@@ -66,14 +66,14 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
 	if e.BehaviorElapsedTime() == 9 {
-		for _, entity := range swordTargetEntities(s, e, eb.Range) {
-			if entity.FlashingTimeLeft == 0 {
+		for _, target := range swordTargetEntities(s, e, eb.Range) {
+			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
 				h.Flinch = true
 				h.Counters = true
 				h.FlashTime = state.DefaultFlashTime
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
-				entity.CurrentHit.Merge(h)
+				target.PerTickState.Hit.Merge(h)
 			}
 		}
 	} else if e.BehaviorElapsedTime() == 21 {

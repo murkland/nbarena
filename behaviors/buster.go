@@ -151,7 +151,7 @@ func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.StartMove(state.TilePosXY(x, y), &s.Field) {
-			e.IsPendingDeletion = true
+			e.PerTickState.IsPendingDeletion = true
 			return
 		}
 		e.FinishMove()
@@ -168,9 +168,9 @@ func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 		}
 		var h state.Hit
 		h.AddDamage(state.Damage{Base: damage})
-		target.CurrentHit.Merge(h)
+		target.PerTickState.Hit.Merge(h)
 
-		e.IsPendingDeletion = true
+		e.PerTickState.IsPendingDeletion = true
 		return
 	}
 }

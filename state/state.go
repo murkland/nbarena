@@ -37,7 +37,6 @@ func (s *State) AddEntity(e *Entity) int {
 	e.id = s.nextEntityID
 	e.elapsedTime = -1
 	e.behaviorElapsedTime = -1
-	e.IsPendingStep = true
 	s.Entities[e.id] = e
 	s.nextEntityID++
 	return e.id
