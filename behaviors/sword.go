@@ -72,7 +72,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				h.Flinch = true
 				h.Counters = true
 				h.FlashTime = state.DefaultFlashTime
-				h.AddDamage(state.Damage{Base: eb.Damage})
+				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				entity.CurrentHit.Merge(h)
 			}
 		}

@@ -40,7 +40,7 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 				IgnoresTileOwnership:   true,
 			},
 		}
-		shot.SetBehavior(&cannonShot{eb.Damage})
+		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)})
 		s.AddEntity(shot)
 	} else if e.BehaviorElapsedTime() == 29 {
 		e.SetBehavior(&Brace{})
@@ -64,7 +64,7 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type cannonShot struct {
-	damage int
+	damage state.Damage
 }
 
 func (eb *cannonShot) Clone() state.EntityBehavior {
@@ -101,7 +101,7 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 		h.Flinch = true
 		h.Counters = true
 		h.FlashTime = state.DefaultFlashTime
-		h.AddDamage(state.Damage{Base: eb.damage})
+		h.AddDamage(eb.damage)
 		target.CurrentHit.Merge(h)
 
 		e.IsPendingDeletion = true

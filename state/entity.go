@@ -69,6 +69,7 @@ type Entity struct {
 	BubbledTimeLeft     Ticks
 
 	IsAngry        bool
+	IsFullSynchro  bool
 	IsBeingDragged bool
 	IsSliding      bool
 	IsCounterable  bool
@@ -100,7 +101,7 @@ func (e *Entity) Clone() *Entity {
 		e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
-		e.IsAngry, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
+		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
 		e.CurrentHit,
 	}
 }
@@ -241,6 +242,17 @@ func (e *Entity) Step(s *State) {
 	// TODO: Verify this behavior is correct.
 	e.behaviorElapsedTime++
 	e.behavior.Step(e, s)
+}
+
+func (e *Entity) MakeDamageAndConsume(base int) Damage {
+	dmg := Damage{
+		Base: base,
+
+		DoubleDamage: e.IsAngry || e.IsFullSynchro,
+	}
+	e.IsAngry = false
+	e.IsFullSynchro = false
+	return dmg
 }
 
 type EntityBehaviorInterrupts struct {
