@@ -406,6 +406,29 @@ func (g *Game) uiAppearance() draw.Node {
 		rootNode.Children = append(rootNode.Children, hpPlaqueNode)
 	}
 
+	// TODO: Render chip. Must be not in chip use lockout.
+	self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
+	if len(self.Chips) > 0 {
+		chip := self.Chips[0]
+
+		rect := text.BoundString(g.bundle.FontBold, chip.Name)
+
+		chipTextNode := &draw.OptionsNode{}
+		chipTextNode.Opts.GeoM.Translate(2, float64(sceneHeight-rect.Dy()-2))
+		rootNode.Children = append(rootNode.Children, chipTextNode)
+
+		chipTextBgNode := &draw.OptionsNode{}
+		chipTextNode.Children = append(chipTextNode.Children, chipTextBgNode)
+		chipTextBgNode.Opts.ColorM.Translate(-1.0, -1.0, -1.0, 0.0)
+		chipTextBgNode.Opts.GeoM.Translate(float64(1), float64(1))
+		chipTextBgNode.Children = append(chipTextBgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.FontBold})
+
+		chipTextFgNode := &draw.OptionsNode{}
+		chipTextNode.Children = append(chipTextNode.Children, chipTextFgNode)
+		chipTextFgNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
+		chipTextFgNode.Children = append(chipTextFgNode.Children, &draw.TextNode{Text: chip.Name, Face: g.bundle.FontBold})
+	}
+
 	return rootNode
 }
 
