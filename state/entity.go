@@ -57,7 +57,7 @@ type Entity struct {
 	Traits EntityTraits
 
 	Chips                  []Chip
-	CanUseChip             bool
+	ChipUsePrepared        bool
 	ChipUseLockoutTimeLeft Ticks
 
 	ChargingElapsedTime Ticks
@@ -100,7 +100,7 @@ func (e *Entity) Clone() *Entity {
 		e.IsDeleted,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		clone.Slice(e.Chips), e.CanUseChip, e.ChipUseLockoutTimeLeft,
+		clone.Slice(e.Chips), e.ChipUsePrepared, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
@@ -234,11 +234,10 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		chipsNode.Opts.GeoM.Translate(0, float64(-56))
 		rootNode.Children = append(rootNode.Children, chipsNode)
 
-		for i := len(e.Chips) - 1; i >= 0; i-- {
-			chip := e.Chips[i]
-
+		for i, chip := range e.Chips {
 			chipNode := &draw.OptionsNode{Layer: 9}
-			chipNode.Opts.GeoM.Translate(float64(-i*2), float64(-i*2))
+			j := len(e.Chips) - i - 1
+			chipNode.Opts.GeoM.Translate(float64(-j*2), float64(-j*2))
 			chipsNode.Children = append(chipsNode.Children, chipNode)
 
 			chipNode.Children = append(chipNode.Children, draw.ImageWithFrame(b.ChipIconSprites.Image, b.ChipIconSprites.Animations[chip.Index].Frames[0]))
@@ -277,9 +276,9 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 }
 
 type EntityBehaviorInterrupts struct {
-	OnMove    bool
-	OnChipUse bool
-	OnCharge  bool
+	WithMove    bool
+	WithChipUse bool
+	WithCharge  bool
 }
 
 type EntityBehavior interface {

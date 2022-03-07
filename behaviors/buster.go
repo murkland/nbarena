@@ -121,7 +121,7 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 func (eb *Buster) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 	realElapsedTime := eb.realElapsedTime(e)
 	return state.EntityBehaviorInterrupts{
-		OnMove: realElapsedTime >= 5,
+		WithMove: realElapsedTime >= 5,
 	}
 }
 

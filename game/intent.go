@@ -12,29 +12,28 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 	interrupts := e.LastInterrupts()
 
 	if !intent.UseChip {
-		e.CanUseChip = true
+		e.ChipUsePrepared = true
 	}
 
-	if e.CanUseChip && intent.UseChip && interrupts.OnChipUse && e.ChipUseLockoutTimeLeft == 0 && len(e.Chips) > 0 {
-		chip := e.Chips[0]
-		copy(e.Chips, e.Chips[1:])
+	if e.ChipUsePrepared && intent.UseChip && interrupts.WithChipUse && e.ChipUseLockoutTimeLeft == 0 && len(e.Chips) > 0 {
+		chip := e.Chips[len(e.Chips)-1]
 		e.Chips = e.Chips[:len(e.Chips)-1]
 		e.SetBehavior(chip.BehaviorFactory())
-		e.CanUseChip = false
+		e.ChipUsePrepared = false
 		return
 	}
 
-	if intent.ChargeBasicWeapon && (interrupts.OnCharge || e.ChargingElapsedTime > 0) {
+	if intent.ChargeBasicWeapon && (interrupts.WithCharge || e.ChargingElapsedTime > 0) {
 		e.ChargingElapsedTime++
 	}
 
-	if !intent.ChargeBasicWeapon && interrupts.OnCharge && e.ChargingElapsedTime > 0 {
+	if !intent.ChargeBasicWeapon && interrupts.WithCharge && e.ChargingElapsedTime > 0 {
 		// Release buster shot.
 		e.SetBehavior(&behaviors.Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
 		e.ChargingElapsedTime = 0
 	}
 
-	if interrupts.OnMove {
+	if interrupts.WithMove {
 		dir := intent.Direction
 		if e.ConfusedTimeLeft > 0 {
 			dir = dir.FlipH().FlipV()

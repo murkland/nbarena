@@ -408,8 +408,8 @@ func (g *Game) uiAppearance() draw.Node {
 
 	// TODO: Render chip. Must be not in chip use lockout.
 	self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
-	if len(self.Chips) > 0 {
-		chip := self.Chips[0]
+	if self.ChipUseLockoutTimeLeft == 0 && len(self.Chips) > 0 {
+		chip := self.Chips[len(self.Chips)-1]
 
 		rect := text.BoundString(g.bundle.TallFont, chip.Name)
 
