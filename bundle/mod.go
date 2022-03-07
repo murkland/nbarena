@@ -176,6 +176,7 @@ type Bundle struct {
 	CannonSprites      *CannonSprites
 	ChipIconSprites    *Sprites
 	TallFont           font.Face
+	Tall2Font          font.Face
 	TinyNumFont        font.Face
 }
 
@@ -274,6 +275,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/fonts/tall.bdf", &b.TallFont, loadBDF)
+	loader.Add(ctx, l, "assets/fonts/tall2.bdf", &b.Tall2Font, loadBDF)
 	loader.Add(ctx, l, "assets/fonts/tinynum.bdf", &b.TinyNumFont, loadBDF)
 
 	if err := l.Load(); err != nil {

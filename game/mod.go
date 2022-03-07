@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -26,6 +27,10 @@ import (
 	"github.com/murkland/syncrand"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/sync/errgroup"
+)
+
+var (
+	debugSpewEntityState = flag.Bool("debug_spew_entity_state", false, "spew entity state")
 )
 
 const sceneWidth = 240
@@ -355,7 +360,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
 	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
-	rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
+	if *debugSpewEntityState {
+		rootNode.Children = append(rootNode.Children, g.makeDebugDrawNode())
+	}
 
 	g.compositor.Clear()
 	rootNode.Draw(g.compositor, &ebiten.DrawImageOptions{})
