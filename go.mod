@@ -15,6 +15,7 @@ require (
 	github.com/murkland/syncrand v0.0.0-20220305211705-ca5629605735
 	github.com/pion/webrtc/v3 v3.1.23
 	github.com/sanity-io/litter v1.5.2
+	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95
 	golang.org/x/exp v0.0.0-20220218215828-6cf2b201936e
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -42,7 +43,6 @@ require (
 	github.com/pion/turn/v2 v2.0.6 // indirect
 	github.com/pion/udp v0.1.1 // indirect
 	github.com/twitchtv/twirp v8.1.1+incompatible // indirect
-	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
 	golang.org/x/crypto v0.0.0-20220213190939-1e6e3497d506 // indirect
 	golang.org/x/exp/shiny v0.0.0-20220218215828-6cf2b201936e // indirect
 	golang.org/x/mobile v0.0.0-20210902104108-5d9a33257ab5 // indirect
@@ -52,3 +52,5 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
+
+replace github.com/zachomedia/go-bdf => github.com/murkland/go-bdf v0.0.0-20220307182234-b93f9274b16f
