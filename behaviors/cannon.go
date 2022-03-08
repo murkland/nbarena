@@ -53,8 +53,8 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		}
 		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)})
 		s.AddEntity(shot)
-	} else if e.BehaviorElapsedTime() == 29 {
-		e.SetBehavior(&Brace{})
+	} else if e.BehaviorElapsedTime() == 33 {
+		e.SetBehavior(&Idle{})
 	}
 }
 
@@ -64,21 +64,25 @@ func (eb *Cannon) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
 
 func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorElapsedTime()]))
+	if e.BehaviorElapsedTime() < 29 {
+		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorElapsedTime()]))
 
-	cannonNode := &draw.OptionsNode{Layer: 8}
-	cannonNode.Opts.GeoM.Translate(float64(16), float64(-24))
-	rootNode.Children = append(rootNode.Children, cannonNode)
-	var img *ebiten.Image
-	switch eb.Style {
-	case CannonStyleCannon:
-		img = b.CannonSprites.CannonImage
-	case CannonStyleHiCannon:
-		img = b.CannonSprites.HiCannonImage
-	case CannonStyleMCannon:
-		img = b.CannonSprites.MCannonImage
+		cannonNode := &draw.OptionsNode{Layer: 8}
+		cannonNode.Opts.GeoM.Translate(float64(16), float64(-24))
+		rootNode.Children = append(rootNode.Children, cannonNode)
+		var img *ebiten.Image
+		switch eb.Style {
+		case CannonStyleCannon:
+			img = b.CannonSprites.CannonImage
+		case CannonStyleHiCannon:
+			img = b.CannonSprites.HiCannonImage
+		case CannonStyleMCannon:
+			img = b.CannonSprites.MCannonImage
+		}
+		cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
+	} else {
+		return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceAnimation.Frames[int(e.BehaviorElapsedTime()-29)])
 	}
-	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
 
 	return rootNode
 }
