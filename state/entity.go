@@ -85,6 +85,13 @@ func (e *Entity) ID() int {
 	return e.id
 }
 
+func (e *Entity) Flip() {
+	e.IsAlliedWithAnswerer = !e.IsAlliedWithAnswerer
+	e.IsFlipped = !e.IsFlipped
+	e.TilePos = e.TilePos.Flipped()
+	e.FutureTilePos = e.FutureTilePos.Flipped()
+}
+
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,

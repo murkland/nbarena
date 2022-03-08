@@ -130,6 +130,9 @@ type busterShot struct {
 	isPowerShot bool
 }
 
+func (eb *busterShot) Flip() {
+}
+
 func (eb *busterShot) Clone() state.EntityBehavior {
 	return &busterShot{
 		eb.baseDamage,

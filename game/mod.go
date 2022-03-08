@@ -354,10 +354,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.csMu.Lock()
 	defer g.csMu.Unlock()
 
+	state := g.cs.dirtyState
+	if g.cs.isAnswerer {
+		state = g.cs.dirtyState.Clone()
+		state.Flip()
+	}
+
 	rootNode := &draw.OptionsNode{}
 	sceneNode := &draw.OptionsNode{}
 	sceneNode.Opts.GeoM.Scale(float64(k), float64(k))
-	sceneNode.Children = append(sceneNode.Children, g.cs.dirtyState.Appearance(g.bundle))
+	sceneNode.Children = append(sceneNode.Children, state.Appearance(g.bundle))
 	sceneNode.Children = append(sceneNode.Children, g.uiAppearance())
 	rootNode.Children = append(rootNode.Children, sceneNode)
 	if *debugSpewEntityState {
@@ -475,6 +481,10 @@ func (g *Game) Update() error {
 	}
 
 	intent := input.CurrentIntent()
+	if g.cs.isAnswerer {
+		intent.Direction = intent.Direction.FlipH()
+	}
+
 	forTick := uint32(g.cs.dirtyState.ElapsedTime + 1)
 
 	ctx := context.Background()

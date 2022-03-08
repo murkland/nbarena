@@ -55,6 +55,13 @@ func (s State) Clone() State {
 	}
 }
 
+func (s *State) Flip() {
+	s.Field.Flip()
+	for _, entity := range s.Entities {
+		entity.Flip()
+	}
+}
+
 const (
 	fieldOffsetTopFull = 87
 	fieldOffsetTop     = 72

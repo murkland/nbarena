@@ -78,6 +78,11 @@ func (p TilePos) XY() (int, int) {
 	return int(p) % TileCols, int(p) / TileCols
 }
 
+func (p TilePos) Flipped() TilePos {
+	x, y := p.XY()
+	return TilePosXY(TileCols-x-1, y)
+}
+
 type TileBehavior interface {
 	clone.Cloner[TileBehavior]
 	Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node

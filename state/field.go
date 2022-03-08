@@ -38,6 +38,21 @@ func newField() Field {
 	return Field{tiles, make([]ColumnInfo, TileCols)}
 }
 
+func (f *Field) Flip() {
+	for i, t := range f.Tiles {
+		j := int(TilePos(i).Flipped())
+		f.Tiles[i], f.Tiles[j] = f.Tiles[j], f.Tiles[i]
+
+		t.IsAlliedWithAnswerer = !t.IsAlliedWithAnswerer
+		t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
+	}
+
+	for i := 0; i < len(f.ColumnInfo)/2; i++ {
+		j := len(f.ColumnInfo) - i - 1
+		f.ColumnInfo[i], f.ColumnInfo[j] = f.ColumnInfo[j], f.ColumnInfo[i]
+	}
+}
+
 func (f *Field) Step(s *State) {
 	for j := range f.ColumnInfo {
 		if f.ColumnInfo[j].allySwapTimeLeft > 0 {
