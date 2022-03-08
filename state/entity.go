@@ -27,6 +27,7 @@ type EntityTraits struct {
 }
 
 type EntityPerTickState struct {
+	Interrupts              EntityBehaviorInterrupts
 	IsStepped               bool
 	IsPendingDeletion       bool
 	DoubleDamageWasConsumed bool
@@ -40,7 +41,6 @@ type Entity struct {
 
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
-	lastInterrupts      EntityBehaviorInterrupts
 
 	TilePos       TilePos
 	FutureTilePos TilePos
@@ -85,15 +85,11 @@ func (e *Entity) ID() int {
 	return e.id
 }
 
-func (e *Entity) LastInterrupts() EntityBehaviorInterrupts {
-	return e.lastInterrupts
-}
-
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
-		e.behaviorElapsedTime, e.behavior.Clone(), e.lastInterrupts,
+		e.behaviorElapsedTime, e.behavior.Clone(),
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
@@ -248,7 +244,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 }
 
 func (e *Entity) Step(s *State) {
-	e.lastInterrupts = e.behavior.Interrupts(e)
+	e.PerTickState.Interrupts = e.behavior.Interrupts(e)
 
 	if e.ChipUseLockoutTimeLeft > 0 {
 		e.ChipUseLockoutTimeLeft--
