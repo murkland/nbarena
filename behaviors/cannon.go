@@ -1,7 +1,7 @@
 package behaviors
 
 import (
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
