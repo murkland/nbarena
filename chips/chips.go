@@ -31,11 +31,11 @@ var Chips = []state.Chip{
 		},
 	},
 	{
-		Index:  70,
-		Name:   "Sword",
-		Damage: 80,
+		Index:  73,
+		Name:   "WideBlde",
+		Damage: 150,
 		BehaviorFactory: func() state.EntityBehavior {
-			return &behaviors.Sword{Damage: 80}
+			return &behaviors.Sword{Damage: 150, Style: behaviors.SwordStyleBlade, Range: behaviors.SwordRangeWide}
 		},
 	},
 }

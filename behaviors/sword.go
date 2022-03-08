@@ -1,6 +1,7 @@
 package behaviors
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
@@ -11,21 +12,28 @@ import (
 type SwordRange int
 
 const (
-	ShortSwordRange    SwordRange = 0
-	WideSwordRange     SwordRange = 1
-	LongSwordRange     SwordRange = 2
-	VeryLongSwordRange SwordRange = 3
+	SwordRangeShort    SwordRange = 0
+	SwordRangeWide     SwordRange = 1
+	SwordRangeLong     SwordRange = 2
+	SwordRangeVeryLong SwordRange = 3
+)
+
+type SwordStyle int
+
+const (
+	SwordStyleSword SwordStyle = 0
+	SwordStyleBlade SwordStyle = 1
 )
 
 func slashAnimation(b *bundle.Bundle, r SwordRange) *pngsheet.Animation {
 	switch r {
-	case ShortSwordRange:
+	case SwordRangeShort:
 		return b.SlashSprites.ShortAnimation
-	case WideSwordRange:
+	case SwordRangeWide:
 		return b.SlashSprites.WideAnimation
-	case LongSwordRange:
+	case SwordRangeLong:
 		return b.SlashSprites.LongAnimation
-	case VeryLongSwordRange:
+	case SwordRangeVeryLong:
 		return b.SlashSprites.VeryLongAnimation
 	}
 	return nil
@@ -33,12 +41,14 @@ func slashAnimation(b *bundle.Bundle, r SwordRange) *pngsheet.Animation {
 
 type Sword struct {
 	Range  SwordRange
+	Style  SwordStyle
 	Damage int
 }
 
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
 		eb.Range,
+		eb.Style,
 		eb.Damage,
 	}
 }
@@ -50,12 +60,12 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 	entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y))...)
 
 	switch r {
-	case WideSwordRange:
+	case SwordRangeWide:
 		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
 		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
-	case LongSwordRange:
+	case SwordRangeLong:
 		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
-	case VeryLongSwordRange:
+	case SwordRangeVeryLong:
 		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
 		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+3*dx, y))...)
 	}
@@ -99,7 +109,14 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, slashNode)
 
 		slashAnim := slashAnimation(b, eb.Range)
-		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.SlashSprites.SwordImage, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
+		var img *ebiten.Image
+		switch eb.Style {
+		case SwordStyleSword:
+			img = b.SlashSprites.SwordImage
+		case SwordStyleBlade:
+			img = b.SlashSprites.BladeImage
+		}
+		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(img, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
 	}
 
 	return rootNode
