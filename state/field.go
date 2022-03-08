@@ -39,11 +39,16 @@ func newField() Field {
 }
 
 func (f *Field) Flip() {
+	for j := 0; j < TileRows; j++ {
+		for i := 0; i < TileCols/2; i++ {
+			pos := TilePosXY(i, j)
+			newPos := pos.Flipped()
+			f.Tiles[pos], f.Tiles[newPos] = f.Tiles[newPos], f.Tiles[pos]
+		}
+	}
+
 	for i := range f.Tiles {
 		f.Tiles[i].Flip()
-
-		j := int(TilePos(i).Flipped())
-		f.Tiles[i], f.Tiles[j] = f.Tiles[j], f.Tiles[i]
 	}
 
 	for i := 0; i < len(f.ColumnInfo)/2; i++ {
