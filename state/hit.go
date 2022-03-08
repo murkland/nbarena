@@ -23,11 +23,12 @@ type Hit struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	// ???
-	RemovesFlashing bool
-	Counters        bool
-	Drag            bool
-	Flinch          bool
+	Drag                  bool // ???
+	SecondaryElementSword bool
+	GuardPiercing         bool
+	RemovesFlashing       bool
+	Counters              bool
+	Flinch                bool
 }
 
 func (h *Hit) AddDamage(d Damage) {
