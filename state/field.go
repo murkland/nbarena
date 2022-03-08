@@ -39,12 +39,11 @@ func newField() Field {
 }
 
 func (f *Field) Flip() {
-	for i, t := range f.Tiles {
+	for i := range f.Tiles {
+		f.Tiles[i].Flip()
+
 		j := int(TilePos(i).Flipped())
 		f.Tiles[i], f.Tiles[j] = f.Tiles[j], f.Tiles[i]
-
-		t.IsAlliedWithAnswerer = !t.IsAlliedWithAnswerer
-		t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
 	}
 
 	for i := 0; i < len(f.ColumnInfo)/2; i++ {
