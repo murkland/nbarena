@@ -38,4 +38,10 @@ var Chips = []state.Chip{
 			e.SetBehavior(&behaviors.Sword{Damage: 150, Style: behaviors.SwordStyleBlade, Range: behaviors.SwordRangeWide})
 		},
 	},
+	{
+		Index: 162,
+		Name:  "AreaGrab",
+		OnUse: func(s *state.State, e *state.Entity) {
+		},
+	},
 }

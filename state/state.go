@@ -16,7 +16,7 @@ type State struct {
 
 	RandSource *syncrand.Source
 
-	Field Field
+	Field *Field
 
 	Entities     map[int]*Entity
 	nextEntityID int

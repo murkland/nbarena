@@ -19,11 +19,11 @@ type Field struct {
 	ColumnInfo []*ColumnInfo
 }
 
-func (f Field) Clone() Field {
-	return Field{clone.Slice(f.Tiles), clone.Slice(f.ColumnInfo)}
+func (f *Field) Clone() *Field {
+	return &Field{clone.Slice(f.Tiles), clone.Slice(f.ColumnInfo)}
 }
 
-func newField() Field {
+func newField() *Field {
 	tiles := make([]*Tile, TileCols*TileRows)
 	for j := 0; j < TileRows; j++ {
 		for i := 0; i < TileCols; i++ {
@@ -42,7 +42,7 @@ func newField() Field {
 		columnInfos[i] = &ColumnInfo{}
 	}
 
-	return Field{tiles, columnInfos}
+	return &Field{tiles, columnInfos}
 }
 
 func (f *Field) Flip() {

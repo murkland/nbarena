@@ -45,7 +45,7 @@ func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isO
 			y++
 		}
 
-		if e.StartMove(state.TilePosXY(x, y), &s.Field) {
+		if e.StartMove(state.TilePosXY(x, y), s.Field) {
 			e.SetBehavior(&behaviors.Teleport{})
 		}
 	}

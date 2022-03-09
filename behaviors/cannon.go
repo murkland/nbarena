@@ -108,7 +108,7 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime()%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
-		if !e.StartMove(state.TilePosXY(x, y), &s.Field) {
+		if !e.StartMove(state.TilePosXY(x, y), s.Field) {
 			e.PerTickState.IsPendingDeletion = true
 			return
 		}
