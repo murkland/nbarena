@@ -3,17 +3,29 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/pngsheet"
 )
 
-const teleportEndlagTicks = 6
+const teleportEndlagTicks = 8
 
 type Teleport struct {
+	useChip bool
 }
 
 func (eb *Teleport) Clone() state.EntityBehavior {
-	return &Teleport{}
+	return &Teleport{eb.useChip}
+}
+
+func (eb *Teleport) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
+	if intent.UseChip {
+		eb.useChip = true
+	}
+
+	if intent.ChargeBasicWeapon {
+		e.ChargingElapsedTime++
+	}
 }
 
 func (eb *Teleport) Step(e *state.Entity, s *state.State) {
@@ -23,6 +35,9 @@ func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 
 	if e.BehaviorElapsedTime() == 6+teleportEndlagTicks {
 		e.SetBehavior(&Idle{})
+		if eb.useChip && e.ChipUseLockoutTimeLeft == 0 {
+			e.UseChip(s)
+		}
 	}
 }
 
@@ -36,8 +51,4 @@ func (eb *Teleport) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		frame = b.MegamanSprites.TeleportEndAnimation.Frames[len(b.MegamanSprites.TeleportEndAnimation.Frames)-1]
 	}
 	return draw.ImageWithFrame(b.MegamanSprites.Image, frame)
-}
-
-func (eb *Teleport) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{}
 }

@@ -29,7 +29,6 @@ type EntityTraits struct {
 }
 
 type EntityPerTickState struct {
-	Interrupts              EntityBehaviorInterrupts
 	IsStepped               bool
 	IsPendingDeletion       bool
 	DoubleDamageWasConsumed bool
@@ -116,13 +115,14 @@ func (e *Entity) Clone() *Entity {
 	}
 }
 
-func (e *Entity) UseChip(s *State) {
+func (e *Entity) UseChip(s *State) bool {
 	if len(e.Chips) == 0 {
-		return
+		return false
 	}
 	chip := e.Chips[len(e.Chips)-1]
 	e.Chips = e.Chips[:len(e.Chips)-1]
 	chip.OnUse(s, e)
+	return true
 }
 
 func (e *Entity) Behavior() EntityBehavior {
@@ -265,8 +265,6 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 }
 
 func (e *Entity) Step(s *State) {
-	e.PerTickState.Interrupts = e.behavior.Interrupts(e)
-
 	if e.ChipUseLockoutTimeLeft > 0 {
 		e.ChipUseLockoutTimeLeft--
 	}
@@ -292,15 +290,9 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 	return dmg
 }
 
-type EntityBehaviorInterrupts struct {
-	WithMove    bool
-	WithChipUse bool
-	WithCharge  bool
-}
-
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
 	Step(e *Entity, s *State)
-	Interrupts(e *Entity) EntityBehaviorInterrupts
+	ApplyIntent(e *Entity, s *State, intent input.Intent)
 }

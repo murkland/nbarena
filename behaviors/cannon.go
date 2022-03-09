@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 )
@@ -26,6 +27,9 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 		eb.Style,
 		eb.Damage,
 	}
+}
+
+func (eb *Cannon) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
@@ -56,10 +60,6 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 	} else if e.BehaviorElapsedTime() == 33 {
 		e.SetBehavior(&Idle{})
 	}
-}
-
-func (eb *Cannon) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{}
 }
 
 func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
@@ -96,12 +96,11 @@ func (eb *cannonShot) Clone() state.EntityBehavior {
 	}
 }
 
-func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return nil
+func (eb *cannonShot) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
-func (eb *cannonShot) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{}
+func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	return nil
 }
 
 func (eb *cannonShot) Step(e *state.Entity, s *state.State) {

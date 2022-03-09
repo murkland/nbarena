@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 	"github.com/murkland/pngsheet"
@@ -52,6 +53,8 @@ func (eb *Sword) Clone() state.EntityBehavior {
 		eb.Damage,
 	}
 }
+func (eb *Sword) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
+}
 
 func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state.Entity {
 	x, y := e.TilePos.XY()
@@ -89,10 +92,6 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	} else if e.BehaviorElapsedTime() == 21 {
 		e.SetBehavior(&Idle{})
 	}
-}
-
-func (eb *Sword) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{}
 }
 
 func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

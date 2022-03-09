@@ -3,6 +3,7 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 )
@@ -20,6 +21,9 @@ func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 		t -= 5
 	}
 	return t
+}
+
+func (eb *Buster) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
 func (eb *Buster) Clone() state.EntityBehavior {
@@ -118,13 +122,6 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (eb *Buster) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	realElapsedTime := eb.realElapsedTime(e)
-	return state.EntityBehaviorInterrupts{
-		WithMove: realElapsedTime >= 5,
-	}
-}
-
 type busterShot struct {
 	baseDamage  int
 	isPowerShot bool
@@ -140,12 +137,11 @@ func (eb *busterShot) Clone() state.EntityBehavior {
 	}
 }
 
-func (eb *busterShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return nil
+func (eb *busterShot) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
-func (eb *busterShot) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{}
+func (eb *busterShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	return nil
 }
 
 func (eb *busterShot) Step(e *state.Entity, s *state.State) {
