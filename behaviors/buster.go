@@ -24,6 +24,32 @@ func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 }
 
 func (eb *Buster) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
+	realElapsedTime := eb.realElapsedTime(e)
+
+	if intent.Direction != input.DirectionNone && realElapsedTime >= 5 {
+		dir := intent.Direction
+		if e.ConfusedTimeLeft > 0 {
+			dir = dir.FlipH().FlipV()
+		}
+
+		x, y := e.TilePos.XY()
+		if dir&input.DirectionLeft != 0 {
+			x--
+		}
+		if dir&input.DirectionRight != 0 {
+			x++
+		}
+		if dir&input.DirectionUp != 0 {
+			y--
+		}
+		if dir&input.DirectionDown != 0 {
+			y++
+		}
+
+		if e.StartMove(state.TilePosXY(x, y), s.Field) {
+			e.SetBehavior(&Teleport{})
+		}
+	}
 }
 
 func (eb *Buster) Clone() state.EntityBehavior {
