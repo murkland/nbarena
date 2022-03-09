@@ -292,22 +292,9 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 	return dmg
 }
 
-type WithChipUseInterruptType int
-
-const (
-	// WithChipUseInterruptTypeIgnore will ignore the interrupt.
-	WithChipUseInterruptTypeIgnore WithChipUseInterruptType = 0
-
-	// WithChipUseInterruptTypeImmediate will replace the current behavior.
-	WithChipUseInterruptTypeImmediate WithChipUseInterruptType = 1
-
-	// WithChipUseInterruptTypeQueue will queue the interrupt to when the current behavior completes.
-	WithChipUseInterruptTypeQueue WithChipUseInterruptType = 2
-)
-
 type EntityBehaviorInterrupts struct {
 	WithMove    bool
-	WithChipUse WithChipUseInterruptType
+	WithChipUse bool
 	WithCharge  bool
 }
 

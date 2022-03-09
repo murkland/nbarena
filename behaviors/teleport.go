@@ -39,7 +39,5 @@ func (eb *Teleport) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 func (eb *Teleport) Interrupts(e *state.Entity) state.EntityBehaviorInterrupts {
-	return state.EntityBehaviorInterrupts{
-		WithChipUse: state.WithChipUseInterruptTypeQueue,
-	}
+	return state.EntityBehaviorInterrupts{}
 }

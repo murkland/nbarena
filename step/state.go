@@ -186,11 +186,6 @@ func Step(s *state.State) {
 		for _, e := range pending {
 			e.Step(s)
 			e.PerTickState.IsStepped = true
-
-			if e.ChipUseQueued && e.PerTickState.Interrupts.WithChipUse == state.WithChipUseInterruptTypeImmediate {
-				e.UseChip(s)
-				e.ChipUseQueued = false
-			}
 		}
 	}
 

@@ -9,10 +9,9 @@ import (
 )
 
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
-	if e.LastIntent.UseChip != intent.UseChip && intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
-		if e.PerTickState.Interrupts.WithChipUse != state.WithChipUseInterruptTypeIgnore {
-			e.ChipUseQueued = true
-		}
+	if intent.UseChip && e.LastIntent.UseChip != intent.UseChip && e.PerTickState.Interrupts.WithChipUse && e.ChipUseLockoutTimeLeft == 0 {
+		e.UseChip(s)
+		return
 	}
 
 	if intent.ChargeBasicWeapon && (e.PerTickState.Interrupts.WithCharge || e.ChargingElapsedTime > 0) {
