@@ -9,16 +9,15 @@ import (
 )
 
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
-	if !intent.UseChip {
-		e.ChipUsePrepared = true
-	}
-
-	if e.ChipUsePrepared && intent.UseChip && e.PerTickState.Interrupts.WithChipUse && e.ChipUseLockoutTimeLeft == 0 && len(e.Chips) > 0 {
-		chip := e.Chips[len(e.Chips)-1]
-		e.Chips = e.Chips[:len(e.Chips)-1]
-		e.SetBehavior(chip.BehaviorFactory())
-		e.ChipUsePrepared = false
-		return
+	if e.LastIntent.UseChip != intent.UseChip && intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
+		switch e.PerTickState.Interrupts.WithChipUse {
+		case state.WithChipUseInterruptTypeImmediate:
+			e.UseChip()
+			return
+		case state.WithChipUseInterruptTypeQueue:
+			e.ChipUseQueued = true
+			return
+		}
 	}
 
 	if intent.ChargeBasicWeapon && (e.PerTickState.Interrupts.WithCharge || e.ChargingElapsedTime > 0) {
@@ -76,5 +75,6 @@ func applyPlayerIntents(s *state.State, offererEntityID int, offererIntent input
 			entity = s.Entities[answererEntityID]
 		}
 		applyPlayerIntent(s, entity, wrapped.intent, wrapped.isOfferer)
+		entity.LastIntent = wrapped.intent
 	}
 }

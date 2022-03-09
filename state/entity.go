@@ -12,6 +12,7 @@ import (
 	"github.com/murkland/clone"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/input"
 )
 
 var (
@@ -42,6 +43,8 @@ type Entity struct {
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
 
+	LastIntent input.Intent
+
 	TilePos       TilePos
 	FutureTilePos TilePos
 
@@ -57,7 +60,7 @@ type Entity struct {
 	Traits EntityTraits
 
 	Chips                  []Chip
-	ChipUsePrepared        bool
+	ChipUseQueued          bool
 	ChipUseLockoutTimeLeft Ticks
 
 	ChargingElapsedTime Ticks
@@ -97,18 +100,28 @@ func (e *Entity) Clone() *Entity {
 		e.id,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(),
+		e.LastIntent,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDeleted,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		clone.Slice(e.Chips), e.ChipUsePrepared, e.ChipUseLockoutTimeLeft,
+		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
 		e.PerTickState,
 	}
+}
+
+func (e *Entity) UseChip() {
+	if len(e.Chips) == 0 {
+		return
+	}
+	chip := e.Chips[len(e.Chips)-1]
+	e.Chips = e.Chips[:len(e.Chips)-1]
+	e.SetBehavior(chip.BehaviorFactory())
 }
 
 func (e *Entity) Behavior() EntityBehavior {
@@ -278,9 +291,22 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 	return dmg
 }
 
+type WithChipUseInterruptType int
+
+const (
+	// WithChipUseInterruptTypeIgnore will ignore the interrupt.
+	WithChipUseInterruptTypeIgnore WithChipUseInterruptType = 0
+
+	// WithChipUseInterruptTypeImmediate will replace the current behavior.
+	WithChipUseInterruptTypeImmediate WithChipUseInterruptType = 1
+
+	// WithChipUseInterruptTypeQueue will queue the interrupt to when the current behavior completes.
+	WithChipUseInterruptTypeQueue WithChipUseInterruptType = 2
+)
+
 type EntityBehaviorInterrupts struct {
 	WithMove    bool
-	WithChipUse bool
+	WithChipUse WithChipUseInterruptType
 	WithCharge  bool
 }
 
