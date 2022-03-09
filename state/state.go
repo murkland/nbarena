@@ -23,10 +23,11 @@ type State struct {
 }
 
 func New(randSource *syncrand.Source) State {
+	field := newField()
 	return State{
 		RandSource: randSource,
 
-		Field: newField(),
+		Field: field,
 
 		Entities:     map[int]*Entity{},
 		nextEntityID: 1,

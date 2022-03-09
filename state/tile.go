@@ -17,8 +17,8 @@ type Tile struct {
 	ShouldBeAlliedWithAnswerer bool
 }
 
-func (t Tile) Clone() Tile {
-	return Tile{
+func (t *Tile) Clone() *Tile {
+	return &Tile{
 		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
 		t.IsFlipped,
 		t.IsAlliedWithAnswerer, t.ShouldBeAlliedWithAnswerer,

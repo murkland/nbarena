@@ -10,13 +10,13 @@ type ColumnInfo struct {
 	allySwapTimeLeft int
 }
 
-func (c ColumnInfo) Clone() ColumnInfo {
-	return ColumnInfo{c.allySwapTimeLeft}
+func (c *ColumnInfo) Clone() *ColumnInfo {
+	return &ColumnInfo{c.allySwapTimeLeft}
 }
 
 type Field struct {
-	Tiles      []Tile
-	ColumnInfo []ColumnInfo
+	Tiles      []*Tile
+	ColumnInfo []*ColumnInfo
 }
 
 func (f Field) Clone() Field {
@@ -24,18 +24,25 @@ func (f Field) Clone() Field {
 }
 
 func newField() Field {
-	tiles := make([]Tile, TileCols*TileRows)
+	tiles := make([]*Tile, TileCols*TileRows)
 	for j := 0; j < TileRows; j++ {
 		for i := 0; i < TileCols; i++ {
-			t := &tiles[int(TilePosXY(i, j))]
+			t := &Tile{}
 			if i >= 1 && i < TileCols-1 && j >= 1 && j < TileRows-1 {
 				t.behavior = &NormalTileBehavior{}
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
 			t.ShouldBeAlliedWithAnswerer = t.IsAlliedWithAnswerer
+			tiles[j*TileCols+i] = t
 		}
 	}
-	return Field{tiles, make([]ColumnInfo, TileCols)}
+
+	columnInfos := make([]*ColumnInfo, TileCols)
+	for i := 0; i < TileCols; i++ {
+		columnInfos[i] = &ColumnInfo{}
+	}
+
+	return Field{tiles, columnInfos}
 }
 
 func (f *Field) Flip() {
@@ -58,20 +65,41 @@ func (f *Field) Flip() {
 }
 
 func (f *Field) Step(s *State) {
-	for j := range f.ColumnInfo {
-		if f.ColumnInfo[j].allySwapTimeLeft > 0 {
-			f.ColumnInfo[j].allySwapTimeLeft--
-			if f.ColumnInfo[j].allySwapTimeLeft <= 0 {
-				for i := 0; i < TileCols; i++ {
-					t := &f.Tiles[int(TilePosXY(i, j))]
+	for i, ci := range f.ColumnInfo {
+		if ci.allySwapTimeLeft > 0 {
+			ci.allySwapTimeLeft--
+			if ci.allySwapTimeLeft <= 0 {
+				for j := 0; j < TileRows; j++ {
+					t := f.Tiles[int(TilePosXY(i, j))]
 					t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
 				}
+				ci.allySwapTimeLeft = 0
+			}
+		}
+	}
+
+	columnOccupiers := make([]bool, len(f.ColumnInfo))
+	for _, entity := range s.Entities {
+		if entity.Traits.ExtendsTileLifetime {
+			{
+				x, _ := entity.TilePos.XY()
+				columnOccupiers[x] = true
+			}
+			{
+				x, _ := entity.FutureTilePos.XY()
+				columnOccupiers[x] = true
 			}
 		}
 	}
 
 	for i := range f.Tiles {
-		f.Tiles[i].Step()
+		x, _ := TilePos(i).XY()
+
+		t := f.Tiles[i]
+		if t.ShouldBeAlliedWithAnswerer != t.IsAlliedWithAnswerer && !columnOccupiers[x] {
+			t.IsAlliedWithAnswerer = t.ShouldBeAlliedWithAnswerer
+		}
+		t.Step()
 	}
 }
 
@@ -100,7 +128,7 @@ func (f *Field) Appearance(b *bundle.Bundle) draw.Node {
 		childNode.Opts.GeoM.Translate(float64((x-1)*TileRenderedWidth), float64((4-1)*TileRenderedHeight))
 		frame := b.Battletiles.Info.Animations[len(b.Battletiles.Info.Animations)-1].Frames[0]
 		tiles := b.Battletiles.OffererTiles
-		if x > 3 {
+		if f.Tiles[TilePosXY(x, 3)].IsAlliedWithAnswerer {
 			tiles = b.Battletiles.AnswererTiles
 		}
 		childNode.Children = append(childNode.Children, draw.ImageWithFrame(tiles, frame))

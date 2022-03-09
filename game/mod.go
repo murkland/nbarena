@@ -155,6 +155,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 
 			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
 
+			Traits: state.EntityTraits{
+				ExtendsTileLifetime: true,
+			},
+
 			PowerShotChargeTime: state.Ticks(50),
 
 			TilePos:       state.TilePosXY(2, 2),
@@ -171,6 +175,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			DisplayHP: 1000,
 
 			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
+
+			Traits: state.EntityTraits{
+				ExtendsTileLifetime: true,
+			},
 
 			PowerShotChargeTime: state.Ticks(50),
 

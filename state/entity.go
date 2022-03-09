@@ -25,6 +25,7 @@ type EntityTraits struct {
 	CannotFlinch           bool
 	FatalHitLeaves1HP      bool
 	IgnoresTileOwnership   bool
+	ExtendsTileLifetime    bool
 }
 
 type EntityPerTickState struct {
@@ -147,7 +148,7 @@ func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
 		return false
 	}
 
-	tile := &field.Tiles[tilePos]
+	tile := field.Tiles[tilePos]
 	if tilePos == e.TilePos ||
 		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
 		!tile.CanEnter(e) {
