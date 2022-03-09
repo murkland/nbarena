@@ -188,7 +188,7 @@ func Step(s *state.State) {
 			e.PerTickState.IsStepped = true
 
 			if e.ChipUseQueued && e.PerTickState.Interrupts.WithChipUse == state.WithChipUseInterruptTypeImmediate {
-				e.UseChip()
+				e.UseChip(s)
 				e.ChipUseQueued = false
 			}
 		}

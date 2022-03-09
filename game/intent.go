@@ -10,13 +10,8 @@ import (
 
 func applyPlayerIntent(s *state.State, e *state.Entity, intent input.Intent, isOfferer bool) {
 	if e.LastIntent.UseChip != intent.UseChip && intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
-		switch e.PerTickState.Interrupts.WithChipUse {
-		case state.WithChipUseInterruptTypeImmediate:
-			e.UseChip()
-			return
-		case state.WithChipUseInterruptTypeQueue:
+		if e.PerTickState.Interrupts.WithChipUse != state.WithChipUseInterruptTypeIgnore {
 			e.ChipUseQueued = true
-			return
 		}
 	}
 

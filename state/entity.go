@@ -116,13 +116,13 @@ func (e *Entity) Clone() *Entity {
 	}
 }
 
-func (e *Entity) UseChip() {
+func (e *Entity) UseChip(s *State) {
 	if len(e.Chips) == 0 {
 		return
 	}
 	chip := e.Chips[len(e.Chips)-1]
 	e.Chips = e.Chips[:len(e.Chips)-1]
-	e.SetBehavior(chip.BehaviorFactory())
+	chip.OnUse(s, e)
 }
 
 func (e *Entity) Behavior() EntityBehavior {
