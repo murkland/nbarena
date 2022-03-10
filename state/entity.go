@@ -189,7 +189,7 @@ func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
 	tile := s.Field.Tiles[tilePos]
 	if tilePos == e.TilePos ||
 		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
-		tile.Reserver != 0 ||
+		(tile.Reserver != 0 && tile.Reserver != e.id) ||
 		!tile.CanEnter(e) {
 		return false
 	}
