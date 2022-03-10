@@ -59,7 +59,7 @@ func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 	rootNode := &draw.OptionsNode{}
 	if !eb.dragComplete {
-		// TODO: ugh
+		// TODO: Render this correctly on the other side of the screen.
 		dx, dy := eb.Direction.XY()
 		offset := (int(e.BehaviorElapsedTime())+2+4)%4 - 2
 		dx *= offset
