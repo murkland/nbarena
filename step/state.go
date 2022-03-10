@@ -59,7 +59,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 
 	if !e.Hit.Drag {
-		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) /* && !e.isInTimestop */ {
+		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) && !s.IsInTimeStop {
 			if e.Hit.Slide.Direction != state.DirectionNone {
 				e.SlideState.Slide = e.Hit.Slide
 				e.SlideState.ElapsedTime = 0

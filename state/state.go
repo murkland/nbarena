@@ -18,6 +18,8 @@ type State struct {
 
 	Field *Field
 
+	IsInTimeStop bool
+
 	Entities     map[EntityID]*Entity
 	nextEntityID EntityID
 }
@@ -51,6 +53,7 @@ func (s *State) Clone() *State {
 		s.ElapsedTime,
 		s.RandSource.Clone(),
 		s.Field.Clone(),
+		s.IsInTimeStop,
 		clone.Map(s.Entities), s.nextEntityID,
 	}
 }
