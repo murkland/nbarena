@@ -4,118 +4,114 @@ import (
 	"math/rand"
 
 	"github.com/murkland/nbarena/behaviors"
+	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
-func resolveHit(e *state.Entity, hit state.Hit) {
-	if e.PerTickState.Hit.RemovesFlashing {
+func resolveHit(e *state.Entity, s *state.State) {
+	if e.Hit.RemovesFlashing {
 		e.FlashingTimeLeft = 0
 	}
 
 	if e.FlashingTimeLeft > 0 {
-		hit = state.Hit{}
+		e.Hit = state.Hit{}
 	}
 
 	// Set anger, if required.
-	if hit.TotalDamage >= 300 {
+	if e.Hit.TotalDamage >= 300 {
 		e.IsAngry = true
 	}
 
 	// TODO: Process poison damage.
 
 	// Process hit damage.
+	if e.Hit.TotalDamage > 0 {
+		e.PerTickState.WasHit = true
+	}
+
 	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
-	e.HP -= hit.TotalDamage
+	e.HP -= e.Hit.TotalDamage
 	if e.HP < 0 {
 		e.HP = 0
 	}
 	if mustLeave1HP {
 		e.HP = 1
 	}
-	hit.TotalDamage = 0
+	e.Hit.TotalDamage = 0
 
-	if !hit.Drag {
-		if !e.IsBeingDragged /* && !e.isInTimestop */ {
+	if e.Hit.Flinch && !e.Traits.CannotFlinch {
+		e.SetBehavior(&behaviors.Flinch{}, s)
+	}
+	e.Hit.Flinch = false
+
+	if e.IsCounterable && e.Hit.Counters {
+		e.FlashingTimeLeft = 0
+		e.SetBehavior(&behaviors.Paralyzed{Duration: 150}, s)
+	}
+	e.Hit.Counters = false
+
+	if e.Hit.Drag == input.DirectionNone {
+		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) /* && !e.isInTimestop */ {
 			// Process flashing.
-			if hit.FlashTime > 0 {
-				e.FlashingTimeLeft = hit.FlashTime
-				hit.FlashTime = 0
+			if e.Hit.FlashTime > 0 {
+				e.FlashingTimeLeft = e.Hit.FlashTime
+				e.Hit.FlashTime = 0
 			}
 			if e.FlashingTimeLeft > 0 {
 				e.FlashingTimeLeft--
 			}
 
 			// Process paralyzed.
-			if hit.ParalyzeTime > 0 {
-				e.ParalyzedTimeLeft = hit.ParalyzeTime
-				hit.ConfuseTime = 0
-				hit.ParalyzeTime = 0
-			}
-			if e.ParalyzedTimeLeft > 0 {
-				e.ParalyzedTimeLeft--
-				e.FrozenTimeLeft = 0
-				e.BubbledTimeLeft = 0
-				e.ConfusedTimeLeft = 0
+			if e.Hit.ParalyzeTime > 0 {
+				e.SetBehavior(&behaviors.Paralyzed{Duration: e.Hit.ParalyzeTime}, s)
+				e.Hit.ConfuseTime = 0
+				e.Hit.ParalyzeTime = 0
 			}
 
 			// Process frozen.
-			if hit.FreezeTime > 0 {
-				e.FrozenTimeLeft = hit.FreezeTime
-				e.ParalyzedTimeLeft = 0
-				hit.BubbleTime = 0
-				hit.ConfuseTime = 0
-				hit.FreezeTime = 0
-			}
-			if e.FrozenTimeLeft > 0 {
-				e.FrozenTimeLeft--
-				e.BubbledTimeLeft = 0
-				e.ConfusedTimeLeft = 0
+			if e.Hit.FreezeTime > 0 {
+				e.SetBehavior(&behaviors.Frozen{Duration: e.Hit.FreezeTime}, s)
+				e.Hit.BubbleTime = 0
+				e.Hit.ConfuseTime = 0
+				e.Hit.FreezeTime = 0
 			}
 
 			// Process bubbled.
-			if hit.BubbleTime > 0 {
-				e.BubbledTimeLeft = hit.BubbleTime
+			if e.Hit.BubbleTime > 0 {
+				e.SetBehavior(&behaviors.Bubbled{Duration: e.Hit.BubbleTime}, s)
 				e.ConfusedTimeLeft = 0
-				e.ParalyzedTimeLeft = 0
-				e.FrozenTimeLeft = 0
-				hit.ConfuseTime = 0
-				hit.BubbleTime = 0
-			}
-			if e.BubbledTimeLeft > 0 {
-				e.BubbledTimeLeft--
-				e.ConfusedTimeLeft = 0
+				e.Hit.ConfuseTime = 0
+				e.Hit.BubbleTime = 0
 			}
 
 			// Process confused.
-			if hit.ConfuseTime > 0 {
-				e.ConfusedTimeLeft = hit.ConfuseTime
-				e.ParalyzedTimeLeft = 0
-				e.FrozenTimeLeft = 0
-				e.BubbledTimeLeft = 0
-				hit.FreezeTime = 0
-				hit.BubbleTime = 0
-				hit.ParalyzeTime = 0
-				hit.ConfuseTime = 0
+			if e.Hit.ConfuseTime > 0 {
+				e.ConfusedTimeLeft = e.Hit.ConfuseTime
+				e.SetBehavior(&behaviors.Idle{}, s)
+				e.Hit.FreezeTime = 0
+				e.Hit.BubbleTime = 0
+				e.Hit.ParalyzeTime = 0
+				e.Hit.ConfuseTime = 0
 			}
 			if e.ConfusedTimeLeft > 0 {
 				e.ConfusedTimeLeft--
 			}
 
 			// Process immobilized.
-			if hit.ImmobilizeTime > 0 {
-				e.ImmobilizedTimeLeft = hit.ImmobilizeTime
-				hit.ImmobilizeTime = 0
+			if e.Hit.ImmobilizeTime > 0 {
+				e.ImmobilizedTimeLeft = e.Hit.ImmobilizeTime
+				e.Hit.ImmobilizeTime = 0
 			}
 			if e.ImmobilizedTimeLeft > 0 {
 				e.ImmobilizedTimeLeft--
 			}
 
 			// Process blinded.
-			if hit.BlindTime > 0 {
-				e.BlindedTimeLeft = hit.BlindTime
-				hit.BlindTime = 0
+			if e.Hit.BlindTime > 0 {
+				e.BlindedTimeLeft = e.Hit.BlindTime
+				e.Hit.BlindTime = 0
 			}
 			if e.BlindedTimeLeft > 0 {
 				e.BlindedTimeLeft--
@@ -129,32 +125,13 @@ func resolveHit(e *state.Entity, hit state.Hit) {
 			// TODO: Interrupt player.
 		}
 	} else {
-		hit.Drag = false
-
-		e.FrozenTimeLeft = 0
-		e.BubbledTimeLeft = 0
-		e.ParalyzedTimeLeft = 0
-		hit.BubbleTime = 0
-		hit.FreezeTime = 0
-
-		if false {
-			e.ParalyzedTimeLeft = 0
+		var postDragParalyzeTime state.Ticks
+		if paralyzed, ok := e.Behavior().(*behaviors.Paralyzed); ok {
+			postDragParalyzeTime = paralyzed.Duration - e.BehaviorElapsedTime()
 		}
-
-		// TODO: Interrupt player.
+		e.SetBehavior(&behaviors.Dragged{Direction: e.Hit.Drag, IsBig: true, PostDragParalyzeTime: postDragParalyzeTime}, s)
+		e.Hit.Drag = input.DirectionNone
 	}
-
-	if hit.Flinch && !e.Traits.CannotFlinch {
-		e.SetBehavior(&behaviors.Flinch{})
-	}
-	hit.Flinch = false
-
-	if e.IsCounterable && hit.Counters {
-		e.ParalyzedTimeLeft = 150
-		e.FlashingTimeLeft = 0
-		// TODO: Set to staggered behavior.
-	}
-	hit.Counters = false
 }
 
 func Step(s *state.State) {
@@ -165,34 +142,25 @@ func Step(s *state.State) {
 	}
 
 	// Step all entities in a random order.
-	for {
-		pending := make([]*state.Entity, 0, len(s.Entities))
-		for _, e := range s.Entities {
-			if e.PerTickState.IsStepped {
-				continue
-			}
-			pending = append(pending, e)
-		}
-		if len(pending) == 0 {
-			break
-		}
+	pending := make([]*state.Entity, 0, len(s.Entities))
+	for _, e := range s.Entities {
+		pending = append(pending, e)
+	}
 
-		slices.SortFunc(pending, func(a *state.Entity, b *state.Entity) bool {
-			return a.ID() < b.ID()
-		})
-		rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
-			pending[i], pending[j] = pending[j], pending[i]
-		})
-		for _, e := range pending {
-			e.Step(s)
-			e.PerTickState.IsStepped = true
-			e.LastIntent = e.Intent
-		}
+	slices.SortFunc(pending, func(a *state.Entity, b *state.Entity) bool {
+		return a.ID() < b.ID()
+	})
+	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
+		pending[i], pending[j] = pending[j], pending[i]
+	})
+	for _, e := range pending {
+		e.Step(s)
+		e.LastIntent = e.Intent
 	}
 
 	// Resolve any hits.
 	for _, e := range maps.Values(s.Entities) {
-		resolveHit(e, e.PerTickState.Hit)
+		resolveHit(e, s)
 
 		// Update UI.
 		if e.DisplayHP != 0 && e.DisplayHP != e.HP {

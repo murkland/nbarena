@@ -83,11 +83,11 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				h.Counters = true
 				h.FlashTime = state.DefaultFlashTime
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
-				target.PerTickState.Hit.Merge(h)
+				target.Hit.Merge(h)
 			}
 		}
 	} else if e.BehaviorElapsedTime() == 21 {
-		e.SetBehavior(&Idle{})
+		e.SetBehavior(&Idle{}, s)
 	}
 }
 

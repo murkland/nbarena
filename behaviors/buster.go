@@ -46,7 +46,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
 
 	if realElapsedTime == 5+eb.cooldownTime {
-		e.SetBehavior(&Idle{})
+		e.SetBehavior(&Idle{}, s)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		if eb.IsPowerShot {
 			damage *= 10
 		}
-		shot.SetBehavior(&busterShot{damage})
+		shot.SetBehavior(&busterShot{damage}, s)
 		s.AddEntity(shot)
 	}
 
@@ -91,21 +91,10 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		}
 
 		x, y := e.TilePos.XY()
-		if dir&input.DirectionLeft != 0 {
-			x--
-		}
-		if dir&input.DirectionRight != 0 {
-			x++
-		}
-		if dir&input.DirectionUp != 0 {
-			y--
-		}
-		if dir&input.DirectionDown != 0 {
-			y++
-		}
+		dx, dy := dir.XY()
 
-		if e.StartMove(state.TilePosXY(x, y), s.Field) {
-			e.SetBehavior(&Teleport{})
+		if e.StartMove(state.TilePosXY(x+dx, y+dy), s.Field) {
+			e.SetBehavior(&Teleport{}, s)
 		}
 	}
 
@@ -184,7 +173,7 @@ func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 
 		var h state.Hit
 		h.AddDamage(state.Damage{Base: eb.damage})
-		target.PerTickState.Hit.Merge(h)
+		target.Hit.Merge(h)
 
 		e.PerTickState.IsPendingDeletion = true
 		return

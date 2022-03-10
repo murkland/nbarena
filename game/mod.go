@@ -44,8 +44,8 @@ type clientState struct {
 	OffererEntityID  int
 	AnswererEntityID int
 
-	committedState state.State
-	dirtyState     state.State
+	committedState *state.State
+	dirtyState     *state.State
 
 	incomingIntents *ringbuf.RingBuf[input.Intent]
 	outgoingIntents *ringbuf.RingBuf[input.Intent]
@@ -96,7 +96,7 @@ func (cs *clientState) fastForward() error {
 
 		cs.committedState.Entities[cs.OffererEntityID].Intent = offererIntent
 		cs.committedState.Entities[cs.AnswererEntityID].Intent = answererIntent
-		step.Step(&cs.committedState)
+		step.Step(cs.committedState)
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
@@ -115,7 +115,7 @@ func (cs *clientState) fastForward() error {
 
 		cs.dirtyState.Entities[cs.OffererEntityID].Intent = offererIntent
 		cs.dirtyState.Entities[cs.AnswererEntityID].Intent = answererIntent
-		step.Step(&cs.dirtyState)
+		step.Step(cs.dirtyState)
 	}
 
 	return nil
@@ -152,7 +152,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
+			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[4], chips.Chips[0]},
 
 			Traits: state.EntityTraits{
 				ExtendsTileLifetime: true,
@@ -163,7 +163,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			TilePos:       state.TilePosXY(2, 2),
 			FutureTilePos: state.TilePosXY(2, 2),
 		}
-		e.SetBehavior(&behaviors.Idle{})
+		e.SetBehavior(&behaviors.Idle{}, s)
 		offererEntityID = s.AddEntity(e)
 	}
 
@@ -173,7 +173,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[3]},
+			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[4], chips.Chips[0]},
 
 			Traits: state.EntityTraits{
 				ExtendsTileLifetime: true,
@@ -187,7 +187,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			TilePos:       state.TilePosXY(5, 2),
 			FutureTilePos: state.TilePosXY(5, 2),
 		}
-		e.SetBehavior(&behaviors.Idle{})
+		e.SetBehavior(&behaviors.Idle{}, s)
 		answererEntityID = s.AddEntity(e)
 	}
 

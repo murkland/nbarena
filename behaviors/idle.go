@@ -3,7 +3,6 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 )
 
@@ -26,7 +25,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 
 	if e.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
 		// Release buster shot.
-		e.SetBehavior(&Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
+		e.SetBehavior(&Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime}, s)
 		e.ChargingElapsedTime = 0
 	}
 
@@ -36,21 +35,10 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	}
 
 	x, y := e.TilePos.XY()
-	if dir&input.DirectionLeft != 0 {
-		x--
-	}
-	if dir&input.DirectionRight != 0 {
-		x++
-	}
-	if dir&input.DirectionUp != 0 {
-		y--
-	}
-	if dir&input.DirectionDown != 0 {
-		y++
-	}
+	dx, dy := dir.XY()
 
-	if e.StartMove(state.TilePosXY(x, y), s.Field) {
-		e.SetBehavior(&Teleport{})
+	if e.StartMove(state.TilePosXY(x+dx, y+dy), s.Field) {
+		e.SetBehavior(&Teleport{}, s)
 	}
 }
 

@@ -10,6 +10,24 @@ const (
 	DirectionRight Direction = 0b1000
 )
 
+func (d Direction) XY() (int, int) {
+	x := 0
+	y := 0
+	if d&DirectionLeft != 0 {
+		x--
+	}
+	if d&DirectionRight != 0 {
+		x++
+	}
+	if d&DirectionUp != 0 {
+		y--
+	}
+	if d&DirectionDown != 0 {
+		y++
+	}
+	return x, y
+}
+
 func (d Direction) FlipH() Direction {
 	d2 := d & ^(DirectionLeft | DirectionRight)
 	if d&DirectionLeft == DirectionLeft {

@@ -51,10 +51,10 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 				IgnoresTileOwnership:   true,
 			},
 		}
-		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)})
+		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)}, s)
 		s.AddEntity(shot)
 	} else if e.BehaviorElapsedTime() == 33 {
-		e.SetBehavior(&Idle{})
+		e.SetBehavior(&Idle{}, s)
 	}
 }
 
@@ -117,7 +117,7 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 		h.Counters = true
 		h.FlashTime = state.DefaultFlashTime
 		h.AddDamage(eb.damage)
-		target.PerTickState.Hit.Merge(h)
+		target.Hit.Merge(h)
 
 		e.PerTickState.IsPendingDeletion = true
 		return

@@ -29,10 +29,9 @@ type EntityTraits struct {
 }
 
 type EntityPerTickState struct {
-	IsStepped               bool
+	WasHit                  bool
 	IsPendingDeletion       bool
 	DoubleDamageWasConsumed bool
-	Hit                     Hit
 }
 
 type Entity struct {
@@ -67,21 +66,18 @@ type Entity struct {
 	ChargingElapsedTime Ticks
 	PowerShotChargeTime Ticks
 
-	ParalyzedTimeLeft   Ticks
 	ConfusedTimeLeft    Ticks
 	BlindedTimeLeft     Ticks
 	ImmobilizedTimeLeft Ticks
 	FlashingTimeLeft    Ticks
 	InvincibleTimeLeft  Ticks
-	FrozenTimeLeft      Ticks
-	BubbledTimeLeft     Ticks
 
-	IsAngry        bool
-	IsFullSynchro  bool
-	IsBeingDragged bool
-	IsSliding      bool
-	IsCounterable  bool
+	IsAngry       bool
+	IsFullSynchro bool
+	IsSliding     bool
+	IsCounterable bool
 
+	Hit          Hit
 	PerTickState EntityPerTickState
 }
 
@@ -110,10 +106,17 @@ func (e *Entity) Clone() *Entity {
 		e.Traits,
 		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
-		e.ParalyzedTimeLeft, e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft, e.FrozenTimeLeft, e.BubbledTimeLeft,
-		e.IsAngry, e.IsFullSynchro, e.IsBeingDragged, e.IsSliding, e.IsCounterable,
-		e.PerTickState,
+		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
+		e.IsAngry, e.IsFullSynchro, e.IsSliding, e.IsCounterable,
+		e.Hit, e.PerTickState,
 	}
+}
+
+func (e *Entity) Facing() input.Direction {
+	if e.IsFlipped {
+		return input.DirectionLeft
+	}
+	return input.DirectionRight
 }
 
 func (e *Entity) UseChip(s *State) bool {
@@ -130,13 +133,18 @@ func (e *Entity) Behavior() EntityBehavior {
 	return e.behavior
 }
 
-func (e *Entity) SetBehavior(behavior EntityBehavior) {
+func (e *Entity) SetBehavior(behavior EntityBehavior, s *State) {
 	e.behaviorElapsedTime = 0
 	e.behavior = behavior
+	e.behavior.Step(e, s)
 }
 
 func (e *Entity) BehaviorElapsedTime() Ticks {
 	return e.behaviorElapsedTime
+}
+
+func (e *Entity) ElapsedTime() Ticks {
+	return e.elapsedTime
 }
 
 func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
@@ -156,16 +164,23 @@ func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
 		return false
 	}
 
+	// TODO: Figure out when to trigger onleave/onenter callbacks
 	e.FutureTilePos = tilePos
 	return true
 }
 
 func (e *Entity) FinishMove() {
+	// TODO: Trigger on leave?
 	e.TilePos = e.FutureTilePos
 }
 
 var debugEntityMarkerImage *ebiten.Image
 var debugEntityMarkerImageOnce sync.Once
+
+func BehaviorIs[T EntityBehavior](behavior EntityBehavior) bool {
+	_, ok := behavior.(T)
+	return ok
+}
 
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
@@ -176,17 +191,10 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.IsFlipped {
 		characterNode.Opts.GeoM.Scale(-1, 1)
 	}
-	if e.FrozenTimeLeft > 0 {
-		// TODO: Render ice.
-		characterNode.Opts.ColorM.Translate(float64(0xa5)/float64(0xff), float64(0xa5)/float64(0xff), float64(0xff)/float64(0xff), 0.0)
-	}
-	if e.ParalyzedTimeLeft > 0 && (e.elapsedTime/2)%2 == 1 {
-		characterNode.Opts.ColorM.Translate(1.0, 1.0, 0.0, 0.0)
-	}
 	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
-	if e.PerTickState.Hit.TotalDamage > 0 {
+	if e.PerTickState.WasHit {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))

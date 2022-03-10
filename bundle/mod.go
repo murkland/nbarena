@@ -170,7 +170,9 @@ type Bundle struct {
 	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
 	SwordSprites       *SwordSprites
+	WindRackSprites    *Sprites
 	SlashSprites       *SlashSprites
+	WindSlashSprites   *Sprites
 	CannonSprites      *CannonSprites
 	ChipIconSprites    *Sprites
 	TallFont           font.Face
@@ -251,6 +253,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		}
 	}))
 	loader.Add(ctx, l, "assets/sprites/0075.png", &b.MuzzleFlashSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0089.png", &b.SlashSprites, makeSpriteLoader(func(sheet *Sheet) *SlashSprites {
 		img := sheet.Image.(*image.Paletted)
 		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)

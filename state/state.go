@@ -22,9 +22,9 @@ type State struct {
 	nextEntityID int
 }
 
-func New(randSource *syncrand.Source) State {
+func New(randSource *syncrand.Source) *State {
 	field := newField()
-	return State{
+	return &State{
 		RandSource: randSource,
 
 		Field: field,
@@ -36,9 +36,8 @@ func New(randSource *syncrand.Source) State {
 
 func (s *State) AddEntity(e *Entity) int {
 	e.id = s.nextEntityID
-	e.elapsedTime = -1
-	e.behaviorElapsedTime = -1
 	s.Entities[e.id] = e
+	e.behavior.Step(e, s)
 	s.nextEntityID++
 	return e.id
 }
@@ -47,8 +46,8 @@ func (s *State) RemoveEntity(id int) {
 	delete(s.Entities, id)
 }
 
-func (s State) Clone() State {
-	return State{
+func (s *State) Clone() *State {
+	return &State{
 		s.ElapsedTime,
 		s.RandSource.Clone(),
 		s.Field.Clone(),
