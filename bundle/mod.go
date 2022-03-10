@@ -56,8 +56,8 @@ type CharacterSprites struct {
 	Image *ebiten.Image
 
 	IdleAnimation          *pngsheet.Animation
-	FlinchAnimation        *pngsheet.Animation
-	StuckAnimation         *pngsheet.Animation
+	FlinchAnimation        *pngsheet.Animation // e.g. flinch, pauses on first frame on drag!
+	StuckAnimation         *pngsheet.Animation // e.g. paralyzed, bubbled, frozen
 	TeleportEndAnimation   *pngsheet.Animation
 	TeleportStartAnimation *pngsheet.Animation
 	SlashAnimation         *pngsheet.Animation // e.g. Sword
