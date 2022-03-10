@@ -24,7 +24,6 @@ type EntityTraits struct {
 	CannotFlinch           bool
 	FatalHitLeaves1HP      bool
 	IgnoresTileOwnership   bool
-	ExtendsTileLifetime    bool
 }
 
 type EntityPerTickState struct {

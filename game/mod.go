@@ -154,10 +154,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 
 			Chips: []state.Chip{chips.Chips[4], chips.Chips[4], chips.Chips[4]},
 
-			Traits: state.EntityTraits{
-				ExtendsTileLifetime: true,
-			},
-
 			PowerShotChargeTime: state.Ticks(50),
 
 			TilePos:       state.TilePosXY(2, 2),
@@ -165,6 +161,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		}
 		e.SetBehavior(&behaviors.Idle{}, s)
 		offererEntityID = s.AddEntity(e)
+		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 
 	var answererEntityID state.EntityID
@@ -174,10 +171,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			DisplayHP: 1000,
 
 			Chips: []state.Chip{chips.Chips[4], chips.Chips[4], chips.Chips[4]},
-
-			Traits: state.EntityTraits{
-				ExtendsTileLifetime: true,
-			},
 
 			PowerShotChargeTime: state.Ticks(50),
 
@@ -189,6 +182,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		}
 		e.SetBehavior(&behaviors.Idle{}, s)
 		answererEntityID = s.AddEntity(e)
+		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 
 	g := &Game{

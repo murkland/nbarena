@@ -23,22 +23,20 @@ type Tile struct {
 
 	Reserver EntityID
 
-	IsAlliedWithAnswerer       bool
-	ShouldBeAlliedWithAnswerer bool
+	IsAlliedWithAnswerer bool
 }
 
 func (t *Tile) Clone() *Tile {
 	return &Tile{
 		t.BehaviorState.Clone(),
 		t.IsFlipped, t.Reserver,
-		t.IsAlliedWithAnswerer, t.ShouldBeAlliedWithAnswerer,
+		t.IsAlliedWithAnswerer,
 	}
 }
 
 func (t *Tile) Flip() {
 	t.IsFlipped = !t.IsFlipped
 	t.IsAlliedWithAnswerer = !t.IsAlliedWithAnswerer
-	t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
 }
 
 func (t *Tile) CanEnter(e *Entity) bool {

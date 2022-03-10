@@ -7,11 +7,12 @@ import (
 )
 
 type ColumnInfo struct {
-	allySwapTimeLeft int
+	IsAlliedWithAnswerer bool
+	AllySwapTimeLeft     int
 }
 
 func (c *ColumnInfo) Clone() *ColumnInfo {
-	return &ColumnInfo{c.allySwapTimeLeft}
+	return &ColumnInfo{c.IsAlliedWithAnswerer, c.AllySwapTimeLeft}
 }
 
 type Field struct {
@@ -32,14 +33,15 @@ func newField() *Field {
 				t.SetBehavior(&NormalTileBehavior{})
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
-			t.ShouldBeAlliedWithAnswerer = t.IsAlliedWithAnswerer
 			tiles[j*TileCols+i] = t
 		}
 	}
 
 	columnInfos := make([]*ColumnInfo, TileCols)
 	for i := 0; i < TileCols; i++ {
-		columnInfos[i] = &ColumnInfo{}
+		ci := &ColumnInfo{}
+		ci.IsAlliedWithAnswerer = i >= TileCols/2
+		columnInfos[i] = ci
 	}
 
 	return &Field{tiles, columnInfos}
@@ -65,40 +67,64 @@ func (f *Field) Flip() {
 }
 
 func (f *Field) Step(s *State) {
-	for i, ci := range f.ColumnInfo {
-		if ci.allySwapTimeLeft > 0 {
-			ci.allySwapTimeLeft--
-			if ci.allySwapTimeLeft <= 0 {
-				for j := 0; j < TileRows; j++ {
-					t := f.Tiles[int(TilePosXY(i, j))]
-					t.ShouldBeAlliedWithAnswerer = !t.ShouldBeAlliedWithAnswerer
-				}
-				ci.allySwapTimeLeft = 0
-			}
+	for _, ci := range f.ColumnInfo {
+		if ci.AllySwapTimeLeft > 0 {
+			ci.AllySwapTimeLeft--
 		}
 	}
 
-	columnOccupiers := make([]bool, len(f.ColumnInfo))
-	for _, entity := range s.Entities {
-		if entity.Traits.ExtendsTileLifetime {
-			{
-				x, _ := entity.TilePos.XY()
-				columnOccupiers[x] = true
-			}
-			{
-				x, _ := entity.FutureTilePos.XY()
-				columnOccupiers[x] = true
-			}
-		}
-	}
-
-	for i := range f.Tiles {
+	columnOccupied := make([]bool, len(f.ColumnInfo))
+	for i, tile := range f.Tiles {
 		x, _ := TilePos(i).XY()
-
-		t := f.Tiles[i]
-		if t.ShouldBeAlliedWithAnswerer != t.IsAlliedWithAnswerer && !columnOccupiers[x] {
-			t.IsAlliedWithAnswerer = t.ShouldBeAlliedWithAnswerer
+		ci := f.ColumnInfo[x]
+		if tile.Reserver != 0 && s.Entities[tile.Reserver].IsAlliedWithAnswerer != ci.IsAlliedWithAnswerer {
+			columnOccupied[x] = true
 		}
+	}
+
+	// Left to right scan.
+	for x := 1; x < len(f.ColumnInfo)-1; x++ {
+		if columnOccupied[x] {
+			break
+		}
+
+		ci := f.ColumnInfo[x]
+		if ci.IsAlliedWithAnswerer {
+			break
+		}
+
+		if ci.AllySwapTimeLeft != 0 {
+			break
+		}
+
+		for y := 0; y < TileRows; y++ {
+			t := f.Tiles[TilePosXY(x, y)]
+			t.IsAlliedWithAnswerer = false
+		}
+	}
+
+	// Right to left scan.
+	for x := len(f.ColumnInfo) - 2; x >= 1; x-- {
+		if columnOccupied[x] {
+			break
+		}
+
+		ci := f.ColumnInfo[x]
+		if !ci.IsAlliedWithAnswerer {
+			break
+		}
+
+		if ci.AllySwapTimeLeft != 0 {
+			break
+		}
+
+		for y := 0; y < TileRows; y++ {
+			t := f.Tiles[TilePosXY(x, y)]
+			t.IsAlliedWithAnswerer = true
+		}
+	}
+
+	for _, t := range f.Tiles {
 		t.Step()
 	}
 }

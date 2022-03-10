@@ -45,7 +45,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 
 		for i := 1; i <= 3; i++ {
 			shot := &state.Entity{
-				TilePos: state.TilePosXY(x, i),
+				TilePos: state.TilePosXY(x+dx, i),
 
 				IsFlipped:            e.IsFlipped,
 				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
@@ -60,7 +60,6 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			shot.SetBehavior(&windRackGust{e.Facing()}, s)
 			s.AddEntity(shot)
 		}
-		// TODO: Spawn gusts as well.
 	} else if e.BehaviorState.ElapsedTime == 27 {
 		e.SetBehavior(&Idle{}, s)
 	}
