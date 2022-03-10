@@ -6,6 +6,9 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
+// This is a questionable implementation of drag: I'm pretty sure drag and slide move entities via completely different mechanisms, but nbarena merges them together.
+// This probably results in some subtly incorrect behavior.
+
 type Dragged struct {
 	PostDragParalyzeTime state.Ticks
 

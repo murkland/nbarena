@@ -61,7 +61,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			s.AddEntity(shot)
 		}
 		// TODO: Spawn gusts as well.
-	} else if e.BehaviorElapsedTime() == 23 {
+	} else if e.BehaviorElapsedTime() == 27 {
 		e.SetBehavior(&Idle{}, s)
 	}
 }
