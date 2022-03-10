@@ -18,12 +18,12 @@ func (eb *Bubbled) Clone() state.EntityBehavior {
 }
 
 func (eb *Bubbled) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorElapsedTime() == eb.Duration {
+	if e.BehaviorState.ElapsedTime == eb.Duration {
 		e.SetBehavior(&Idle{}, s)
 	}
 }
 
 func (eb *Bubbled) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	// TODO: Renber bubble.
-	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation.Frames[int(e.BehaviorElapsedTime())%len(b.MegamanSprites.StuckAnimation.Frames)])
+	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation.Frames[int(e.BehaviorState.ElapsedTime)%len(b.MegamanSprites.StuckAnimation.Frames)])
 }

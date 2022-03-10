@@ -32,7 +32,7 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorElapsedTime() == 16 {
+	if e.BehaviorState.ElapsedTime == 16 {
 		x, y := e.TilePos.XY()
 		if e.IsFlipped {
 			x--
@@ -55,18 +55,18 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		}
 		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)}, s)
 		s.AddEntity(shot)
-	} else if e.BehaviorElapsedTime() == 33 {
+	} else if e.BehaviorState.ElapsedTime == 33 {
 		e.SetBehavior(&Idle{}, s)
 	}
 }
 
 func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	if e.BehaviorElapsedTime() >= 29 {
-		return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceAnimation.Frames[int(e.BehaviorElapsedTime()-29)])
+	if e.BehaviorState.ElapsedTime >= 29 {
+		return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceAnimation.Frames[int(e.BehaviorState.ElapsedTime-29)])
 	}
 
 	rootNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorElapsedTime()]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorState.ElapsedTime]))
 
 	cannonNode := &draw.OptionsNode{Layer: 6}
 	cannonNode.Opts.GeoM.Translate(float64(16), float64(-24))
@@ -80,7 +80,7 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	case CannonStyleMCannon:
 		img = b.CannonSprites.MCannonImage
 	}
-	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorElapsedTime()]))
+	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorState.ElapsedTime]))
 	return rootNode
 }
 
@@ -102,7 +102,7 @@ func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorElapsedTime()%2 == 1 {
+	if e.BehaviorState.ElapsedTime%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {

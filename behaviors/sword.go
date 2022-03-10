@@ -78,7 +78,7 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
-	if e.BehaviorElapsedTime() == 9 {
+	if e.BehaviorState.ElapsedTime == 9 {
 		for _, target := range swordTargetEntities(s, e, eb.Range) {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
@@ -89,20 +89,20 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				target.Hit.Merge(h)
 			}
 		}
-	} else if e.BehaviorElapsedTime() == 21 {
+	} else if e.BehaviorState.ElapsedTime == 21 {
 		e.SetBehavior(&Idle{}, s)
 	}
 }
 
 func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorState.ElapsedTime]))
 
 	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
-	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorElapsedTime()]))
+	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorState.ElapsedTime]))
 
-	if e.BehaviorElapsedTime() >= 9 && e.BehaviorElapsedTime() < 19 {
+	if e.BehaviorState.ElapsedTime >= 9 && e.BehaviorState.ElapsedTime < 19 {
 		slashNode := &draw.OptionsNode{Layer: 7}
 		slashNode.Opts.GeoM.Translate(float64(state.TileRenderedWidth), float64(-16))
 		rootNode.Children = append(rootNode.Children, slashNode)
@@ -115,7 +115,7 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		case SwordStyleBlade:
 			img = b.SlashSprites.BladeImage
 		}
-		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(img, slashAnim.Frames[e.BehaviorElapsedTime()-9]))
+		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(img, slashAnim.Frames[e.BehaviorState.ElapsedTime-9]))
 	}
 
 	return rootNode

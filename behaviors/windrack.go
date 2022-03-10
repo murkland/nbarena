@@ -22,7 +22,7 @@ func (eb *WindRack) Clone() state.EntityBehavior {
 
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
-	if e.BehaviorElapsedTime() == 9 {
+	if e.BehaviorState.ElapsedTime == 9 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 
@@ -61,14 +61,14 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			s.AddEntity(shot)
 		}
 		// TODO: Spawn gusts as well.
-	} else if e.BehaviorElapsedTime() == 27 {
+	} else if e.BehaviorState.ElapsedTime == 27 {
 		e.SetBehavior(&Idle{}, s)
 	}
 }
 
 func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	megamanFrameIdx := int(e.BehaviorElapsedTime())
+	megamanFrameIdx := int(e.BehaviorState.ElapsedTime)
 	if megamanFrameIdx >= len(b.MegamanSprites.SlashAnimation.Frames) {
 		megamanFrameIdx = len(b.MegamanSprites.SlashAnimation.Frames) - 1
 	}
@@ -76,7 +76,7 @@ func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
-	rackFrameIdx := int(e.BehaviorElapsedTime())
+	rackFrameIdx := int(e.BehaviorState.ElapsedTime)
 	if rackFrameIdx >= len(b.WindRackSprites.Animations[0].Frames) {
 		rackFrameIdx = len(b.WindRackSprites.Animations[0].Frames) - 1
 	}
@@ -85,7 +85,7 @@ func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	slashNode := &draw.OptionsNode{Layer: 7}
 	slashNode.Opts.GeoM.Translate(0, float64(-16))
 	rootNode.Children = append(rootNode.Children, slashNode)
-	slashFrameIdx := int(e.BehaviorElapsedTime())
+	slashFrameIdx := int(e.BehaviorState.ElapsedTime)
 	if slashFrameIdx >= len(b.WindSlashSprites.Animations[0].Frames) {
 		slashFrameIdx = len(b.WindSlashSprites.Animations[0].Frames) - 1
 	}
@@ -112,7 +112,7 @@ func (eb *windRackGust) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node 
 }
 
 func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorElapsedTime()%2 == 1 {
+	if e.BehaviorState.ElapsedTime%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {

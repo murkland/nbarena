@@ -39,7 +39,7 @@ func New(randSource *syncrand.Source) *State {
 func (s *State) AddEntity(e *Entity) EntityID {
 	e.id = s.nextEntityID
 	s.Entities[e.id] = e
-	e.behavior.Step(e, s)
+	e.BehaviorState.Behavior.Step(e, s)
 	s.nextEntityID++
 	return e.id
 }

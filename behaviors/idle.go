@@ -47,6 +47,6 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 
 func (eb *Idle) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	frames := b.MegamanSprites.IdleAnimation.Frames
-	frame := frames[int(e.BehaviorElapsedTime())%len(frames)]
+	frame := frames[int(e.BehaviorState.ElapsedTime)%len(frames)]
 	return draw.ImageWithFrame(b.MegamanSprites.Image, frame)
 }

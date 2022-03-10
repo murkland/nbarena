@@ -29,7 +29,7 @@ func newField() *Field {
 		for i := 0; i < TileCols; i++ {
 			t := &Tile{}
 			if i >= 1 && i < TileCols-1 && j >= 1 && j < TileRows-1 {
-				t.behavior = &NormalTileBehavior{}
+				t.SetBehavior(&NormalTileBehavior{})
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
 			t.ShouldBeAlliedWithAnswerer = t.IsAlliedWithAnswerer

@@ -7,9 +7,17 @@ import (
 	"github.com/murkland/nbarena/draw"
 )
 
+type TileBehaviorState struct {
+	Behavior    TileBehavior
+	ElapsedTime Ticks
+}
+
+func (s TileBehaviorState) Clone() TileBehaviorState {
+	return TileBehaviorState{clone.Interface[TileBehavior](s.Behavior), s.ElapsedTime}
+}
+
 type Tile struct {
-	behaviorElapsedTime Ticks
-	behavior            TileBehavior
+	BehaviorState TileBehaviorState
 
 	IsFlipped bool
 
@@ -21,7 +29,7 @@ type Tile struct {
 
 func (t *Tile) Clone() *Tile {
 	return &Tile{
-		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
+		t.BehaviorState.Clone(),
 		t.IsFlipped, t.Reserver,
 		t.IsAlliedWithAnswerer, t.ShouldBeAlliedWithAnswerer,
 	}
@@ -34,43 +42,45 @@ func (t *Tile) Flip() {
 }
 
 func (t *Tile) CanEnter(e *Entity) bool {
-	if t.behavior == nil {
+	if t.BehaviorState.Behavior == nil {
 		return false
 	}
-	return t.behavior.CanEnter(t, e)
-}
 
-func (t *Tile) Behavior() TileBehavior {
-	return t.behavior
+	return t.BehaviorState.Behavior.CanEnter(t, e)
 }
 
 func (t *Tile) SetBehavior(b TileBehavior) {
-	t.behaviorElapsedTime = 0
-	t.behavior = b
+	t.BehaviorState.ElapsedTime = 0
+	t.BehaviorState.Behavior = b
+	t.BehaviorState.Behavior.Step(t)
 }
 
-func (t *Tile) BehaviorElapsedTime() Ticks {
-	return t.behaviorElapsedTime
+func (t *Tile) ElapsedTime() Ticks {
+	if t.BehaviorState.Behavior == nil {
+		return 0
+	}
+
+	return t.BehaviorState.ElapsedTime
 }
 
 func (t *Tile) Step() {
-	if t.behavior == nil {
+	if t.BehaviorState.Behavior == nil {
 		return
 	}
 
-	t.behaviorElapsedTime++
-	t.behavior.Step(t)
+	t.BehaviorState.ElapsedTime++
+	t.BehaviorState.Behavior.Step(t)
 }
 
 func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
-	if t.behavior == nil {
+	if t.BehaviorState.Behavior == nil {
 		return nil
 	}
 	tiles := b.Battletiles.OffererTiles
 	if t.IsAlliedWithAnswerer {
 		tiles = b.Battletiles.AnswererTiles
 	}
-	return t.behavior.Appearance(t, y, b, tiles)
+	return t.BehaviorState.Behavior.Appearance(t, y, b, tiles)
 }
 
 const TileRows = 5

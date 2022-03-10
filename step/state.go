@@ -59,7 +59,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 
 	if !e.Hit.Drag {
-		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) && !s.IsInTimeStop {
+		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
 			if e.Hit.Slide.Direction != state.DirectionNone {
 				e.SlideState.Slide = e.Hit.Slide
 				e.SlideState.ElapsedTime = 0
@@ -105,7 +105,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			if e.Hit.ConfuseTime > 0 {
 				e.ConfusedTimeLeft = e.Hit.ConfuseTime
 				// TODO: Double check if this is correct.
-				if state.BehaviorIs[*behaviors.Paralyzed](e.Behavior()) || state.BehaviorIs[*behaviors.Frozen](e.Behavior()) || state.BehaviorIs[*behaviors.Bubbled](e.Behavior()) {
+				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
 					e.SetBehavior(&behaviors.Idle{}, s)
 				}
 				e.Hit.FreezeTime = 0
@@ -144,8 +144,8 @@ func resolveHit(e *state.Entity, s *state.State) {
 		}
 	} else {
 		var postDragParalyzeTime state.Ticks
-		if paralyzed, ok := e.Behavior().(*behaviors.Paralyzed); ok {
-			postDragParalyzeTime = paralyzed.Duration - e.BehaviorElapsedTime()
+		if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
+			postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
 		}
 		e.FinishMove(s)
 		e.SetBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
@@ -195,7 +195,7 @@ func Step(s *state.State) {
 	})
 
 	for _, e := range pending {
-		if s.IsInTimeStop && !e.IsTimeStopExempt {
+		if !s.IsInTimeStop || e.IsTimeStopExempt {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}

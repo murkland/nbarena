@@ -43,6 +43,15 @@ type SlideState struct {
 	ElapsedTime Ticks
 }
 
+type EntityBehaviorState struct {
+	Behavior    EntityBehavior
+	ElapsedTime Ticks
+}
+
+func (s EntityBehaviorState) Clone() EntityBehaviorState {
+	return EntityBehaviorState{s.Behavior.Clone(), s.ElapsedTime}
+}
+
 type EntityID int
 
 type Entity struct {
@@ -50,8 +59,7 @@ type Entity struct {
 
 	elapsedTime Ticks
 
-	behaviorElapsedTime Ticks
-	behavior            EntityBehavior
+	BehaviorState EntityBehaviorState
 
 	Intent     Intent
 	LastIntent Intent
@@ -105,14 +113,14 @@ func (e *Entity) Flip() {
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
 	e.SlideState.Slide.Direction = e.SlideState.Slide.Direction.FlipH()
-	e.behavior.Flip()
+	e.BehaviorState.Behavior.Flip()
 }
 
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
-		e.behaviorElapsedTime, e.behavior.Clone(),
+		e.BehaviorState.Clone(),
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
@@ -147,18 +155,9 @@ func (e *Entity) UseChip(s *State) bool {
 	return true
 }
 
-func (e *Entity) Behavior() EntityBehavior {
-	return e.behavior
-}
-
 func (e *Entity) SetBehavior(behavior EntityBehavior, s *State) {
-	e.behaviorElapsedTime = 0
-	e.behavior = behavior
-	e.behavior.Step(e, s)
-}
-
-func (e *Entity) BehaviorElapsedTime() Ticks {
-	return e.behaviorElapsedTime
+	e.BehaviorState = EntityBehaviorState{behavior, 0}
+	e.BehaviorState.Behavior.Step(e, s)
 }
 
 func (e *Entity) ElapsedTime() Ticks {
@@ -241,7 +240,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.PerTickState.WasHit {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
-	characterNode.Children = append(characterNode.Children, e.behavior.Appearance(e, b))
+	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
 
 	if e.ChargingElapsedTime >= 10 {
 		chargingNode := &draw.OptionsNode{}
@@ -325,8 +324,8 @@ func (e *Entity) Step(s *State) {
 	e.elapsedTime++
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
-	e.behaviorElapsedTime++
-	e.behavior.Step(e, s)
+	e.BehaviorState.ElapsedTime++
+	e.BehaviorState.Behavior.Step(e, s)
 }
 
 func (e *Entity) MakeDamageAndConsume(base int) Damage {

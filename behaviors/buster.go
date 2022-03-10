@@ -18,7 +18,7 @@ func (eb *Buster) Flip() {
 }
 
 func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
-	t := e.BehaviorElapsedTime()
+	t := e.BehaviorState.ElapsedTime
 	if eb.IsPowerShot {
 		t -= 5
 	}
@@ -157,7 +157,7 @@ func (eb *busterShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 func (eb *busterShot) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorElapsedTime()%2 == 1 {
+	if e.BehaviorState.ElapsedTime%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {
