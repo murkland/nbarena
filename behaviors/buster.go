@@ -52,7 +52,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 
 	if realElapsedTime == 1 {
 		_, d := query.FindNearestEntity(s, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
-		eb.cooldownTime = busterCooldownDurations[eb.BaseDamage-1][d]
+		eb.cooldownTime = busterCooldownDurations[0][d]
 
 		x, y := e.TilePos.XY()
 		if e.IsFlipped {
