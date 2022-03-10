@@ -11,6 +11,9 @@ type WindRack struct {
 	Damage int
 }
 
+func (eb *WindRack) Flip() {
+}
+
 func (eb *WindRack) Clone() state.EntityBehavior {
 	return &WindRack{
 		eb.Damage,

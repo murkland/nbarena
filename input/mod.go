@@ -1,62 +1,34 @@
 package input
 
-type Direction uint8
-
-const (
-	DirectionNone  Direction = 0
-	DirectionUp    Direction = 0b0001
-	DirectionDown  Direction = 0b0010
-	DirectionLeft  Direction = 0b0100
-	DirectionRight Direction = 0b1000
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/murkland/nbarena/state"
 )
 
-func (d Direction) XY() (int, int) {
-	x := 0
-	y := 0
-	if d&DirectionLeft != 0 {
-		x--
+func PressedKeysToIntent(keys []ebiten.Key) state.Intent {
+	var intent state.Intent
+	for _, k := range keys {
+		switch k {
+		case ebiten.KeyUp:
+			intent.Direction |= state.DirectionUp
+		case ebiten.KeyDown:
+			intent.Direction |= state.DirectionDown
+		case ebiten.KeyLeft:
+			intent.Direction |= state.DirectionLeft
+		case ebiten.KeyRight:
+			intent.Direction |= state.DirectionRight
+		case ebiten.KeyZ:
+			intent.UseChip = true
+		case ebiten.KeyA, ebiten.KeyS:
+			intent.EndTurn = true
+		case ebiten.KeyX:
+			intent.ChargeBasicWeapon = true
+		}
 	}
-	if d&DirectionRight != 0 {
-		x++
-	}
-	if d&DirectionUp != 0 {
-		y--
-	}
-	if d&DirectionDown != 0 {
-		y++
-	}
-	return x, y
+	return intent
 }
 
-func (d Direction) FlipH() Direction {
-	d2 := d & ^(DirectionLeft | DirectionRight)
-	if d&DirectionLeft == DirectionLeft {
-		d2 |= DirectionRight
-	}
-	if d&DirectionRight == DirectionRight {
-		d2 |= DirectionLeft
-	}
-	return d2
-}
-
-func (d Direction) FlipV() Direction {
-	d2 := d & ^(DirectionUp | DirectionDown)
-	if d&DirectionUp == DirectionUp {
-		d2 |= DirectionDown
-	}
-	if d&DirectionDown == DirectionDown {
-		d2 |= DirectionUp
-	}
-	return d2
-}
-
-type Action uint8
-
-type Intent struct {
-	Direction         Direction
-	UseChip           bool
-	Confirm           bool
-	CutIn             bool
-	EndTurn           bool
-	ChargeBasicWeapon bool
+func CurrentIntent() state.Intent {
+	return PressedKeysToIntent(inpututil.PressedKeys())
 }

@@ -47,8 +47,8 @@ type clientState struct {
 	committedState *state.State
 	dirtyState     *state.State
 
-	incomingIntents *ringbuf.RingBuf[input.Intent]
-	outgoingIntents *ringbuf.RingBuf[input.Intent]
+	incomingIntents *ringbuf.RingBuf[state.Intent]
+	outgoingIntents *ringbuf.RingBuf[state.Intent]
 }
 
 func (cs *clientState) SelfEntityID() int {
@@ -64,7 +64,7 @@ func (cs *clientState) fastForward() error {
 		n = cs.incomingIntents.Used()
 	}
 
-	ourIntents := make([]input.Intent, cs.outgoingIntents.Used())
+	ourIntents := make([]state.Intent, cs.outgoingIntents.Used())
 	if err := cs.outgoingIntents.Peek(ourIntents, 0); err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (cs *clientState) fastForward() error {
 		return err
 	}
 
-	theirIntents := make([]input.Intent, n)
+	theirIntents := make([]state.Intent, n)
 	if err := cs.incomingIntents.Peek(theirIntents, 0); err != nil {
 		return err
 	}
@@ -84,8 +84,8 @@ func (cs *clientState) fastForward() error {
 		ourIntent := ourIntents[i]
 		theirIntent := theirIntents[i]
 
-		var offererIntent input.Intent
-		var answererIntent input.Intent
+		var offererIntent state.Intent
+		var answererIntent state.Intent
 		if cs.isAnswerer {
 			offererIntent = theirIntent
 			answererIntent = ourIntent
@@ -101,16 +101,16 @@ func (cs *clientState) fastForward() error {
 
 	cs.dirtyState = cs.committedState.Clone()
 	for _, intent := range ourIntents[n:] {
-		var offererIntent input.Intent
-		var answererIntent input.Intent
+		var offererIntent state.Intent
+		var answererIntent state.Intent
 		if cs.isAnswerer {
 			offererIntent = cs.committedState.Entities[cs.OffererEntityID].LastIntent
-			offererIntent.Direction = input.DirectionNone
+			offererIntent.Direction = state.DirectionNone
 			answererIntent = intent
 		} else {
 			offererIntent = intent
 			answererIntent = cs.committedState.Entities[cs.AnswererEntityID].LastIntent
-			answererIntent.Direction = input.DirectionNone
+			answererIntent.Direction = state.DirectionNone
 		}
 
 		cs.dirtyState.Entities[cs.OffererEntityID].Intent = offererIntent
@@ -203,8 +203,8 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			committedState: s,
 			dirtyState:     s.Clone(),
 
-			incomingIntents: ringbuf.New[input.Intent](maxPendingIntents),
-			outgoingIntents: ringbuf.New[input.Intent](maxPendingIntents),
+			incomingIntents: ringbuf.New[state.Intent](maxPendingIntents),
+			outgoingIntents: ringbuf.New[state.Intent](maxPendingIntents),
 		},
 		inputFrameDelay: inputFrameDelay,
 		delayRingbuf:    ringbuf.New[time.Duration](delaysWindowSize),
@@ -300,7 +300,7 @@ func (g *Game) handleConn(ctx context.Context) error {
 					return fmt.Errorf("expected intent for %d but it was for %d", nextTick, p.ForTick)
 				}
 
-				if err := g.cs.incomingIntents.Push([]input.Intent{p.Intent}); err != nil {
+				if err := g.cs.incomingIntents.Push([]state.Intent{p.Intent}); err != nil {
 					return err
 				}
 
@@ -502,7 +502,7 @@ func (g *Game) Update() error {
 		return err
 	}
 
-	if err := g.cs.outgoingIntents.Push([]input.Intent{intent}); err != nil {
+	if err := g.cs.outgoingIntents.Push([]state.Intent{intent}); err != nil {
 		return err
 	}
 

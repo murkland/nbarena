@@ -10,6 +10,9 @@ type Bubbled struct {
 	Duration state.Ticks
 }
 
+func (eb *Bubbled) Flip() {
+}
+
 func (eb *Bubbled) Clone() state.EntityBehavior {
 	return &Bubbled{}
 }

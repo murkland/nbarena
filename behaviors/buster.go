@@ -3,7 +3,6 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 )
@@ -13,6 +12,9 @@ type Buster struct {
 	IsPowerShot  bool
 	isJammed     bool
 	cooldownTime state.Ticks
+}
+
+func (eb *Buster) Flip() {
 }
 
 func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
@@ -84,7 +86,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		s.AddEntity(shot)
 	}
 
-	if e.Intent.Direction != input.DirectionNone && realElapsedTime >= 5 {
+	if e.Intent.Direction != state.DirectionNone && realElapsedTime >= 5 {
 		dir := e.Intent.Direction
 		if e.ConfusedTimeLeft > 0 {
 			dir = dir.FlipH().FlipV()

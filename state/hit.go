@@ -1,7 +1,5 @@
 package state
 
-import "github.com/murkland/nbarena/input"
-
 const DefaultFlashTime Ticks = 120
 
 type Damage struct {
@@ -25,7 +23,7 @@ type Hit struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	Drag                  input.Direction
+	Drag                  Direction
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool
@@ -75,7 +73,7 @@ func (h *Hit) Merge(h2 Hit) {
 	if h2.Counters {
 		h.Counters = true
 	}
-	if h2.Drag != input.DirectionNone {
+	if h2.Drag != DirectionNone {
 		h.Drag = h2.Drag
 	}
 }

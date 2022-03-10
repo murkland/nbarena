@@ -10,6 +10,9 @@ type Paralyzed struct {
 	Duration state.Ticks
 }
 
+func (eb *Paralyzed) Flip() {
+}
+
 func (eb *Paralyzed) Clone() state.EntityBehavior {
 	return &Paralyzed{}
 }

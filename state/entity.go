@@ -12,7 +12,6 @@ import (
 	"github.com/murkland/clone"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 )
 
 var (
@@ -42,8 +41,8 @@ type Entity struct {
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
 
-	Intent     input.Intent
-	LastIntent input.Intent
+	Intent     Intent
+	LastIntent Intent
 
 	TilePos       TilePos
 	FutureTilePos TilePos
@@ -74,8 +73,9 @@ type Entity struct {
 
 	IsAngry       bool
 	IsFullSynchro bool
-	IsSliding     bool
 	IsCounterable bool
+
+	SlideDirection Direction
 
 	Hit          Hit
 	PerTickState EntityPerTickState
@@ -90,6 +90,7 @@ func (e *Entity) Flip() {
 	e.IsFlipped = !e.IsFlipped
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
+	e.behavior.Flip()
 }
 
 func (e *Entity) Clone() *Entity {
@@ -107,16 +108,17 @@ func (e *Entity) Clone() *Entity {
 		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
-		e.IsAngry, e.IsFullSynchro, e.IsSliding, e.IsCounterable,
+		e.IsAngry, e.IsFullSynchro, e.IsCounterable,
+		e.SlideDirection,
 		e.Hit, e.PerTickState,
 	}
 }
 
-func (e *Entity) Facing() input.Direction {
+func (e *Entity) Facing() Direction {
 	if e.IsFlipped {
-		return input.DirectionLeft
+		return DirectionLeft
 	}
-	return input.DirectionRight
+	return DirectionRight
 }
 
 func (e *Entity) UseChip(s *State) bool {
@@ -301,6 +303,7 @@ func (e *Entity) MakeDamageAndConsume(base int) Damage {
 
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
+	Flip()
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
 	Step(e *Entity, s *State)
 }

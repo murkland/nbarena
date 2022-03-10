@@ -9,6 +9,9 @@ import (
 type Idle struct {
 }
 
+func (eb *Idle) Flip() {
+}
+
 func (eb *Idle) Clone() state.EntityBehavior {
 	return &Idle{}
 }

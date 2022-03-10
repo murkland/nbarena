@@ -45,6 +45,9 @@ type Sword struct {
 	Damage int
 }
 
+func (eb *Sword) Flip() {
+}
+
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
 		eb.Range,

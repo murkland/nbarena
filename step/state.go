@@ -4,7 +4,6 @@ import (
 	"math/rand"
 
 	"github.com/murkland/nbarena/behaviors"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -52,7 +51,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 	e.Hit.Counters = false
 
-	if e.Hit.Drag == input.DirectionNone {
+	if e.Hit.Drag == state.DirectionNone {
 		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) /* && !e.isInTimestop */ {
 			// Process flashing.
 			if e.Hit.FlashTime > 0 {
@@ -130,7 +129,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			postDragParalyzeTime = paralyzed.Duration - e.BehaviorElapsedTime()
 		}
 		e.SetBehavior(&behaviors.Dragged{Direction: e.Hit.Drag, IsBig: true, PostDragParalyzeTime: postDragParalyzeTime}, s)
-		e.Hit.Drag = input.DirectionNone
+		e.Hit.Drag = state.DirectionNone
 	}
 }
 

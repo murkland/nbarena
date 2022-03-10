@@ -21,6 +21,9 @@ type Cannon struct {
 	Damage int
 }
 
+func (eb *Cannon) Flip() {
+}
+
 func (eb *Cannon) Clone() state.EntityBehavior {
 	return &Cannon{
 		eb.Style,
@@ -84,6 +87,9 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 type cannonShot struct {
 	damage state.Damage
+}
+
+func (eb *cannonShot) Flip() {
 }
 
 func (eb *cannonShot) Clone() state.EntityBehavior {

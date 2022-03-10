@@ -10,7 +10,7 @@ import (
 	"log"
 
 	"github.com/murkland/ctxwebrtc"
-	"github.com/murkland/nbarena/input"
+	"github.com/murkland/nbarena/state"
 )
 
 var (
@@ -59,7 +59,7 @@ func (Reveal) packetType() packetType { return packetTypeReveal }
 
 type Intent struct {
 	ForTick uint32
-	Intent  input.Intent
+	Intent  state.Intent
 }
 
 func (Intent) packetType() packetType { return packetTypeIntent }

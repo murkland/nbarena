@@ -9,6 +9,9 @@ import (
 type Flinch struct {
 }
 
+func (eb *Flinch) Flip() {
+}
+
 func (eb *Flinch) Clone() state.EntityBehavior {
 	return &Flinch{}
 }

@@ -3,17 +3,20 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 )
 
 type Dragged struct {
-	Direction            input.Direction
+	Direction            state.Direction
 	IsBig                bool
 	PostDragParalyzeTime state.Ticks
 
 	dragComplete         bool
 	dragCompleteDuration state.Ticks
+}
+
+func (eb *Dragged) Flip() {
+	eb.Direction = eb.Direction.FlipH()
 }
 
 func (eb *Dragged) Clone() state.EntityBehavior {
@@ -71,7 +74,7 @@ func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func getNextDragEndTilePos(tilePos state.TilePos, direction input.Direction) state.TilePos {
+func getNextDragEndTilePos(tilePos state.TilePos, direction state.Direction) state.TilePos {
 	x, y := tilePos.XY()
 	dx, dy := direction.XY()
 	return state.TilePosXY(x+dx, y+dy)
