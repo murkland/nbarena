@@ -116,15 +116,11 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 	rootNode := &draw.OptionsNode{}
 
-	if realElapsedTime < 5 {
-		megamanBusterAnimTime := int(realElapsedTime)
-		if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
-			megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
-		}
-		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
-	} else {
-		rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterEndAnimation.Frames[0]))
+	megamanBusterAnimTime := int(realElapsedTime)
+	if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
+		megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
 	}
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
 
 	busterFrames := b.BusterSprites.BaseAnimation
 	busterAnimTime := int(realElapsedTime)

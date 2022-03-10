@@ -55,22 +55,21 @@ func loadBattletiles(ctx context.Context, f moreio.File) (*Battletiles, error) {
 type CharacterSprites struct {
 	Image *ebiten.Image
 
-	IdleAnimation                *pngsheet.Animation
-	FlinchAnimation              *pngsheet.Animation
-	StuckAnimation               *pngsheet.Animation
-	TeleportEndAnimation         *pngsheet.Animation
-	TeleportStartAnimation       *pngsheet.Animation
-	SlashAnimation               *pngsheet.Animation
-	ThrowAnimation               *pngsheet.Animation
-	BraceAnimation               *pngsheet.Animation
-	CannonAnimation              *pngsheet.Animation
-	FireAndSlideAnimation        *pngsheet.Animation
-	BusterEndAnimation           *pngsheet.Animation
-	BusterAnimation              *pngsheet.Animation
-	FlourishAnimation            *pngsheet.Animation
-	GattlingAnimation            *pngsheet.Animation
-	TwoHandedSlashStartAnimation *pngsheet.Animation
-	TwoHandedSlashAnimation      *pngsheet.Animation
+	IdleAnimation          *pngsheet.Animation
+	FlinchAnimation        *pngsheet.Animation
+	StuckAnimation         *pngsheet.Animation
+	TeleportEndAnimation   *pngsheet.Animation
+	TeleportStartAnimation *pngsheet.Animation
+	SlashAnimation         *pngsheet.Animation // e.g. Sword
+	ThrowAnimation         *pngsheet.Animation // e.g. MiniBomb
+	BraceAnimation         *pngsheet.Animation // e.g. end of Cannon
+	CannonAnimation        *pngsheet.Animation // e.g. Cannon
+	RecoilShotAnimation    *pngsheet.Animation // e.g. AirShot
+	HoldInFrontAnimation   *pngsheet.Animation // e.g. DolThndr, RskyHony, TankCan, Tornado
+	BusterAnimation        *pngsheet.Animation
+	FlourishAnimation      *pngsheet.Animation // e.g. BublStar
+	GattlingAnimation      *pngsheet.Animation // e.g. Vulcan, MachGun
+	TwoHandedAnimation     *pngsheet.Animation // e.g. AquaWhirl
 }
 
 func makeSpriteLoader[T any](f func(sheet *Sheet) T) func(ctx context.Context, file moreio.File) (T, error) {
@@ -88,22 +87,21 @@ func loadCharacterSprite(ctx context.Context, f moreio.File) (*CharacterSprites,
 		return &CharacterSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
-			IdleAnimation:                sheet.Info.Animations[0],
-			FlinchAnimation:              sheet.Info.Animations[1],
-			StuckAnimation:               sheet.Info.Animations[2],
-			TeleportEndAnimation:         sheet.Info.Animations[3],
-			TeleportStartAnimation:       sheet.Info.Animations[4],
-			SlashAnimation:               sheet.Info.Animations[5],
-			ThrowAnimation:               sheet.Info.Animations[6],
-			BraceAnimation:               sheet.Info.Animations[7],
-			CannonAnimation:              sheet.Info.Animations[8],
-			FireAndSlideAnimation:        sheet.Info.Animations[9],
-			BusterEndAnimation:           sheet.Info.Animations[10],
-			BusterAnimation:              sheet.Info.Animations[11],
-			FlourishAnimation:            sheet.Info.Animations[12],
-			GattlingAnimation:            sheet.Info.Animations[13],
-			TwoHandedSlashStartAnimation: sheet.Info.Animations[18],
-			TwoHandedSlashAnimation:      sheet.Info.Animations[19],
+			IdleAnimation:          sheet.Info.Animations[0],
+			FlinchAnimation:        sheet.Info.Animations[1],
+			StuckAnimation:         sheet.Info.Animations[2],
+			TeleportEndAnimation:   sheet.Info.Animations[3],
+			TeleportStartAnimation: sheet.Info.Animations[4],
+			SlashAnimation:         sheet.Info.Animations[5],
+			ThrowAnimation:         sheet.Info.Animations[6],
+			BraceAnimation:         sheet.Info.Animations[7],
+			CannonAnimation:        sheet.Info.Animations[8],
+			RecoilShotAnimation:    sheet.Info.Animations[9],
+			HoldInFrontAnimation:   sheet.Info.Animations[10],
+			FlourishAnimation:      sheet.Info.Animations[12],
+			GattlingAnimation:      sheet.Info.Animations[13],
+			BusterAnimation:        sheet.Info.Animations[14],
+			TwoHandedAnimation:     sheet.Info.Animations[18],
 		}
 	})(ctx, f)
 }
