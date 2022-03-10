@@ -15,25 +15,22 @@ func (eb *Idle) Clone() state.EntityBehavior {
 }
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
-}
-
-func (eb *Idle) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
-	if intent.UseChip && e.LastIntent.UseChip != intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
+	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
 		e.UseChip(s)
 		return
 	}
 
-	if intent.ChargeBasicWeapon {
+	if e.Intent.ChargeBasicWeapon {
 		e.ChargingElapsedTime++
 	}
 
-	if e.ChargingElapsedTime > 0 && !intent.ChargeBasicWeapon {
+	if e.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
 		// Release buster shot.
 		e.SetBehavior(&Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime})
 		e.ChargingElapsedTime = 0
 	}
 
-	dir := intent.Direction
+	dir := e.Intent.Direction
 	if e.ConfusedTimeLeft > 0 {
 		dir = dir.FlipH().FlipV()
 	}

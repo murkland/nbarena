@@ -43,6 +43,7 @@ type Entity struct {
 	behaviorElapsedTime Ticks
 	behavior            EntityBehavior
 
+	Intent     input.Intent
 	LastIntent input.Intent
 
 	TilePos       TilePos
@@ -100,7 +101,7 @@ func (e *Entity) Clone() *Entity {
 		e.id,
 		e.elapsedTime,
 		e.behaviorElapsedTime, e.behavior.Clone(),
-		e.LastIntent,
+		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
@@ -294,5 +295,4 @@ type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
 	Step(e *Entity, s *State)
-	ApplyIntent(e *Entity, s *State, intent input.Intent)
 }

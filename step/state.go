@@ -186,6 +186,7 @@ func Step(s *state.State) {
 		for _, e := range pending {
 			e.Step(s)
 			e.PerTickState.IsStepped = true
+			e.LastIntent = e.Intent
 		}
 	}
 

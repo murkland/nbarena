@@ -4,7 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
 )
@@ -27,9 +26,6 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 		eb.Style,
 		eb.Damage,
 	}
-}
-
-func (eb *Cannon) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
@@ -94,9 +90,6 @@ func (eb *cannonShot) Clone() state.EntityBehavior {
 	return &cannonShot{
 		eb.damage,
 	}
-}
-
-func (eb *cannonShot) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
 }
 
 func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

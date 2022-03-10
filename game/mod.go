@@ -87,36 +87,37 @@ func (cs *clientState) fastForward() error {
 		theirIntent := theirIntents[i]
 
 		var offererIntent input.Intent
-		var answerwerIntent input.Intent
+		var answererIntent input.Intent
 		if cs.isAnswerer {
 			offererIntent = theirIntent
-			answerwerIntent = ourIntent
+			answererIntent = ourIntent
 		} else {
 			offererIntent = ourIntent
-			answerwerIntent = theirIntent
+			answererIntent = theirIntent
 		}
 
-		cs.lastIncomingIntent = theirIntent
+		cs.committedState.Entities[cs.OffererEntityID].Intent = offererIntent
+		cs.committedState.Entities[cs.AnswererEntityID].Intent = answererIntent
 		step.Step(&cs.committedState)
-		applyPlayerIntents(&cs.committedState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
 	for _, intent := range ourIntents[n:] {
 		var offererIntent input.Intent
-		var answerwerIntent input.Intent
+		var answererIntent input.Intent
 		if cs.isAnswerer {
 			offererIntent = cs.lastIncomingIntent
 			offererIntent.Direction = input.DirectionNone
-			answerwerIntent = intent
+			answererIntent = intent
 		} else {
 			offererIntent = intent
-			answerwerIntent = cs.lastIncomingIntent
-			answerwerIntent.Direction = input.DirectionNone
+			answererIntent = cs.lastIncomingIntent
+			answererIntent.Direction = input.DirectionNone
 		}
 
+		cs.dirtyState.Entities[cs.OffererEntityID].Intent = offererIntent
+		cs.dirtyState.Entities[cs.AnswererEntityID].Intent = answererIntent
 		step.Step(&cs.dirtyState)
-		applyPlayerIntents(&cs.dirtyState, cs.OffererEntityID, offererIntent, cs.AnswererEntityID, answerwerIntent)
 	}
 
 	return nil

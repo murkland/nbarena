@@ -3,7 +3,6 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/pngsheet"
 )
@@ -18,17 +17,15 @@ func (eb *Teleport) Clone() state.EntityBehavior {
 	return &Teleport{eb.useChip}
 }
 
-func (eb *Teleport) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
-	if intent.UseChip {
+func (eb *Teleport) Step(e *state.Entity, s *state.State) {
+	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip {
 		eb.useChip = true
 	}
 
-	if intent.ChargeBasicWeapon {
+	if e.Intent.ChargeBasicWeapon {
 		e.ChargingElapsedTime++
 	}
-}
 
-func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime() == 3 {
 		e.FinishMove()
 	}

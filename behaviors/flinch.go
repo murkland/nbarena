@@ -3,7 +3,6 @@ package behaviors
 import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
-	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/state"
 )
 
@@ -14,16 +13,10 @@ func (eb *Flinch) Clone() state.EntityBehavior {
 	return &Flinch{}
 }
 
-func (eb *Flinch) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
-}
-
 func (eb *Flinch) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime() == 24 {
 		e.SetBehavior(&Idle{})
 	}
-}
-
-func (eb *Flinch) Idle(intent input.Intent) {
 }
 
 func (eb *Flinch) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

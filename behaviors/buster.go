@@ -163,9 +163,6 @@ func (eb *busterShot) Clone() state.EntityBehavior {
 	}
 }
 
-func (eb *busterShot) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
-}
-
 func (eb *busterShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	return nil
 }
