@@ -195,8 +195,10 @@ func Step(s *state.State) {
 	})
 
 	for _, e := range pending {
-		e.Step(s)
-		e.LastIntent = e.Intent
+		if s.IsInTimeStop && !e.IsTimeStopExempt {
+			e.Step(s)
+			e.LastIntent = e.Intent
+		}
 	}
 
 	// Resolve any hits.

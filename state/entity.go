@@ -87,6 +87,8 @@ type Entity struct {
 	IsFullSynchro bool
 	IsCounterable bool
 
+	IsTimeStopExempt bool
+
 	SlideState SlideState
 
 	Hit          Hit
@@ -122,6 +124,7 @@ func (e *Entity) Clone() *Entity {
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsCounterable,
+		e.IsTimeStopExempt,
 		e.SlideState,
 		e.Hit, e.PerTickState,
 	}
