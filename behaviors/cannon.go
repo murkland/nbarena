@@ -66,7 +66,7 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.CannonAnimation.Frames[e.BehaviorElapsedTime()]))
 
-	cannonNode := &draw.OptionsNode{Layer: 8}
+	cannonNode := &draw.OptionsNode{Layer: 6}
 	cannonNode.Opts.GeoM.Translate(float64(16), float64(-24))
 	rootNode.Children = append(rootNode.Children, cannonNode)
 	var img *ebiten.Image

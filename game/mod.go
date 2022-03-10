@@ -386,7 +386,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) uiAppearance() draw.Node {
-	rootNode := &draw.OptionsNode{}
+	rootNode := &draw.OptionsNode{Layer: 9}
 	{
 		self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
 

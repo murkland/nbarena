@@ -95,7 +95,7 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorElapsedTime()]))
 
-	swordNode := &draw.OptionsNode{Layer: 8}
+	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
 	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorElapsedTime()]))
 

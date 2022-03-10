@@ -5,11 +5,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"github.com/sanity-io/litter"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
+	"github.com/sanity-io/litter"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -36,11 +35,10 @@ func init() {
 }
 
 func (g *Game) makeDebugDrawNode() draw.Node {
-	colorM := ebiten.ColorM{}
-	colorM.Scale(0.0, 1.0, 0.0, 1.0)
+	rootNode := &draw.OptionsNode{Layer: 9}
 
-	geoM := ebiten.GeoM{}
-	geoM.Translate(12, 12)
+	rootNode.Opts.ColorM.Scale(0.0, 1.0, 0.0, 1.0)
+	rootNode.Opts.GeoM.Translate(12, 12)
 
 	var entity *state.Entity
 	if !g.cs.isAnswerer {
@@ -50,15 +48,12 @@ func (g *Game) makeDebugDrawNode() draw.Node {
 	}
 
 	delay := g.medianDelay()
-	return &draw.OptionsNode{
-		Opts: ebiten.DrawImageOptions{
-			GeoM:   geoM,
-			ColorM: colorM,
-		},
-		Children: []draw.Node{
-			&draw.TextNode{Face: mplusNormalFont, Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
-				HidePrivateFields: false,
-			}.Sdump(entity))},
-		},
-	}
+	rootNode.Children = append(rootNode.Children, &draw.TextNode{
+		Face: mplusNormalFont,
+		Text: fmt.Sprintf("delay: %6.2fms\n%s", float64(delay)/float64(time.Millisecond), litter.Options{
+			HidePrivateFields: false,
+		}.Sdump(entity)),
+	})
+
+	return rootNode
 }

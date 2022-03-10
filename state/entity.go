@@ -253,7 +253,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		rootNode.Children = append(rootNode.Children, chipsNode)
 
 		for i, chip := range e.Chips {
-			chipNode := &draw.OptionsNode{Layer: 9}
+			chipNode := &draw.OptionsNode{Layer: 8}
 			j := len(e.Chips) - i - 1
 			chipNode.Opts.GeoM.Translate(float64(-j*2), float64(-j*2))
 			chipsNode.Children = append(chipsNode.Children, chipNode)
