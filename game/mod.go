@@ -152,7 +152,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[4], chips.Chips[0]},
+			Chips: []state.Chip{chips.Chips[4], chips.Chips[4], chips.Chips[4]},
 
 			Traits: state.EntityTraits{
 				ExtendsTileLifetime: true,
@@ -173,7 +173,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: []state.Chip{chips.Chips[0], chips.Chips[1], chips.Chips[2], chips.Chips[4], chips.Chips[0]},
+			Chips: []state.Chip{chips.Chips[4], chips.Chips[4], chips.Chips[4]},
 
 			Traits: state.EntityTraits{
 				ExtendsTileLifetime: true,

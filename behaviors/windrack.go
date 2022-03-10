@@ -43,6 +43,24 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			}
 		}
 
+		for i := 1; i <= 3; i++ {
+			shot := &state.Entity{
+				TilePos:       state.TilePosXY(x, i),
+				FutureTilePos: state.TilePosXY(x, i),
+
+				IsFlipped:            e.IsFlipped,
+				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
+
+				Traits: state.EntityTraits{
+					CanStepOnHoleLikeTiles: true,
+					IgnoresTileEffects:     true,
+					CannotFlinch:           true,
+					IgnoresTileOwnership:   true,
+				},
+			}
+			shot.SetBehavior(&windRackGust{e.Facing()}, s)
+			s.AddEntity(shot)
+		}
 		// TODO: Spawn gusts as well.
 	} else if e.BehaviorElapsedTime() == 23 {
 		e.SetBehavior(&Idle{}, s)
@@ -75,4 +93,47 @@ func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.WindSlashSprites.Image, b.WindSlashSprites.Animations[0].Frames[slashFrameIdx]))
 
 	return rootNode
+}
+
+type windRackGust struct {
+	direction state.Direction
+}
+
+func (eb *windRackGust) Flip() {
+}
+
+func (eb *windRackGust) Clone() state.EntityBehavior {
+	return &windRackGust{
+		eb.direction,
+	}
+}
+
+func (eb *windRackGust) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	return nil
+}
+
+func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
+	if e.BehaviorElapsedTime()%2 == 1 {
+		x, y := e.TilePos.XY()
+		x += query.DXForward(e.IsFlipped)
+		if !e.StartMove(state.TilePosXY(x, y), s.Field) {
+			e.PerTickState.IsPendingDeletion = true
+			return
+		}
+		e.FinishMove()
+	}
+
+	for _, target := range query.EntitiesAt(s, e.TilePos) {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+			continue
+		}
+
+		var h state.Hit
+		h.Slide.Direction = eb.direction
+		h.Slide.IsBig = true
+		target.Hit.Merge(h)
+
+		e.PerTickState.IsPendingDeletion = true
+		return
+	}
 }

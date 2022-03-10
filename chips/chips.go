@@ -40,7 +40,7 @@ var Chips = []state.Chip{
 	},
 	{
 		Index:  79,
-		Name:   "WindRack but it's shitty",
+		Name:   "WindRack",
 		Damage: 140,
 		OnUse: func(s *state.State, e *state.Entity) {
 			e.SetBehavior(&behaviors.WindRack{Damage: 140}, s)
