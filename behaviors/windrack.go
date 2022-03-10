@@ -131,7 +131,7 @@ func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
 		h.Slide.IsBig = true
 		target.Hit.Merge(h)
 
-		e.PerTickState.IsPendingDeletion = true
+		// Gust doesn't stop on hit.
 		return
 	}
 }
