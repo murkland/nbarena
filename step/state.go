@@ -195,7 +195,7 @@ func Step(s *state.State) {
 	})
 
 	for _, e := range pending {
-		if !s.IsInTimeStop || e.IsTimeStopExempt {
+		if !s.IsInTimeStop || state.BehaviorIs[state.TimestopMaskedEntityBehavior](e.BehaviorState.Behavior) {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}
@@ -233,5 +233,7 @@ func Step(s *state.State) {
 		}
 	}
 
-	s.Field.Step(s)
+	if !s.IsInTimeStop {
+		s.Field.Step(s)
+	}
 }

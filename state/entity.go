@@ -52,6 +52,14 @@ func (s EntityBehaviorState) Clone() EntityBehaviorState {
 	return EntityBehaviorState{s.Behavior.Clone(), s.ElapsedTime}
 }
 
+type TimestopMaskedEntityBehavior struct {
+	EntityBehavior
+}
+
+func (t TimestopMaskedEntityBehavior) Clone() EntityBehavior {
+	return TimestopMaskedEntityBehavior{t.EntityBehavior.Clone()}
+}
+
 type EntityID int
 
 type Entity struct {
@@ -95,8 +103,6 @@ type Entity struct {
 	IsFullSynchro bool
 	IsCounterable bool
 
-	IsTimeStopExempt bool
-
 	SlideState SlideState
 
 	Hit          Hit
@@ -132,7 +138,6 @@ func (e *Entity) Clone() *Entity {
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsCounterable,
-		e.IsTimeStopExempt,
 		e.SlideState,
 		e.Hit, e.PerTickState,
 	}
