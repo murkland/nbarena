@@ -43,7 +43,7 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 
 		if tile.Reserver == 0 {
 			tile.IsAlliedWithAnswerer = e.IsAlliedWithAnswerer
-			s.Field.ColumnInfo[x].AllySwapTimeLeft = 100
+			s.Field.ColumnInfo[x].AllySwapTimeLeft = 1800
 		} else {
 			entities := query.EntitiesAt(s, state.TilePosXY(x, y))
 			_ = entities
