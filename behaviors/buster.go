@@ -23,35 +23,6 @@ func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 	return t
 }
 
-func (eb *Buster) ApplyIntent(e *state.Entity, s *state.State, intent input.Intent) {
-	realElapsedTime := eb.realElapsedTime(e)
-
-	if intent.Direction != input.DirectionNone && realElapsedTime >= 5 {
-		dir := intent.Direction
-		if e.ConfusedTimeLeft > 0 {
-			dir = dir.FlipH().FlipV()
-		}
-
-		x, y := e.TilePos.XY()
-		if dir&input.DirectionLeft != 0 {
-			x--
-		}
-		if dir&input.DirectionRight != 0 {
-			x++
-		}
-		if dir&input.DirectionUp != 0 {
-			y--
-		}
-		if dir&input.DirectionDown != 0 {
-			y++
-		}
-
-		if e.StartMove(state.TilePosXY(x, y), s.Field) {
-			e.SetBehavior(&Teleport{})
-		}
-	}
-}
-
 func (eb *Buster) Clone() state.EntityBehavior {
 	return &Buster{
 		eb.BaseDamage,
@@ -73,6 +44,11 @@ var busterCooldownDurations = [][]state.Ticks{
 
 func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
+
+	if realElapsedTime == 5+eb.cooldownTime {
+		e.SetBehavior(&Idle{})
+		return
+	}
 
 	if realElapsedTime == 1 {
 		_, d := query.FindNearestEntity(s, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
@@ -99,11 +75,40 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 				IgnoresTileOwnership:   true,
 			},
 		}
-		shot.SetBehavior(&busterShot{eb.BaseDamage, eb.IsPowerShot})
+
+		damage := eb.BaseDamage
+		if eb.IsPowerShot {
+			damage *= 10
+		}
+		shot.SetBehavior(&busterShot{damage})
 		s.AddEntity(shot)
-	} else if realElapsedTime == 5+eb.cooldownTime {
-		e.SetBehavior(&Idle{})
 	}
+
+	if e.Intent.Direction != input.DirectionNone && realElapsedTime >= 5 {
+		dir := e.Intent.Direction
+		if e.ConfusedTimeLeft > 0 {
+			dir = dir.FlipH().FlipV()
+		}
+
+		x, y := e.TilePos.XY()
+		if dir&input.DirectionLeft != 0 {
+			x--
+		}
+		if dir&input.DirectionRight != 0 {
+			x++
+		}
+		if dir&input.DirectionUp != 0 {
+			y--
+		}
+		if dir&input.DirectionDown != 0 {
+			y++
+		}
+
+		if e.StartMove(state.TilePosXY(x, y), s.Field) {
+			e.SetBehavior(&Teleport{})
+		}
+	}
+
 }
 
 func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
@@ -145,8 +150,7 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type busterShot struct {
-	baseDamage  int
-	isPowerShot bool
+	damage int
 }
 
 func (eb *busterShot) Flip() {
@@ -154,8 +158,7 @@ func (eb *busterShot) Flip() {
 
 func (eb *busterShot) Clone() state.EntityBehavior {
 	return &busterShot{
-		eb.baseDamage,
-		eb.isPowerShot,
+		eb.damage,
 	}
 }
 
@@ -179,12 +182,8 @@ func (eb *busterShot) Step(e *state.Entity, s *state.State) {
 			continue
 		}
 
-		damage := eb.baseDamage
-		if eb.isPowerShot {
-			damage *= 10
-		}
 		var h state.Hit
-		h.AddDamage(state.Damage{Base: damage})
+		h.AddDamage(state.Damage{Base: eb.damage})
 		target.PerTickState.Hit.Merge(h)
 
 		e.PerTickState.IsPendingDeletion = true
