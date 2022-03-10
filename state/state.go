@@ -18,8 +18,8 @@ type State struct {
 
 	Field *Field
 
-	Entities     map[int]*Entity
-	nextEntityID int
+	Entities     map[EntityID]*Entity
+	nextEntityID EntityID
 }
 
 func New(randSource *syncrand.Source) *State {
@@ -29,12 +29,12 @@ func New(randSource *syncrand.Source) *State {
 
 		Field: field,
 
-		Entities:     map[int]*Entity{},
+		Entities:     map[EntityID]*Entity{},
 		nextEntityID: 1,
 	}
 }
 
-func (s *State) AddEntity(e *Entity) int {
+func (s *State) AddEntity(e *Entity) EntityID {
 	e.id = s.nextEntityID
 	s.Entities[e.id] = e
 	e.behavior.Step(e, s)
@@ -42,7 +42,7 @@ func (s *State) AddEntity(e *Entity) int {
 	return e.id
 }
 
-func (s *State) RemoveEntity(id int) {
+func (s *State) RemoveEntity(id EntityID) {
 	delete(s.Entities, id)
 }
 

@@ -43,8 +43,10 @@ type SlideState struct {
 	ElapsedTime Ticks
 }
 
+type EntityID int
+
 type Entity struct {
-	id int
+	id EntityID
 
 	elapsedTime Ticks
 
@@ -91,7 +93,7 @@ type Entity struct {
 	PerTickState EntityPerTickState
 }
 
-func (e *Entity) ID() int {
+func (e *Entity) ID() EntityID {
 	return e.id
 }
 
@@ -160,7 +162,7 @@ func (e *Entity) ElapsedTime() Ticks {
 	return e.elapsedTime
 }
 
-func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
+func (e *Entity) MoveDirectly(tilePos TilePos) bool {
 	if tilePos < 0 {
 		return false
 	}
@@ -170,20 +172,37 @@ func (e *Entity) StartMove(tilePos TilePos, field *Field) bool {
 		return false
 	}
 
-	tile := field.Tiles[tilePos]
+	e.TilePos = tilePos
+	return true
+}
+
+func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
+	if tilePos < 0 {
+		return false
+	}
+
+	x, y := tilePos.XY()
+	if x < 0 || x >= TileCols || y < 0 || y >= TileRows {
+		return false
+	}
+
+	tile := s.Field.Tiles[tilePos]
 	if tilePos == e.TilePos ||
 		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
+		tile.Reserver != 0 ||
 		!tile.CanEnter(e) {
 		return false
 	}
 
 	// TODO: Figure out when to trigger onleave/onenter callbacks
+	tile.Reserver = e.ID()
 	e.FutureTilePos = tilePos
 	return true
 }
 
-func (e *Entity) FinishMove() {
+func (e *Entity) FinishMove(s *State) {
 	// TODO: Trigger on leave?
+	s.Field.Tiles[e.TilePos].Reserver = 0
 	e.TilePos = e.FutureTilePos
 }
 

@@ -41,12 +41,14 @@ func resolveHit(e *state.Entity, s *state.State) {
 	e.Hit.TotalDamage = 0
 
 	if e.Hit.Flinch && !e.Traits.CannotFlinch {
+		e.FinishMove(s)
 		e.SetBehavior(&behaviors.Flinch{}, s)
 	}
 	e.Hit.Flinch = false
 
 	if e.IsCounterable && e.Hit.Counters {
 		e.FlashingTimeLeft = 0
+		e.FinishMove(s)
 		e.SetBehavior(&behaviors.Paralyzed{Duration: 150}, s)
 	}
 	e.Hit.Counters = false
@@ -75,6 +77,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 			// Process paralyzed.
 			if e.Hit.ParalyzeTime > 0 {
+				e.FinishMove(s)
 				e.SetBehavior(&behaviors.Paralyzed{Duration: e.Hit.ParalyzeTime}, s)
 				e.Hit.ConfuseTime = 0
 				e.Hit.ParalyzeTime = 0
@@ -82,6 +85,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 			// Process frozen.
 			if e.Hit.FreezeTime > 0 {
+				e.FinishMove(s)
 				e.SetBehavior(&behaviors.Frozen{Duration: e.Hit.FreezeTime}, s)
 				e.Hit.BubbleTime = 0
 				e.Hit.ConfuseTime = 0
@@ -90,6 +94,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 			// Process bubbled.
 			if e.Hit.BubbleTime > 0 {
+				e.FinishMove(s)
 				e.SetBehavior(&behaviors.Bubbled{Duration: e.Hit.BubbleTime}, s)
 				e.ConfusedTimeLeft = 0
 				e.Hit.ConfuseTime = 0
@@ -99,7 +104,10 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process confused.
 			if e.Hit.ConfuseTime > 0 {
 				e.ConfusedTimeLeft = e.Hit.ConfuseTime
-				e.SetBehavior(&behaviors.Idle{}, s)
+				// TODO: Double check if this is correct.
+				if state.BehaviorIs[*behaviors.Paralyzed](e.Behavior()) || state.BehaviorIs[*behaviors.Frozen](e.Behavior()) || state.BehaviorIs[*behaviors.Bubbled](e.Behavior()) {
+					e.SetBehavior(&behaviors.Idle{}, s)
+				}
 				e.Hit.FreezeTime = 0
 				e.Hit.BubbleTime = 0
 				e.Hit.ParalyzeTime = 0
@@ -139,6 +147,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 		if paralyzed, ok := e.Behavior().(*behaviors.Paralyzed); ok {
 			postDragParalyzeTime = paralyzed.Duration - e.BehaviorElapsedTime()
 		}
+		e.FinishMove(s)
 		e.SetBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
 		e.SlideState.Slide = e.Hit.Slide
 		e.SlideState.ElapsedTime = 0
@@ -153,11 +162,11 @@ func resolveSlide(e *state.Entity, s *state.State) {
 			x, y := e.TilePos.XY()
 			dx, dy := e.SlideState.Slide.Direction.XY()
 
-			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s.Field) {
+			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 				e.SlideState = state.SlideState{}
 			}
 		} else if e.SlideState.ElapsedTime%4 == 2 {
-			e.FinishMove()
+			e.FinishMove(s)
 			if !e.SlideState.Slide.IsBig {
 				e.SlideState = state.SlideState{}
 			}

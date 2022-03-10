@@ -45,8 +45,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 
 		for i := 1; i <= 3; i++ {
 			shot := &state.Entity{
-				TilePos:       state.TilePosXY(x, i),
-				FutureTilePos: state.TilePosXY(x, i),
+				TilePos: state.TilePosXY(x, i),
 
 				IsFlipped:            e.IsFlipped,
 				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
@@ -116,11 +115,10 @@ func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime()%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
-		if !e.StartMove(state.TilePosXY(x, y), s.Field) {
+		if !e.MoveDirectly(state.TilePosXY(x, y)) {
 			e.PerTickState.IsPendingDeletion = true
 			return
 		}
-		e.FinishMove()
 	}
 
 	for _, target := range query.EntitiesAt(s, e.TilePos) {

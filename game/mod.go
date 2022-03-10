@@ -41,8 +41,8 @@ const maxPendingIntents = 60
 type clientState struct {
 	isAnswerer bool
 
-	OffererEntityID  int
-	AnswererEntityID int
+	OffererEntityID  state.EntityID
+	AnswererEntityID state.EntityID
 
 	committedState *state.State
 	dirtyState     *state.State
@@ -51,7 +51,7 @@ type clientState struct {
 	outgoingIntents *ringbuf.RingBuf[state.Intent]
 }
 
-func (cs *clientState) SelfEntityID() int {
+func (cs *clientState) SelfEntityID() state.EntityID {
 	if cs.isAnswerer {
 		return cs.AnswererEntityID
 	}
@@ -146,7 +146,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
 
 	s := state.New(rng)
-	var offererEntityID int
+	var offererEntityID state.EntityID
 	{
 		e := &state.Entity{
 			HP:        1000,
@@ -167,7 +167,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		offererEntityID = s.AddEntity(e)
 	}
 
-	var answererEntityID int
+	var answererEntityID state.EntityID
 	{
 		e := &state.Entity{
 			HP:        1000,

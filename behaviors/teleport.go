@@ -30,7 +30,7 @@ func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	}
 
 	if e.BehaviorElapsedTime() == 3 {
-		e.FinishMove()
+		e.FinishMove(s)
 	}
 
 	if e.BehaviorElapsedTime() == 6+teleportEndlagTicks {

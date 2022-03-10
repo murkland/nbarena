@@ -41,8 +41,7 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		}
 
 		shot := &state.Entity{
-			TilePos:       state.TilePosXY(x, y),
-			FutureTilePos: state.TilePosXY(x, y),
+			TilePos: state.TilePosXY(x, y),
 
 			IsFlipped:            e.IsFlipped,
 			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
@@ -106,11 +105,10 @@ func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorElapsedTime()%2 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
-		if !e.StartMove(state.TilePosXY(x, y), s.Field) {
+		if !e.MoveDirectly(state.TilePosXY(x, y)) {
 			e.PerTickState.IsPendingDeletion = true
 			return
 		}
-		e.FinishMove()
 	}
 
 	for _, target := range query.EntitiesAt(s, e.TilePos) {

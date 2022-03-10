@@ -27,12 +27,12 @@ func HorizontalDistance(src state.TilePos, dest state.TilePos) int {
 	return x2 - x1
 }
 
-func FindNearestEntity(s *state.State, myEntityID int, pos state.TilePos, isAlliedWithAnswerer bool, isFlipped bool, distance DistanceMetric) (int, int) {
+func FindNearestEntity(s *state.State, myEntityID state.EntityID, pos state.TilePos, isAlliedWithAnswerer bool, isFlipped bool, distance DistanceMetric) (state.EntityID, int) {
 	x, _ := pos.XY()
 
 	bestDist := state.TileCols
 
-	var targetID int
+	var targetID state.EntityID
 	for _, cand := range s.Entities {
 		if cand.ID() == myEntityID || cand.IsAlliedWithAnswerer == isAlliedWithAnswerer {
 			continue

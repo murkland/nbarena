@@ -40,7 +40,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	x, y := e.TilePos.XY()
 	dx, dy := dir.XY()
 
-	if e.StartMove(state.TilePosXY(x+dx, y+dy), s.Field) {
+	if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 		e.SetBehavior(&Teleport{}, s)
 	}
 }
