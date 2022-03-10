@@ -11,7 +11,8 @@ type Tile struct {
 	behaviorElapsedTime Ticks
 	behavior            TileBehavior
 
-	IsFlipped bool
+	IsFlipped  bool
+	IsReserved bool
 
 	IsAlliedWithAnswerer       bool
 	ShouldBeAlliedWithAnswerer bool
@@ -20,7 +21,7 @@ type Tile struct {
 func (t *Tile) Clone() *Tile {
 	return &Tile{
 		t.behaviorElapsedTime, clone.Interface[TileBehavior](t.behavior),
-		t.IsFlipped,
+		t.IsFlipped, t.IsReserved,
 		t.IsAlliedWithAnswerer, t.ShouldBeAlliedWithAnswerer,
 	}
 }
