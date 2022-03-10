@@ -51,8 +51,19 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 	e.Hit.Counters = false
 
-	if e.Hit.Drag == state.DirectionNone {
+	if e.SlideState.Slide.Direction != state.DirectionNone {
+		// TODO: Is this even in the right place?
+		e.SlideState.ElapsedTime++
+	}
+
+	if !e.Hit.Drag {
 		if !state.BehaviorIs[*behaviors.Dragged](e.Behavior()) /* && !e.isInTimestop */ {
+			if e.Hit.Slide.Direction != state.DirectionNone {
+				e.SlideState.Slide = e.Hit.Slide
+				e.SlideState.ElapsedTime = 0
+				e.Hit.Slide = state.Slide{}
+			}
+
 			// Process flashing.
 			if e.Hit.FlashTime > 0 {
 				e.FlashingTimeLeft = e.Hit.FlashTime
@@ -128,8 +139,29 @@ func resolveHit(e *state.Entity, s *state.State) {
 		if paralyzed, ok := e.Behavior().(*behaviors.Paralyzed); ok {
 			postDragParalyzeTime = paralyzed.Duration - e.BehaviorElapsedTime()
 		}
-		e.SetBehavior(&behaviors.Dragged{Direction: e.Hit.Drag, IsBig: true, PostDragParalyzeTime: postDragParalyzeTime}, s)
-		e.Hit.Drag = state.DirectionNone
+		e.SetBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
+		e.SlideState.Slide = e.Hit.Slide
+		e.SlideState.ElapsedTime = 0
+		e.Hit.Drag = false
+		e.Hit.Slide = state.Slide{}
+	}
+}
+
+func resolveSlide(e *state.Entity, s *state.State) {
+	if e.SlideState.Slide.Direction != state.DirectionNone {
+		if e.SlideState.ElapsedTime%4 == 0 {
+			x, y := e.TilePos.XY()
+			dx, dy := e.SlideState.Slide.Direction.XY()
+
+			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s.Field) {
+				e.SlideState = state.SlideState{}
+			}
+		} else if e.SlideState.ElapsedTime%4 == 2 {
+			e.FinishMove()
+			if !e.SlideState.Slide.IsBig {
+				e.SlideState = state.SlideState{}
+			}
+		}
 	}
 }
 
@@ -152,6 +184,7 @@ func Step(s *state.State) {
 	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
+
 	for _, e := range pending {
 		e.Step(s)
 		e.LastIntent = e.Intent
@@ -160,6 +193,7 @@ func Step(s *state.State) {
 	// Resolve any hits.
 	for _, e := range maps.Values(s.Entities) {
 		resolveHit(e, s)
+		resolveSlide(e, s)
 
 		// Update UI.
 		if e.DisplayHP != 0 && e.DisplayHP != e.HP {

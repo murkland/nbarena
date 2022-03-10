@@ -23,7 +23,9 @@ type Hit struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	Drag                  Direction
+	Slide Slide
+
+	Drag                  bool
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool
@@ -73,7 +75,10 @@ func (h *Hit) Merge(h2 Hit) {
 	if h2.Counters {
 		h.Counters = true
 	}
-	if h2.Drag != DirectionNone {
-		h.Drag = h2.Drag
+	if h2.Drag {
+		h.Drag = true
+	}
+	if h2.Slide.Direction != DirectionNone {
+		h.Slide = h2.Slide
 	}
 }

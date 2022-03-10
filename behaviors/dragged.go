@@ -7,8 +7,6 @@ import (
 )
 
 type Dragged struct {
-	Direction            state.Direction
-	IsBig                bool
 	PostDragParalyzeTime state.Ticks
 
 	dragComplete         bool
@@ -16,12 +14,11 @@ type Dragged struct {
 }
 
 func (eb *Dragged) Flip() {
-	eb.Direction = eb.Direction.FlipH()
 }
 
 func (eb *Dragged) Clone() state.EntityBehavior {
 	return &Dragged{
-		eb.Direction, eb.IsBig, eb.PostDragParalyzeTime,
+		eb.PostDragParalyzeTime,
 		eb.dragComplete, eb.dragCompleteDuration,
 	}
 }
@@ -40,19 +37,13 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	if e.BehaviorElapsedTime()%4 == 0 {
-		if !e.StartMove(getNextDragEndTilePos(e.TilePos, eb.Direction), s.Field) {
-			eb.dragComplete = true
-		}
-	} else if e.BehaviorElapsedTime()%4 == 2 {
-		e.FinishMove()
-		if !eb.IsBig {
-			eb.dragComplete = true
-		}
+	if e.SlideState.Slide.Direction == state.DirectionNone {
+		eb.dragComplete = true
 	}
 }
 
 func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	rootNode := &draw.OptionsNode{}
 	var childNode draw.Node
 	if eb.PostDragParalyzeTime > 0 {
 		childNode = (&Paralyzed{Duration: 0}).Appearance(e, b)
@@ -60,22 +51,6 @@ func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		childNode = draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.FlinchAnimation.Frames[eb.dragCompleteDuration])
 	}
 
-	rootNode := &draw.OptionsNode{}
-	if !eb.dragComplete {
-		// TODO: Render this correctly on the other side of the screen.
-		dx, dy := eb.Direction.XY()
-		offset := (int(e.BehaviorElapsedTime())+2+4)%4 - 2
-		dx *= offset
-		dy *= offset
-
-		rootNode.Opts.GeoM.Translate(float64(dx*state.TileRenderedWidth/4), float64(dy*(state.TileRenderedHeight/4)))
-	}
 	rootNode.Children = append(rootNode.Children, childNode)
 	return rootNode
-}
-
-func getNextDragEndTilePos(tilePos state.TilePos, direction state.Direction) state.TilePos {
-	x, y := tilePos.XY()
-	dx, dy := direction.XY()
-	return state.TilePosXY(x+dx, y+dy)
 }

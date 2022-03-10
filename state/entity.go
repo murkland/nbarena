@@ -33,6 +33,16 @@ type EntityPerTickState struct {
 	DoubleDamageWasConsumed bool
 }
 
+type Slide struct {
+	Direction Direction
+	IsBig     bool
+}
+
+type SlideState struct {
+	Slide       Slide
+	ElapsedTime Ticks
+}
+
 type Entity struct {
 	id int
 
@@ -75,7 +85,7 @@ type Entity struct {
 	IsFullSynchro bool
 	IsCounterable bool
 
-	SlideDirection Direction
+	SlideState SlideState
 
 	Hit          Hit
 	PerTickState EntityPerTickState
@@ -90,6 +100,7 @@ func (e *Entity) Flip() {
 	e.IsFlipped = !e.IsFlipped
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
+	e.SlideState.Slide.Direction = e.SlideState.Slide.Direction.FlipH()
 	e.behavior.Flip()
 }
 
@@ -109,7 +120,7 @@ func (e *Entity) Clone() *Entity {
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro, e.IsCounterable,
-		e.SlideDirection,
+		e.SlideState,
 		e.Hit, e.PerTickState,
 	}
 }
@@ -187,7 +198,16 @@ func BehaviorIs[T EntityBehavior](behavior EntityBehavior) bool {
 func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.TilePos.XY()
-	rootNode.Opts.GeoM.Translate(float64((x-1)*TileRenderedWidth+TileRenderedWidth/2), float64((y-1)*TileRenderedHeight+TileRenderedHeight/2))
+
+	dx, dy := e.SlideState.Slide.Direction.XY()
+	offset := (int(e.SlideState.ElapsedTime)+2+4)%4 - 2
+	dx *= offset
+	dy *= offset
+
+	rootNode.Opts.GeoM.Translate(
+		float64((x-1)*TileRenderedWidth+TileRenderedWidth/2+dx*TileRenderedWidth/4),
+		float64((y-1)*TileRenderedHeight+TileRenderedHeight/2+dy*TileRenderedHeight/4),
+	)
 
 	characterNode := &draw.OptionsNode{}
 	if e.IsFlipped {

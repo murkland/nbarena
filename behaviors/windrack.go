@@ -35,7 +35,9 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
 				h.Counters = true
-				h.Drag = e.Facing()
+				h.Drag = true
+				h.Slide.Direction = e.Facing()
+				h.Slide.IsBig = true
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)
 			}
