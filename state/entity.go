@@ -264,7 +264,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 			// Render HP.
 			hpText := strconv.Itoa(int(e.DisplayHP))
 			rect := text.BoundString(b.TinyNumFont, hpText)
-			hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(rect.Dy()/2))
+			hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(4))
 
 			for dx := -1; dx <= 1; dx++ {
 				for dy := -1; dy <= 1; dy++ {
