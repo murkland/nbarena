@@ -171,6 +171,7 @@ type Bundle struct {
 	MuzzleFlashSprites *Sprites
 	AreaGrabSprites    *Sprites
 	SwordSprites       *SwordSprites
+	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
 	SlashSprites       *SlashSprites
 	WindSlashSprites   *Sprites
@@ -255,6 +256,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 	loader.Add(ctx, l, "assets/sprites/0075.png", &b.MuzzleFlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0088.png", &b.AreaGrabSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0089.png", &b.SlashSprites, makeSpriteLoader(func(sheet *Sheet) *SlashSprites {
