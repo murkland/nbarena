@@ -48,7 +48,7 @@ var Chips = []state.Chip{
 	},
 	{
 		Index:  6,
-		Name:   "Vulcan2",
+		Name:   "Vulcan3",
 		Damage: 20,
 		OnUse: func(s *state.State, e *state.Entity) {
 			e.ReplaceBehavior(&behaviors.Vulcan{Shots: 5, Damage: 20}, s)
