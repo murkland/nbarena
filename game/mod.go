@@ -158,9 +158,13 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 
 			TilePos:       state.TilePosXY(2, 2),
 			FutureTilePos: state.TilePosXY(2, 2),
+
+			BehaviorState: state.EntityBehaviorState{
+				Behavior: &behaviors.Idle{},
+			},
 		}
-		e.SetBehavior(&behaviors.Idle{}, s)
-		offererEntityID = s.AddEntity(e)
+		s.AddEntity(e)
+		offererEntityID = e.ID()
 		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 
@@ -179,9 +183,13 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 
 			TilePos:       state.TilePosXY(5, 2),
 			FutureTilePos: state.TilePosXY(5, 2),
+
+			BehaviorState: state.EntityBehaviorState{
+				Behavior: &behaviors.Idle{},
+			},
 		}
-		e.SetBehavior(&behaviors.Idle{}, s)
-		answererEntityID = s.AddEntity(e)
+		s.AddEntity(e)
+		answererEntityID = e.ID()
 		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 

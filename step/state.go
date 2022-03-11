@@ -10,7 +10,7 @@ import (
 )
 
 func resolveHit(e *state.Entity, s *state.State) {
-	if e.Hit.RemovesFlashing {
+	if e.Hit.Traits.RemovesFlashing {
 		e.FlashingTimeLeft = 0
 	}
 
@@ -40,97 +40,97 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 	e.Hit.TotalDamage = 0
 
-	if e.Hit.Flinch && !e.Traits.CannotFlinch {
+	if e.Hit.Traits.Flinch && !e.Traits.CannotFlinch {
 		e.FinishMove(s)
-		e.SetBehavior(&behaviors.Flinch{}, s)
+		e.ReplaceBehavior(&behaviors.Flinch{}, s)
 	}
-	e.Hit.Flinch = false
+	e.Hit.Traits.Flinch = false
 
-	if e.IsCounterable && e.Hit.Counters {
+	if e.IsCounterable && e.Hit.Traits.Counters {
 		e.FlashingTimeLeft = 0
 		e.FinishMove(s)
-		e.SetBehavior(&behaviors.Paralyzed{Duration: 150}, s)
+		e.ReplaceBehavior(&behaviors.Paralyzed{Duration: 150}, s)
 	}
-	e.Hit.Counters = false
+	e.Hit.Traits.Counters = false
 
 	if e.SlideState.Slide.Direction != state.DirectionNone {
 		// TODO: Is this even in the right place?
 		e.SlideState.ElapsedTime++
 	}
 
-	if !e.Hit.Drag {
+	if !e.Hit.Traits.Drag {
 		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-			if e.Hit.Slide.Direction != state.DirectionNone {
-				e.SlideState.Slide = e.Hit.Slide
+			if e.Hit.Traits.Slide.Direction != state.DirectionNone {
+				e.SlideState.Slide = e.Hit.Traits.Slide
 				e.SlideState.ElapsedTime = 0
-				e.Hit.Slide = state.Slide{}
+				e.Hit.Traits.Slide = state.Slide{}
 			}
 			resolveSlide(e, s)
 
 			// Process flashing.
-			if e.Hit.FlashTime > 0 {
-				e.FlashingTimeLeft = e.Hit.FlashTime
-				e.Hit.FlashTime = 0
+			if e.Hit.Traits.FlashTime > 0 {
+				e.FlashingTimeLeft = e.Hit.Traits.FlashTime
+				e.Hit.Traits.FlashTime = 0
 			}
 			if e.FlashingTimeLeft > 0 {
 				e.FlashingTimeLeft--
 			}
 
 			// Process paralyzed.
-			if e.Hit.ParalyzeTime > 0 {
+			if e.Hit.Traits.ParalyzeTime > 0 {
 				e.FinishMove(s)
-				e.SetBehavior(&behaviors.Paralyzed{Duration: e.Hit.ParalyzeTime}, s)
-				e.Hit.ConfuseTime = 0
-				e.Hit.ParalyzeTime = 0
+				e.ReplaceBehavior(&behaviors.Paralyzed{Duration: e.Hit.Traits.ParalyzeTime}, s)
+				e.Hit.Traits.ConfuseTime = 0
+				e.Hit.Traits.ParalyzeTime = 0
 			}
 
 			// Process frozen.
-			if e.Hit.FreezeTime > 0 {
+			if e.Hit.Traits.FreezeTime > 0 {
 				e.FinishMove(s)
-				e.SetBehavior(&behaviors.Frozen{Duration: e.Hit.FreezeTime}, s)
-				e.Hit.BubbleTime = 0
-				e.Hit.ConfuseTime = 0
-				e.Hit.FreezeTime = 0
+				e.ReplaceBehavior(&behaviors.Frozen{Duration: e.Hit.Traits.FreezeTime}, s)
+				e.Hit.Traits.BubbleTime = 0
+				e.Hit.Traits.ConfuseTime = 0
+				e.Hit.Traits.FreezeTime = 0
 			}
 
 			// Process bubbled.
-			if e.Hit.BubbleTime > 0 {
+			if e.Hit.Traits.BubbleTime > 0 {
 				e.FinishMove(s)
-				e.SetBehavior(&behaviors.Bubbled{Duration: e.Hit.BubbleTime}, s)
+				e.ReplaceBehavior(&behaviors.Bubbled{Duration: e.Hit.Traits.BubbleTime}, s)
 				e.ConfusedTimeLeft = 0
-				e.Hit.ConfuseTime = 0
-				e.Hit.BubbleTime = 0
+				e.Hit.Traits.ConfuseTime = 0
+				e.Hit.Traits.BubbleTime = 0
 			}
 
 			// Process confused.
-			if e.Hit.ConfuseTime > 0 {
-				e.ConfusedTimeLeft = e.Hit.ConfuseTime
+			if e.Hit.Traits.ConfuseTime > 0 {
+				e.ConfusedTimeLeft = e.Hit.Traits.ConfuseTime
 				// TODO: Double check if this is correct.
 				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-					e.SetBehavior(&behaviors.Idle{}, s)
+					e.ReplaceBehavior(&behaviors.Idle{}, s)
 				}
-				e.Hit.FreezeTime = 0
-				e.Hit.BubbleTime = 0
-				e.Hit.ParalyzeTime = 0
-				e.Hit.ConfuseTime = 0
+				e.Hit.Traits.FreezeTime = 0
+				e.Hit.Traits.BubbleTime = 0
+				e.Hit.Traits.ParalyzeTime = 0
+				e.Hit.Traits.ConfuseTime = 0
 			}
 			if e.ConfusedTimeLeft > 0 {
 				e.ConfusedTimeLeft--
 			}
 
 			// Process immobilized.
-			if e.Hit.ImmobilizeTime > 0 {
-				e.ImmobilizedTimeLeft = e.Hit.ImmobilizeTime
-				e.Hit.ImmobilizeTime = 0
+			if e.Hit.Traits.ImmobilizeTime > 0 {
+				e.ImmobilizedTimeLeft = e.Hit.Traits.ImmobilizeTime
+				e.Hit.Traits.ImmobilizeTime = 0
 			}
 			if e.ImmobilizedTimeLeft > 0 {
 				e.ImmobilizedTimeLeft--
 			}
 
 			// Process blinded.
-			if e.Hit.BlindTime > 0 {
-				e.BlindedTimeLeft = e.Hit.BlindTime
-				e.Hit.BlindTime = 0
+			if e.Hit.Traits.BlindTime > 0 {
+				e.BlindedTimeLeft = e.Hit.Traits.BlindTime
+				e.Hit.Traits.BlindTime = 0
 			}
 			if e.BlindedTimeLeft > 0 {
 				e.BlindedTimeLeft--
@@ -149,11 +149,11 @@ func resolveHit(e *state.Entity, s *state.State) {
 			postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
 		}
 		e.FinishMove(s)
-		e.SetBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
-		e.SlideState.Slide = e.Hit.Slide
+		e.ReplaceBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
+		e.SlideState.Slide = e.Hit.Traits.Slide
 		e.SlideState.ElapsedTime = 0
-		e.Hit.Drag = false
-		e.Hit.Slide = state.Slide{}
+		e.Hit.Traits.Drag = false
+		e.Hit.Traits.Slide = state.Slide{}
 	}
 
 	if state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {

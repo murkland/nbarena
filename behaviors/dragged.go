@@ -31,9 +31,9 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 		eb.dragCompleteDuration++
 		if eb.dragCompleteDuration == 24 {
 			if eb.PostDragParalyzeTime > 0 {
-				e.SetBehavior(&Paralyzed{Duration: eb.PostDragParalyzeTime}, s)
+				e.ReplaceBehavior(&Paralyzed{Duration: eb.PostDragParalyzeTime}, s)
 			} else {
-				e.SetBehavior(&Idle{}, s)
+				e.ReplaceBehavior(&Idle{}, s)
 			}
 			return
 		}

@@ -11,7 +11,7 @@ var Chips = []state.Chip{
 		Name:   "Cannon",
 		Damage: 40,
 		OnUse: func(s *state.State, e *state.Entity) {
-			e.SetBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleCannon, Damage: 40}, s)
+			e.ReplaceBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleCannon, Damage: 40}, s)
 		},
 	},
 	{
@@ -19,7 +19,7 @@ var Chips = []state.Chip{
 		Name:   "HiCannon",
 		Damage: 100,
 		OnUse: func(s *state.State, e *state.Entity) {
-			e.SetBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleHiCannon, Damage: 100}, s)
+			e.ReplaceBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleHiCannon, Damage: 100}, s)
 		},
 	},
 	{
@@ -27,7 +27,7 @@ var Chips = []state.Chip{
 		Name:   "M-Cannon",
 		Damage: 180,
 		OnUse: func(s *state.State, e *state.Entity) {
-			e.SetBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleMCannon, Damage: 180}, s)
+			e.ReplaceBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleMCannon, Damage: 180}, s)
 		},
 	},
 	{
@@ -35,7 +35,7 @@ var Chips = []state.Chip{
 		Name:   "WideBlde",
 		Damage: 150,
 		OnUse: func(s *state.State, e *state.Entity) {
-			e.SetBehavior(&behaviors.Sword{Damage: 150, Style: behaviors.SwordStyleBlade, Range: behaviors.SwordRangeWide}, s)
+			e.ReplaceBehavior(&behaviors.Sword{Damage: 150, Style: behaviors.SwordStyleBlade, Range: behaviors.SwordRangeWide}, s)
 		},
 	},
 	{
@@ -43,7 +43,7 @@ var Chips = []state.Chip{
 		Name:   "WindRack",
 		Damage: 140,
 		OnUse: func(s *state.State, e *state.Entity) {
-			e.SetBehavior(&behaviors.WindRack{Damage: 140}, s)
+			e.ReplaceBehavior(&behaviors.WindRack{Damage: 140}, s)
 		},
 	},
 	{

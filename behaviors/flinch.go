@@ -18,7 +18,7 @@ func (eb *Flinch) Clone() state.EntityBehavior {
 
 func (eb *Flinch) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 24 {
-		e.SetBehavior(&Idle{}, s)
+		e.ReplaceBehavior(&Idle{}, s)
 	}
 }
 

@@ -34,29 +34,14 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 16 {
 		x, y := e.TilePos.XY()
-		if e.IsFlipped {
-			x--
-		} else {
-			x++
-		}
-
-		shot := &state.Entity{
-			TilePos: state.TilePosXY(x, y),
-
-			IsFlipped:            e.IsFlipped,
-			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
-
-			Traits: state.EntityTraits{
-				CanStepOnHoleLikeTiles: true,
-				IgnoresTileEffects:     true,
-				CannotFlinch:           true,
-				IgnoresTileOwnership:   true,
-			},
-		}
-		shot.SetBehavior(&cannonShot{e.MakeDamageAndConsume(eb.Damage)}, s)
-		s.AddEntity(shot)
+		dx := query.DXForward(e.IsFlipped)
+		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), e.MakeDamageAndConsume(eb.Damage), state.HitTraits{
+			Flinch:    true,
+			Counters:  true,
+			FlashTime: state.DefaultFlashTime,
+		}))
 	} else if e.BehaviorState.ElapsedTime == 33 {
-		e.SetBehavior(&Idle{}, s)
+		e.ReplaceBehavior(&Idle{}, s)
 	}
 }
 
@@ -82,48 +67,4 @@ func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	}
 	cannonNode.Children = append(cannonNode.Children, draw.ImageWithFrame(img, b.CannonSprites.Animation.Frames[e.BehaviorState.ElapsedTime]))
 	return rootNode
-}
-
-type cannonShot struct {
-	damage state.Damage
-}
-
-func (eb *cannonShot) Flip() {
-}
-
-func (eb *cannonShot) Clone() state.EntityBehavior {
-	return &cannonShot{
-		eb.damage,
-	}
-}
-
-func (eb *cannonShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return nil
-}
-
-func (eb *cannonShot) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime%2 == 1 {
-		x, y := e.TilePos.XY()
-		x += query.DXForward(e.IsFlipped)
-		if !e.MoveDirectly(state.TilePosXY(x, y)) {
-			e.PerTickState.IsPendingDeletion = true
-			return
-		}
-	}
-
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
-			continue
-		}
-
-		var h state.Hit
-		h.Flinch = true
-		h.Counters = true
-		h.FlashTime = state.DefaultFlashTime
-		h.AddDamage(eb.damage)
-		target.Hit.Merge(h)
-
-		e.PerTickState.IsPendingDeletion = true
-		return
-	}
 }

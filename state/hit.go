@@ -12,9 +12,7 @@ type Damage struct {
 	AttackPlus   int
 }
 
-type Hit struct {
-	TotalDamage int
-
+type HitTraits struct {
 	FlashTime      Ticks
 	ParalyzeTime   Ticks
 	ConfuseTime    Ticks
@@ -33,6 +31,11 @@ type Hit struct {
 	Flinch                bool
 }
 
+type Hit struct {
+	Traits      HitTraits
+	TotalDamage int
+}
+
 func (h *Hit) AddDamage(d Damage) {
 	v := d.Base + d.AttackPlus
 	if d.DoubleDamage {
@@ -40,7 +43,7 @@ func (h *Hit) AddDamage(d Damage) {
 	}
 	h.TotalDamage += v
 	if d.ParalyzeTime > 0 {
-		h.ParalyzeTime = d.ParalyzeTime
+		h.Traits.ParalyzeTime = d.ParalyzeTime
 	}
 }
 
@@ -48,37 +51,37 @@ func (h *Hit) Merge(h2 Hit) {
 	h.TotalDamage += h2.TotalDamage
 
 	// TODO: Verify this is correct behavior.
-	if h2.ParalyzeTime > h.ParalyzeTime {
-		h.ParalyzeTime = h2.ParalyzeTime
+	if h2.Traits.ParalyzeTime > h.Traits.ParalyzeTime {
+		h.Traits.ParalyzeTime = h2.Traits.ParalyzeTime
 	}
-	if h2.ConfuseTime > h.ConfuseTime {
-		h.ConfuseTime = h2.ConfuseTime
+	if h2.Traits.ConfuseTime > h.Traits.ConfuseTime {
+		h.Traits.ConfuseTime = h2.Traits.ConfuseTime
 	}
-	if h2.BlindTime > h.BlindTime {
-		h.BlindTime = h2.BlindTime
+	if h2.Traits.BlindTime > h.Traits.BlindTime {
+		h.Traits.BlindTime = h2.Traits.BlindTime
 	}
-	if h2.ImmobilizeTime > h.ImmobilizeTime {
-		h.ImmobilizeTime = h2.ImmobilizeTime
+	if h2.Traits.ImmobilizeTime > h.Traits.ImmobilizeTime {
+		h.Traits.ImmobilizeTime = h2.Traits.ImmobilizeTime
 	}
-	if h2.FreezeTime > h.FreezeTime {
-		h.FreezeTime = h2.FreezeTime
+	if h2.Traits.FreezeTime > h.Traits.FreezeTime {
+		h.Traits.FreezeTime = h2.Traits.FreezeTime
 	}
-	if h2.BubbleTime > h.BubbleTime {
-		h.BubbleTime = h2.BubbleTime
+	if h2.Traits.BubbleTime > h.Traits.BubbleTime {
+		h.Traits.BubbleTime = h2.Traits.BubbleTime
 	}
-	if h2.FlashTime > h.FlashTime {
-		h.FlashTime = h2.FlashTime
+	if h2.Traits.FlashTime > h.Traits.FlashTime {
+		h.Traits.FlashTime = h2.Traits.FlashTime
 	}
-	if h2.Flinch {
-		h.Flinch = true
+	if h2.Traits.Flinch {
+		h.Traits.Flinch = true
 	}
-	if h2.Counters {
-		h.Counters = true
+	if h2.Traits.Counters {
+		h.Traits.Counters = true
 	}
-	if h2.Drag {
-		h.Drag = true
+	if h2.Traits.Drag {
+		h.Traits.Drag = true
 	}
-	if h2.Slide.Direction != DirectionNone {
-		h.Slide = h2.Slide
+	if h2.Traits.Slide.Direction != DirectionNone {
+		h.Traits.Slide = h2.Traits.Slide
 	}
 }

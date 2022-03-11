@@ -30,7 +30,7 @@ func newField() *Field {
 		for i := 0; i < TileCols; i++ {
 			t := &Tile{}
 			if i >= 1 && i < TileCols-1 && j >= 1 && j < TileRows-1 {
-				t.SetBehavior(&NormalTileBehavior{})
+				t.ReplaceBehavior(&NormalTileBehavior{})
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
 			tiles[j*TileCols+i] = t

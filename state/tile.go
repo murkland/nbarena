@@ -47,7 +47,7 @@ func (t *Tile) CanEnter(e *Entity) bool {
 	return t.BehaviorState.Behavior.CanEnter(t, e)
 }
 
-func (t *Tile) SetBehavior(b TileBehavior) {
+func (t *Tile) ReplaceBehavior(b TileBehavior) {
 	t.BehaviorState.ElapsedTime = 0
 	t.BehaviorState.Behavior = b
 	t.BehaviorState.Behavior.Step(t)
@@ -151,7 +151,7 @@ func (tb *BrokenTileBehavior) Step(t *Tile) {
 	if tb.returnToNormalTimeLeft > 0 {
 		tb.returnToNormalTimeLeft--
 		if tb.returnToNormalTimeLeft <= 0 {
-			t.SetBehavior(&NormalTileBehavior{})
+			t.ReplaceBehavior(&NormalTileBehavior{})
 		}
 	}
 }
@@ -195,6 +195,6 @@ func (tb *CrackedTile) OnLeave(t *Tile, e *Entity) {
 	if e.Traits.IgnoresTileEffects {
 		return
 	}
-	t.SetBehavior(&BrokenTileBehavior{})
+	t.ReplaceBehavior(&BrokenTileBehavior{})
 }
 func (tb *CrackedTile) Step(t *Tile) {}

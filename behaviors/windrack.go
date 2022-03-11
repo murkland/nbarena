@@ -34,34 +34,25 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		for _, target := range entities {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
-				h.Counters = true
-				h.Drag = true
-				h.Slide.Direction = e.Facing()
-				h.Slide.IsBig = true
+				h.Traits.Counters = true
+				h.Traits.Drag = true
+				h.Traits.Slide.Direction = e.Facing()
+				h.Traits.Slide.IsBig = true
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)
 			}
 		}
 
 		for i := 1; i <= 3; i++ {
-			shot := &state.Entity{
-				TilePos: state.TilePosXY(x+dx, i),
-
-				IsFlipped:            e.IsFlipped,
-				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
-
-				Traits: state.EntityTraits{
-					CanStepOnHoleLikeTiles: true,
-					IgnoresTileEffects:     true,
-					CannotFlinch:           true,
-					IgnoresTileOwnership:   true,
+			s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, i), state.Damage{Base: 0}, state.HitTraits{
+				Slide: state.Slide{
+					Direction: e.Facing(),
+					IsBig:     true,
 				},
-			}
-			shot.SetBehavior(&windRackGust{e.Facing()}, s)
-			s.AddEntity(shot)
+			}))
 		}
 	} else if e.BehaviorState.ElapsedTime == 27 {
-		e.SetBehavior(&Idle{}, s)
+		e.ReplaceBehavior(&Idle{}, s)
 	}
 }
 
@@ -126,8 +117,8 @@ func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
 		}
 
 		var h state.Hit
-		h.Slide.Direction = eb.direction
-		h.Slide.IsBig = true
+		h.Traits.Slide.Direction = eb.direction
+		h.Traits.Slide.IsBig = true
 		target.Hit.Merge(h)
 
 		// Gust doesn't stop on hit.

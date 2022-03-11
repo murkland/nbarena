@@ -159,7 +159,7 @@ func (e *Entity) UseChip(s *State) bool {
 	return true
 }
 
-func (e *Entity) SetBehavior(behavior EntityBehavior, s *State) {
+func (e *Entity) ReplaceBehavior(behavior EntityBehavior, s *State) {
 	e.BehaviorState = EntityBehaviorState{behavior, 0}
 	e.BehaviorState.Behavior.Step(e, s)
 }

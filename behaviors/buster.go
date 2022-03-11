@@ -48,7 +48,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
 
 	if realElapsedTime == 5+eb.cooldownTime {
-		e.SetBehavior(&Idle{}, s)
+		e.ReplaceBehavior(&Idle{}, s)
 		return
 	}
 
@@ -57,32 +57,13 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		eb.cooldownTime = busterCooldownDurations[0][d]
 
 		x, y := e.TilePos.XY()
-		if e.IsFlipped {
-			x--
-		} else {
-			x++
-		}
-
-		shot := &state.Entity{
-			TilePos: state.TilePosXY(x, y),
-
-			IsFlipped:            e.IsFlipped,
-			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
-
-			Traits: state.EntityTraits{
-				CanStepOnHoleLikeTiles: true,
-				IgnoresTileEffects:     true,
-				CannotFlinch:           true,
-				IgnoresTileOwnership:   true,
-			},
-		}
+		dx := query.DXForward(e.IsFlipped)
 
 		damage := eb.BaseDamage
 		if eb.IsPowerShot {
 			damage *= 10
 		}
-		shot.SetBehavior(&busterShot{damage}, s)
-		s.AddEntity(shot)
+		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), state.Damage{Base: damage}, state.HitTraits{}))
 	}
 
 	if e.Intent.Direction != state.DirectionNone && realElapsedTime >= 5 {
@@ -95,7 +76,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		dx, dy := dir.XY()
 
 		if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-			e.SetBehavior(&Teleport{}, s)
+			e.ReplaceBehavior(&Teleport{}, s)
 		}
 	}
 
@@ -137,45 +118,4 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	}
 
 	return rootNode
-}
-
-type busterShot struct {
-	damage int
-}
-
-func (eb *busterShot) Flip() {
-}
-
-func (eb *busterShot) Clone() state.EntityBehavior {
-	return &busterShot{
-		eb.damage,
-	}
-}
-
-func (eb *busterShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return nil
-}
-
-func (eb *busterShot) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime%2 == 1 {
-		x, y := e.TilePos.XY()
-		x += query.DXForward(e.IsFlipped)
-		if !e.MoveDirectly(state.TilePosXY(x, y)) {
-			e.PerTickState.IsPendingDeletion = true
-			return
-		}
-	}
-
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
-			continue
-		}
-
-		var h state.Hit
-		h.AddDamage(state.Damage{Base: eb.damage})
-		target.Hit.Merge(h)
-
-		e.PerTickState.IsPendingDeletion = true
-		return
-	}
 }
