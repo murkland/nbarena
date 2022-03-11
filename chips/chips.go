@@ -78,10 +78,10 @@ var Chips = []state.Chip{
 			e.ReplaceBehavior(&behaviors.WindRack{Damage: 140}, s)
 		},
 	},
-	{
-		Index: 162,
-		Name:  "AreaGrab",
-		OnUse: func(s *state.State, e *state.Entity) {
-		},
-	},
+	// {
+	// 	Index: 162,
+	// 	Name:  "AreaGrab",
+	// 	OnUse: func(s *state.State, e *state.Entity) {
+	// 	},
+	// },
 }

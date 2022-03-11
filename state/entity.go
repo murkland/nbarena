@@ -86,7 +86,6 @@ type Entity struct {
 	ChipUseQueued          bool
 	ChipUseLockoutTimeLeft Ticks
 
-	ChargingElapsedTime Ticks
 	PowerShotChargeTime Ticks
 
 	ConfusedTimeLeft    Ticks
@@ -130,7 +129,7 @@ func (e *Entity) Clone() *Entity {
 		e.HP, e.DisplayHP,
 		e.Traits,
 		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
-		e.ChargingElapsedTime, e.PowerShotChargeTime,
+		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro,
 		e.SlideState,
@@ -241,18 +240,6 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
 	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
-
-	if e.ChargingElapsedTime >= 10 {
-		chargingNode := &draw.OptionsNode{}
-		characterNode.Children = append(characterNode.Children, chargingNode)
-
-		frames := b.ChargingSprites.ChargingAnimation.Frames
-		if e.ChargingElapsedTime >= e.PowerShotChargeTime {
-			frames = b.ChargingSprites.ChargedAnimation.Frames
-		}
-		frame := frames[int(e.ChargingElapsedTime)%len(frames)]
-		chargingNode.Children = append(chargingNode.Children, draw.ImageWithFrame(b.ChargingSprites.Image, frame))
-	}
 
 	rootNode.Children = append(rootNode.Children, characterNode)
 

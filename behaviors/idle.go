@@ -7,13 +7,14 @@ import (
 )
 
 type Idle struct {
+	ChargingElapsedTime state.Ticks
 }
 
 func (eb *Idle) Flip() {
 }
 
 func (eb *Idle) Clone() state.EntityBehavior {
-	return &Idle{}
+	return &Idle{eb.ChargingElapsedTime}
 }
 
 func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
@@ -27,13 +28,13 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	}
 
 	if e.Intent.ChargeBasicWeapon {
-		e.ChargingElapsedTime++
+		eb.ChargingElapsedTime++
 	}
 
-	if e.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
+	if eb.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
 		// Release buster shot.
-		e.ReplaceBehavior(&Buster{BaseDamage: 1, IsPowerShot: e.ChargingElapsedTime >= e.PowerShotChargeTime}, s)
-		e.ChargingElapsedTime = 0
+		e.ReplaceBehavior(&Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}, s)
+		eb.ChargingElapsedTime = 0
 	}
 
 	dir := e.Intent.Direction
@@ -45,12 +46,26 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	dx, dy := dir.XY()
 
 	if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-		e.ReplaceBehavior(&Teleport{}, s)
+		e.ReplaceBehavior(&Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}, s)
 	}
 }
 
 func (eb *Idle) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	frames := b.MegamanSprites.IdleAnimation.Frames
-	frame := frames[int(e.BehaviorState.ElapsedTime)%len(frames)]
-	return draw.ImageWithFrame(b.MegamanSprites.Image, frame)
+	rootNode := &draw.OptionsNode{}
+
+	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation.Frames[int(e.BehaviorState.ElapsedTime)%len(b.MegamanSprites.IdleAnimation.Frames)]))
+
+	if eb.ChargingElapsedTime >= 10 {
+		chargingNode := &draw.OptionsNode{}
+		rootNode.Children = append(rootNode.Children, chargingNode)
+
+		frames := b.ChargingSprites.ChargingAnimation.Frames
+		if eb.ChargingElapsedTime >= e.PowerShotChargeTime {
+			frames = b.ChargingSprites.ChargedAnimation.Frames
+		}
+		frame := frames[int(eb.ChargingElapsedTime)%len(frames)]
+		chargingNode.Children = append(chargingNode.Children, draw.ImageWithFrame(b.ChargingSprites.Image, frame))
+	}
+
+	return rootNode
 }
