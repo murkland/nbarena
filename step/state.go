@@ -65,6 +65,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 				e.SlideState.ElapsedTime = 0
 				e.Hit.Slide = state.Slide{}
 			}
+			resolveSlide(e, s)
 
 			// Process flashing.
 			if e.Hit.FlashTime > 0 {
@@ -154,6 +155,11 @@ func resolveHit(e *state.Entity, s *state.State) {
 		e.Hit.Drag = false
 		e.Hit.Slide = state.Slide{}
 	}
+
+	if state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
+		// Resolve drag-based slide.
+		resolveSlide(e, s)
+	}
 }
 
 func resolveSlide(e *state.Entity, s *state.State) {
@@ -206,7 +212,6 @@ func Step(s *state.State) {
 	})
 	for _, e := range pending {
 		resolveHit(e, s)
-		resolveSlide(e, s)
 
 		if e.HP == 0 {
 			// Do something special.
