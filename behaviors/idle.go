@@ -23,6 +23,7 @@ func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
+		// TODO: Add 1 frame delay between losing chip and switching to chip behavior.
 		e.UseChip(s)
 		return
 	}
