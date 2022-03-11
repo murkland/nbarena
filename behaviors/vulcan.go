@@ -51,7 +51,7 @@ func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	var megamanImageNode draw.Node
 
 	if e.BehaviorState.ElapsedTime < 2 {
-		megamanImageNode = draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.GattlingAnimation.Frames[0])
+		megamanImageNode = draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.HoldInFrontAnimation.Frames[int(e.BehaviorState.ElapsedTime)%len(b.MegamanSprites.HoldInFrontAnimation.Frames)])
 	} else {
 		megamanImageNode = draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.GattlingAnimation.Frames[int(e.BehaviorState.ElapsedTime-2)%len(b.MegamanSprites.GattlingAnimation.Frames)])
 	}
