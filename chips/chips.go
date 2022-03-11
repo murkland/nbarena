@@ -23,11 +23,43 @@ var Chips = []state.Chip{
 		},
 	},
 	{
-		Index:  1,
+		Index:  2,
 		Name:   "M-Cannon",
 		Damage: 180,
 		OnUse: func(s *state.State, e *state.Entity) {
 			e.ReplaceBehavior(&behaviors.Cannon{Style: behaviors.CannonStyleMCannon, Damage: 180}, s)
+		},
+	},
+	{
+		Index:  4,
+		Name:   "Vulcan1",
+		Damage: 10,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.ReplaceBehavior(&behaviors.Vulcan{Shots: 3, Damage: 10}, s)
+		},
+	},
+	{
+		Index:  5,
+		Name:   "Vulcan2",
+		Damage: 15,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.ReplaceBehavior(&behaviors.Vulcan{Shots: 4, Damage: 15}, s)
+		},
+	},
+	{
+		Index:  6,
+		Name:   "Vulcan2",
+		Damage: 20,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.ReplaceBehavior(&behaviors.Vulcan{Shots: 5, Damage: 20}, s)
+		},
+	},
+	{
+		Index:  7,
+		Name:   "SuprVulc",
+		Damage: 20,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.ReplaceBehavior(&behaviors.Vulcan{Shots: 10, Damage: 20}, s)
 		},
 	},
 	{
