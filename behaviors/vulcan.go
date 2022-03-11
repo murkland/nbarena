@@ -22,6 +22,12 @@ func (eb *Vulcan) Clone() state.EntityBehavior {
 	}
 }
 
+func (eb *Vulcan) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 	// TODO: Counter timing.
 

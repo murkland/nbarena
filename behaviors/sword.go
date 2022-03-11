@@ -48,6 +48,12 @@ type Sword struct {
 func (eb *Sword) Flip() {
 }
 
+func (eb *Sword) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
 		eb.Range,

@@ -13,6 +13,10 @@ type Bubbled struct {
 func (eb *Bubbled) Flip() {
 }
 
+func (eb *Bubbled) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Bubbled) Clone() state.EntityBehavior {
 	return &Bubbled{}
 }

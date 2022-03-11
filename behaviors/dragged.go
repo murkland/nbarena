@@ -19,6 +19,10 @@ type Dragged struct {
 func (eb *Dragged) Flip() {
 }
 
+func (eb *Dragged) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Dragged) Clone() state.EntityBehavior {
 	return &Dragged{
 		eb.PostDragParalyzeTime,

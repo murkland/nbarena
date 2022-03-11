@@ -14,9 +14,24 @@ func resolveHit(e *state.Entity, s *state.State) {
 		e.FlashingTimeLeft = 0
 	}
 
+	if e.Traits.CannotFlinch {
+		// TODO: Double check if this
+		e.Hit.Traits.Flinch = false
+	}
+
 	if e.FlashingTimeLeft > 0 {
 		e.Hit = state.Hit{}
 	}
+
+	// From Alyrsc#7506:
+	// I was mostly sure that it's frames 2-16 of an action.
+	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
+	// TODO: Check the code for this.
+	if e.BehaviorState.Behavior.Traits(e).CanBeCountered && e.BehaviorState.ElapsedTime >= 1 && e.BehaviorState.ElapsedTime < 16 && e.Hit.Traits.Counters {
+		e.Hit.Traits.FlashTime = 0
+		e.Hit.Traits.ParalyzeTime = 150
+	}
+	e.Hit.Traits.Counters = false
 
 	// Set anger, if required.
 	if e.Hit.TotalDamage >= 300 {
@@ -40,18 +55,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	}
 	e.Hit.TotalDamage = 0
 
-	if e.Hit.Traits.Flinch && !e.Traits.CannotFlinch {
-		e.FinishMove(s)
-		e.ReplaceBehavior(&behaviors.Flinch{}, s)
-	}
-	e.Hit.Traits.Flinch = false
-
-	if e.IsCounterable && e.Hit.Traits.Counters {
-		e.FlashingTimeLeft = 0
-		e.FinishMove(s)
-		e.ReplaceBehavior(&behaviors.Paralyzed{Duration: 150}, s)
-	}
-	e.Hit.Traits.Counters = false
+	// TODO: Pop bubble, if required.
 
 	if e.SlideState.Slide.Direction != state.DirectionNone {
 		// TODO: Is this even in the right place?
@@ -66,6 +70,19 @@ func resolveHit(e *state.Entity, s *state.State) {
 				e.Hit.Traits.Slide = state.Slide{}
 			}
 			resolveSlide(e, s)
+
+			if e.Hit.Traits.Flinch {
+				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) && e.Hit.Traits.FlashTime == 0 {
+					e.Hit.Traits.Flinch = false
+				}
+
+				if e.Hit.Traits.Flinch {
+					// TODO: This should probably not be here...
+					e.FinishMove(s)
+					e.ReplaceBehavior(&behaviors.Flinch{}, s)
+				}
+			}
+			e.Hit.Traits.Flinch = false
 
 			// Process flashing.
 			if e.Hit.Traits.FlashTime > 0 {
@@ -140,13 +157,14 @@ func resolveHit(e *state.Entity, s *state.State) {
 			if e.InvincibleTimeLeft > 0 {
 				e.InvincibleTimeLeft--
 			}
-		} else {
-			// TODO: Interrupt player.
 		}
 	} else {
 		var postDragParalyzeTime state.Ticks
-		if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
-			postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
+		if e.Hit.Traits.FlashTime == 0 {
+			// Only add post drag paralysis if we're not going to be flashing afterwards.
+			if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
+				postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
+			}
 		}
 		e.FinishMove(s)
 		e.ReplaceBehavior(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}, s)
@@ -196,7 +214,7 @@ func Step(s *state.State) {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
 	for _, e := range pending {
-		if !s.IsInTimeStop || state.BehaviorIs[state.TimestopMaskedEntityBehavior](e.BehaviorState.Behavior) {
+		if !s.IsInTimeStop || e.BehaviorState.Behavior.Traits(e).RunsInTimestop {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}

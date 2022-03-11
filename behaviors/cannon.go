@@ -24,6 +24,12 @@ type Cannon struct {
 func (eb *Cannon) Flip() {
 }
 
+func (eb *Cannon) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *Cannon) Clone() state.EntityBehavior {
 	return &Cannon{
 		eb.Style,

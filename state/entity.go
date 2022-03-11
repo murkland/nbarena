@@ -42,6 +42,11 @@ type SlideState struct {
 	ElapsedTime Ticks
 }
 
+type EntityBehaviorTraits struct {
+	CanBeCountered bool
+	RunsInTimestop bool
+}
+
 type EntityBehaviorState struct {
 	Behavior    EntityBehavior
 	ElapsedTime Ticks
@@ -49,14 +54,6 @@ type EntityBehaviorState struct {
 
 func (s EntityBehaviorState) Clone() EntityBehaviorState {
 	return EntityBehaviorState{s.Behavior.Clone(), s.ElapsedTime}
-}
-
-type TimestopMaskedEntityBehavior struct {
-	EntityBehavior
-}
-
-func (t TimestopMaskedEntityBehavior) Clone() EntityBehavior {
-	return TimestopMaskedEntityBehavior{t.EntityBehavior.Clone()}
 }
 
 type EntityID int
@@ -100,7 +97,6 @@ type Entity struct {
 
 	IsAngry       bool
 	IsFullSynchro bool
-	IsCounterable bool
 
 	SlideState SlideState
 
@@ -136,7 +132,7 @@ func (e *Entity) Clone() *Entity {
 		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChargingElapsedTime, e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
-		e.IsAngry, e.IsFullSynchro, e.IsCounterable,
+		e.IsAngry, e.IsFullSynchro,
 		e.SlideState,
 		e.Hit, e.PerTickState,
 	}
@@ -350,5 +346,6 @@ type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Flip()
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
+	Traits(e *Entity) EntityBehaviorTraits
 	Step(e *Entity, s *State)
 }

@@ -13,6 +13,10 @@ type areaGrabBall struct {
 func (eb *areaGrabBall) Flip() {
 }
 
+func (eb *areaGrabBall) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *areaGrabBall) Clone() state.EntityBehavior {
 	return &areaGrabBall{}
 }

@@ -20,6 +20,12 @@ func (eb *WindRack) Clone() state.EntityBehavior {
 	}
 }
 
+func (eb *WindRack) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 	// TODO: Counter timing.
 
@@ -97,6 +103,10 @@ func (eb *windRackGust) Clone() state.EntityBehavior {
 	return &windRackGust{
 		eb.direction,
 	}
+}
+
+func (eb *windRackGust) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
 }
 
 func (eb *windRackGust) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

@@ -16,6 +16,10 @@ type Teleport struct {
 func (eb *Teleport) Flip() {
 }
 
+func (eb *Teleport) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Teleport) Clone() state.EntityBehavior {
 	return &Teleport{eb.useChip}
 }
