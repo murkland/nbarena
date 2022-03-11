@@ -97,8 +97,8 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				target.Hit.Merge(h)
 			}
 		}
-	} else if e.BehaviorState.ElapsedTime == 21 {
-		e.ReplaceBehavior(&Idle{}, s)
+	} else if e.BehaviorState.ElapsedTime == 21-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 

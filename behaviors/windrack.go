@@ -59,8 +59,8 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 			}))
 		}
-	} else if e.BehaviorState.ElapsedTime == 27 {
-		e.ReplaceBehavior(&Idle{}, s)
+	} else if e.BehaviorState.ElapsedTime == 27-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 

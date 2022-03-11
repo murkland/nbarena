@@ -33,11 +33,11 @@ func (eb *Dragged) Clone() state.EntityBehavior {
 func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 	if eb.dragComplete {
 		eb.dragCompleteDuration++
-		if eb.dragCompleteDuration == 24 {
+		if eb.dragCompleteDuration == 24-1 {
 			if eb.PostDragParalyzeTime > 0 {
-				e.ReplaceBehavior(&Paralyzed{Duration: eb.PostDragParalyzeTime}, s)
+				e.NextBehavior = &Paralyzed{Duration: eb.PostDragParalyzeTime}
 			} else {
-				e.ReplaceBehavior(&Idle{}, s)
+				e.NextBehavior = &Idle{}
 			}
 			return
 		}

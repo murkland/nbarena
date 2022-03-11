@@ -34,7 +34,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 
 	if eb.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
 		// Release buster shot.
-		e.ReplaceBehavior(&Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}, s)
+		e.NextBehavior = &Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}
 		eb.ChargingElapsedTime = 0
 	}
 
@@ -47,7 +47,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	dx, dy := dir.XY()
 
 	if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-		e.ReplaceBehavior(&Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}, s)
+		e.NextBehavior = &Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}
 	}
 }
 

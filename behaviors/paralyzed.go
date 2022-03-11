@@ -22,8 +22,8 @@ func (eb *Paralyzed) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *Paralyzed) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == eb.Duration {
-		e.ReplaceBehavior(&Idle{}, s)
+	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 

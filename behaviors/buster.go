@@ -51,8 +51,8 @@ var busterCooldownDurations = [][]state.Ticks{
 func (eb *Buster) Step(e *state.Entity, s *state.State) {
 	realElapsedTime := eb.realElapsedTime(e)
 
-	if realElapsedTime == 5+eb.cooldownTime {
-		e.ReplaceBehavior(&Idle{}, s)
+	if realElapsedTime == 5+eb.cooldownTime-1 {
+		e.NextBehavior = &Idle{}
 		return
 	}
 
@@ -80,7 +80,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		dx, dy := dir.XY()
 
 		if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-			e.ReplaceBehavior(&Teleport{}, s)
+			e.NextBehavior = &Teleport{}
 		}
 	}
 

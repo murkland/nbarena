@@ -48,8 +48,8 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 			Counters:  true,
 			FlashTime: state.DefaultFlashTime,
 		}))
-	} else if e.BehaviorState.ElapsedTime == 33 {
-		e.ReplaceBehavior(&Idle{}, s)
+	} else if e.BehaviorState.ElapsedTime == 33-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 

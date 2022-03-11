@@ -64,6 +64,7 @@ type Entity struct {
 	elapsedTime Ticks
 
 	BehaviorState EntityBehaviorState
+	NextBehavior  EntityBehavior
 
 	Intent     Intent
 	LastIntent Intent
@@ -120,7 +121,7 @@ func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
-		e.BehaviorState.Clone(),
+		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior),
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
@@ -152,11 +153,6 @@ func (e *Entity) UseChip(s *State) bool {
 	e.Chips = e.Chips[:len(e.Chips)-1]
 	chip.OnUse(s, e)
 	return true
-}
-
-func (e *Entity) ReplaceBehavior(behavior EntityBehavior, s *State) {
-	e.BehaviorState = EntityBehaviorState{behavior, 0}
-	e.BehaviorState.Behavior.Step(e, s)
 }
 
 func (e *Entity) ElapsedTime() Ticks {
@@ -312,6 +308,10 @@ func (e *Entity) Step(s *State) {
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.BehaviorState.ElapsedTime++
+	if e.NextBehavior != nil {
+		e.BehaviorState = EntityBehaviorState{e.NextBehavior, 0}
+	}
+	e.NextBehavior = nil
 	e.BehaviorState.Behavior.Step(e, s)
 }
 

@@ -21,8 +21,8 @@ func (eb *Flinch) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *Flinch) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 24 {
-		e.ReplaceBehavior(&Idle{}, s)
+	if e.BehaviorState.ElapsedTime == 24-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 

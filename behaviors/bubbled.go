@@ -22,8 +22,8 @@ func (eb *Bubbled) Clone() state.EntityBehavior {
 }
 
 func (eb *Bubbled) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == eb.Duration {
-		e.ReplaceBehavior(&Idle{}, s)
+	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
+		e.NextBehavior = &Idle{}
 	}
 }
 
