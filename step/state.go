@@ -182,18 +182,13 @@ func Step(s *state.State) {
 	}
 
 	// Step all entities in a random order.
-	pending := make([]*state.Entity, 0, len(s.Entities))
-	for _, e := range s.Entities {
-		pending = append(pending, e)
-	}
-
+	pending := maps.Values(s.Entities)
 	slices.SortFunc(pending, func(a *state.Entity, b *state.Entity) bool {
 		return a.ID() < b.ID()
 	})
 	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
-
 	for _, e := range pending {
 		if !s.IsInTimeStop || state.BehaviorIs[state.TimestopMaskedEntityBehavior](e.BehaviorState.Behavior) {
 			e.Step(s)
@@ -202,9 +197,20 @@ func Step(s *state.State) {
 	}
 
 	// Resolve any hits.
-	for _, e := range maps.Values(s.Entities) {
+	pending = maps.Values(s.Entities)
+	slices.SortFunc(pending, func(a *state.Entity, b *state.Entity) bool {
+		return a.ID() < b.ID()
+	})
+	rand.New(s.RandSource).Shuffle(len(pending), func(i, j int) {
+		pending[i], pending[j] = pending[j], pending[i]
+	})
+	for _, e := range pending {
 		resolveHit(e, s)
 		resolveSlide(e, s)
+
+		if e.HP == 0 {
+			// Do something special.
+		}
 
 		// Update UI.
 		if e.DisplayHP != 0 && e.DisplayHP != e.HP {
@@ -227,6 +233,7 @@ func Step(s *state.State) {
 	}
 
 	// Delete any entities pending deletion.
+	// NOTE: Iteration order doesn't matter here, because it doesn't affect the result.
 	for k, e := range s.Entities {
 		if e.PerTickState.IsPendingDeletion {
 			delete(s.Entities, k)
