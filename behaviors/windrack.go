@@ -21,6 +21,8 @@ func (eb *WindRack) Clone() state.EntityBehavior {
 }
 
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
+	// TODO: Counter timing.
+
 	// Only hits while the slash is coming out.
 	if e.BehaviorState.ElapsedTime == 9 {
 		x, y := e.TilePos.XY()

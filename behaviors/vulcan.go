@@ -23,6 +23,8 @@ func (eb *Vulcan) Clone() state.EntityBehavior {
 }
 
 func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
+	// TODO: Counter timing.
+
 	if e.BehaviorState.ElapsedTime == state.Ticks(2+11*eb.Shots) {
 		e.ReplaceBehavior(&Idle{}, s)
 		return

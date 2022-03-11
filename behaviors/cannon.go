@@ -32,6 +32,8 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
+	// TODO: Counter timing.
+
 	if e.BehaviorState.ElapsedTime == 16 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
