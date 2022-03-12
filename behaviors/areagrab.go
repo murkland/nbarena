@@ -54,7 +54,7 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 			// TODO: Damage.
 		}
 	} else if e.BehaviorState.ElapsedTime == 30+15 {
-		e.PerTickState.IsPendingDeletion = true
+		e.IsPendingDestruction = true
 		return
 	}
 }

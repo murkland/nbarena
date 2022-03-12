@@ -28,7 +28,6 @@ type EntityTraits struct {
 
 type EntityPerTickState struct {
 	WasHit                  bool
-	IsPendingDeletion       bool
 	DoubleDamageWasConsumed bool
 }
 
@@ -63,8 +62,9 @@ type Entity struct {
 
 	elapsedTime Ticks
 
-	BehaviorState EntityBehaviorState
-	NextBehavior  EntityBehavior
+	BehaviorState        EntityBehaviorState
+	NextBehavior         EntityBehavior
+	IsPendingDestruction bool
 
 	Intent     Intent
 	LastIntent Intent
@@ -76,7 +76,7 @@ type Entity struct {
 
 	IsFlipped bool
 
-	IsDeleted bool
+	IsDead bool
 
 	HP        int
 	DisplayHP int
@@ -121,12 +121,12 @@ func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
-		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior),
+		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
-		e.IsDeleted,
+		e.IsDead,
 		e.HP, e.DisplayHP,
 		e.Traits,
 		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
@@ -243,13 +243,16 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		debugEntityMarkerImageOnce.Do(func() {
 			debugEntityMarkerImage = ebiten.NewImage(5, 5)
 			for x := 0; x < 5; x++ {
-				debugEntityMarkerImage.Set(x, 2, color.RGBA{0, 255, 0, 255})
+				debugEntityMarkerImage.Set(x, 2, color.RGBA{255, 255, 255, 255})
 			}
 			for y := 0; y < 5; y++ {
-				debugEntityMarkerImage.Set(2, y, color.RGBA{0, 255, 0, 255})
+				debugEntityMarkerImage.Set(2, y, color.RGBA{255, 255, 255, 255})
 			}
 		})
-		rootNode.Children = append(rootNode.Children, draw.ImageWithOrigin(debugEntityMarkerImage, image.Point{2, 2}))
+		debugEntityMarkerNode := &draw.OptionsNode{}
+		debugEntityMarkerNode.Children = append(debugEntityMarkerNode.Children, draw.ImageWithOrigin(debugEntityMarkerImage, image.Point{2, 2}))
+		debugEntityMarkerNode.Opts.ColorM.Scale(1.0, 0.0, 1.0, 0.5)
+		rootNode.Children = append(rootNode.Children, debugEntityMarkerNode)
 	}
 
 	if e.IsAlliedWithAnswerer {

@@ -35,7 +35,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {
-			e.PerTickState.IsPendingDeletion = true
+			e.IsPendingDestruction = true
 			return
 		}
 	}
@@ -50,7 +50,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 		h.AddDamage(eb.Damage)
 		target.Hit.Merge(h)
 
-		e.PerTickState.IsPendingDeletion = true
+		e.IsPendingDestruction = true
 		return
 	}
 }

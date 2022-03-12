@@ -214,6 +214,11 @@ func Step(s *state.State) {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
 	for _, e := range pending {
+		if e.IsPendingDestruction {
+			delete(s.Entities, e.ID())
+			continue
+		}
+
 		if !s.IsInTimeStop || e.BehaviorState.Behavior.Traits(e).RunsInTimestop {
 			e.Step(s)
 			e.LastIntent = e.Intent
@@ -252,14 +257,6 @@ func Step(s *state.State) {
 					}
 				}
 			}
-		}
-	}
-
-	// Delete any entities pending deletion.
-	// NOTE: Iteration order doesn't matter here, because it doesn't affect the result.
-	for k, e := range s.Entities {
-		if e.PerTickState.IsPendingDeletion {
-			delete(s.Entities, k)
 		}
 	}
 

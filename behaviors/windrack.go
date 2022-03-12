@@ -118,7 +118,7 @@ func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {
-			e.PerTickState.IsPendingDeletion = true
+			e.IsPendingDestruction = true
 			return
 		}
 	}
