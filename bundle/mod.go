@@ -176,6 +176,9 @@ const (
 	DecorationTypeBusterPowerShotExplosion
 	DecorationTypeBusterExplosion
 	DecorationTypePiercingExplosion
+	DecorationTypeUninstallExplosion
+	DecorationTypeChipDeleteExplosion
+	DecorationTypeShieldHitExplosion
 )
 
 type Bundle struct {
@@ -191,6 +194,7 @@ type Bundle struct {
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
 	WindSlashSprites   *Sprites
+	IcedSprites        *Sprites
 
 	DecorationSprites map[DecorationType]*Sprite
 
@@ -293,6 +297,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
 
 	var cannonExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0267.png", &cannonExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
@@ -303,8 +308,17 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	var explosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0271.png", &explosionDecorationSprites, makeSpriteLoader(sheetToSprites))
 
+	var shieldHitExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0272.png", &shieldHitExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	var chipDeleteExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0278.png", &chipDeleteExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
 	var piercingExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0281.png", &piercingExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	var uninstallExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0290.png", &uninstallExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
 
 	loader.Add(ctx, l, "assets/sprites/0274.png", &b.ChargingSprites, makeSpriteLoader(func(sheet *Sheet) *ChargingSprites {
 		return &ChargingSprites{
@@ -330,6 +344,9 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeBusterPowerShotExplosion: {chargeShotExplosionDecorationSprites.Image, chargeShotExplosionDecorationSprites.Animations[0]},
 		DecorationTypeBusterExplosion:          {explosionDecorationSprites.Image, explosionDecorationSprites.Animations[0]},
 		DecorationTypePiercingExplosion:        {piercingExplosionDecorationSprites.Image, piercingExplosionDecorationSprites.Animations[0]},
+		DecorationTypeUninstallExplosion:       {uninstallExplosionDecorationSprites.Image, uninstallExplosionDecorationSprites.Animations[0]},
+		DecorationTypeChipDeleteExplosion:      {chipDeleteExplosionDecorationSprites.Image, chipDeleteExplosionDecorationSprites.Animations[0]},
+		DecorationTypeShieldHitExplosion:       {shieldHitExplosionDecorationSprites.Image, shieldHitExplosionDecorationSprites.Animations[0]},
 	}
 
 	return b, nil
