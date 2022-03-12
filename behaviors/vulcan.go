@@ -39,10 +39,25 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 	if (e.BehaviorState.ElapsedTime-2)%11 == 0 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
-		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), e.MakeDamageAndConsume(eb.Damage), state.HitTraits{
-			Flinch:   true,
-			Counters: true,
-		}))
+		s.AddEntity(&state.Entity{
+			TilePos: state.TilePosXY(x+dx, y),
+
+			IsFlipped:            e.IsFlipped,
+			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
+
+			Traits: state.EntityTraits{
+				CanStepOnHoleLikeTiles: true,
+				IgnoresTileEffects:     true,
+				CannotFlinch:           true,
+				IgnoresTileOwnership:   true,
+			},
+
+			BehaviorState: state.EntityBehaviorState{
+				Behavior: &vulcanShot{
+					Damage: e.MakeDamageAndConsume(eb.Damage),
+				},
+			},
+		})
 	}
 }
 
@@ -70,4 +85,55 @@ func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	vulcanNode.Children = append(vulcanNode.Children, vulcanImageNode)
 
 	return rootNode
+}
+
+type vulcanShot struct {
+	Damage state.Damage
+}
+
+func (eb *vulcanShot) Flip() {
+}
+
+func (eb *vulcanShot) Clone() state.EntityBehavior {
+	return &vulcanShot{
+		eb.Damage,
+	}
+}
+
+func (eb *vulcanShot) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
+func (eb *vulcanShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
+	return nil
+}
+
+func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
+	if e.BehaviorState.ElapsedTime == 0 {
+		return
+	}
+
+	for _, target := range query.EntitiesAt(s, e.TilePos) {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+			continue
+		}
+
+		var h state.Hit
+		h.Traits = state.HitTraits{
+			Flinch:   true,
+			Counters: true,
+		}
+		h.AddDamage(eb.Damage)
+		target.Hit.Merge(h)
+
+		e.IsPendingDestruction = true
+		return
+	}
+
+	x, y := e.TilePos.XY()
+	x += query.DXForward(e.IsFlipped)
+	if !e.MoveDirectly(state.TilePosXY(x, y)) {
+		e.IsPendingDestruction = true
+		return
+	}
 }
