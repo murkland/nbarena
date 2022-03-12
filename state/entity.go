@@ -225,19 +225,31 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		float64((y-1)*TileRenderedHeight+TileRenderedHeight/2+dy*TileRenderedHeight/4),
 	)
 
-	characterNode := &draw.OptionsNode{}
+	rootCharacterNode := &draw.OptionsNode{}
+	rootNode.Children = append(rootNode.Children, rootCharacterNode)
+
 	if e.IsFlipped {
-		characterNode.Opts.GeoM.Scale(-1, 1)
+		rootCharacterNode.Opts.GeoM.Scale(-1, 1)
 	}
+
+	characterNode := &draw.OptionsNode{}
+	rootCharacterNode.Children = append(rootCharacterNode.Children, characterNode)
+
+	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
+
 	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	if e.PerTickState.WasHit {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
-	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
+	if e.IsFullSynchro || true {
+		characterNode.Opts.ColorM.Translate(float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), 0.0)
 
-	rootNode.Children = append(rootNode.Children, characterNode)
+		fullSynchroNode := &draw.OptionsNode{Layer: 8}
+		fullSynchroNode.Children = append(fullSynchroNode.Children, draw.ImageWithAnimation(b.FullSynchroSprites.Image, b.FullSynchroSprites.Animations[0], int(e.elapsedTime)))
+		rootCharacterNode.Children = append(rootCharacterNode.Children, fullSynchroNode)
+	}
 
 	if *debugDrawEntityMarker {
 		debugEntityMarkerImageOnce.Do(func() {

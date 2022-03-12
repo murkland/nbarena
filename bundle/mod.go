@@ -194,6 +194,7 @@ type Bundle struct {
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
 	WindSlashSprites   *Sprites
+	FullSynchroSprites *Sprites
 	IcedSprites        *Sprites
 
 	DecorationSprites map[DecorationType]*Sprite
@@ -297,6 +298,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
 
 	var cannonExplosionDecorationSprites *Sprites
