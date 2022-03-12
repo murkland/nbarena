@@ -243,7 +243,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.PerTickState.WasHit {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
-	if e.IsFullSynchro || true {
+	if e.IsFullSynchro {
 		characterNode.Opts.ColorM.Translate(float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), 0.0)
 
 		fullSynchroNode := &draw.OptionsNode{Layer: 8}
