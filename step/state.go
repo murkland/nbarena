@@ -10,13 +10,18 @@ import (
 )
 
 func resolveHit(e *state.Entity, s *state.State) {
-	if e.Hit.Traits.RemovesFlashing {
-		e.FlashingTimeLeft = 0
-	}
-
-	if e.Traits.CannotFlinch {
+	if e.Traits.CannotFlinch || e.IsAngry {
 		// TODO: Double check if this
 		e.Hit.Traits.Flinch = false
+	}
+
+	// Set anger, if required.
+	if e.Hit.TotalDamage >= 300 {
+		e.IsAngry = true
+	}
+
+	if e.Hit.Traits.RemovesFlashing {
+		e.FlashingTimeLeft = 0
 	}
 
 	if e.FlashingTimeLeft > 0 {
@@ -32,11 +37,6 @@ func resolveHit(e *state.Entity, s *state.State) {
 		e.Hit.Traits.ParalyzeTime = 150
 	}
 	e.Hit.Traits.Counters = false
-
-	// Set anger, if required.
-	if e.Hit.TotalDamage >= 300 {
-		e.IsAngry = true
-	}
 
 	// TODO: Process poison damage.
 
