@@ -7,7 +7,7 @@ import (
 	"github.com/murkland/pngsheet"
 )
 
-const teleportEndlagTicks = 8
+const teleportEndlagTicks = 6
 
 type Teleport struct {
 	ChargingElapsedTime state.Ticks
