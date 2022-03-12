@@ -42,9 +42,8 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		for _, target := range entities {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
-				h.Traits.Drag = true
-				h.Traits.Slide.Direction = e.Facing()
-				h.Traits.Slide.IsBig = true
+				h.Traits.Drag = state.DragTypeBig
+				h.Traits.SlideDirection = e.Facing()
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)
 			}

@@ -31,13 +31,8 @@ type EntityPerTickState struct {
 	DoubleDamageWasConsumed bool
 }
 
-type Slide struct {
-	Direction Direction
-	IsBig     bool
-}
-
 type SlideState struct {
-	Slide       Slide
+	Direction   Direction
 	ElapsedTime Ticks
 }
 
@@ -113,7 +108,7 @@ func (e *Entity) Flip() {
 	e.IsFlipped = !e.IsFlipped
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
-	e.SlideState.Slide.Direction = e.SlideState.Slide.Direction.FlipH()
+	e.SlideState.Direction = e.SlideState.Direction.FlipH()
 	e.BehaviorState.Behavior.Flip()
 }
 
@@ -215,7 +210,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.TilePos.XY()
 
-	dx, dy := e.SlideState.Slide.Direction.XY()
+	dx, dy := e.SlideState.Direction.XY()
 	offset := (int(e.SlideState.ElapsedTime)+2+4)%4 - 2
 	dx *= offset
 	dy *= offset

@@ -16,6 +16,14 @@ type Damage struct {
 	AttackPlus   int
 }
 
+type DragType int
+
+const (
+	DragTypeNone  DragType = 0
+	DragTypeSmall DragType = 1
+	DragTypeBig   DragType = 2
+)
+
 type HitTraits struct {
 	FlashTime      Ticks
 	ParalyzeTime   Ticks
@@ -25,9 +33,9 @@ type HitTraits struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	Slide Slide
+	SlideDirection Direction
 
-	Drag                  bool
+	Drag                  DragType
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool
@@ -78,11 +86,11 @@ func (h *Hit) Merge(h2 Hit) {
 	if h2.Traits.Flinch {
 		h.Traits.Flinch = true
 	}
-	if h2.Traits.Drag {
-		h.Traits.Drag = true
+	if h2.Traits.Drag != DragTypeNone {
+		h.Traits.Drag = h2.Traits.Drag
 	}
-	if h2.Traits.Slide.Direction != DirectionNone {
-		h.Traits.Slide = h2.Traits.Slide
+	if h2.Traits.SlideDirection != DirectionNone {
+		h.Traits.SlideDirection = h2.Traits.SlideDirection
 	}
 }
 

@@ -44,23 +44,22 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 	// TODO: Pop bubble, if required.
 
-	if e.SlideState.Slide.Direction != state.DirectionNone {
+	if e.SlideState.Direction != state.DirectionNone {
 		// TODO: Is this even in the right place?
 		e.SlideState.ElapsedTime++
 	}
 
-	if !e.Hit.Traits.Drag {
+	if e.Hit.Traits.Drag == state.DragTypeNone {
 		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-			if e.SlideState.Slide.Direction == state.DirectionNone {
-				if e.Hit.Traits.Slide.Direction != state.DirectionNone {
-					e.SlideState.Slide = e.Hit.Traits.Slide
-					e.SlideState.ElapsedTime = 0
+			if e.SlideState.Direction == state.DirectionNone {
+				if e.Hit.Traits.SlideDirection != state.DirectionNone {
+					e.SlideState = state.SlideState{Direction: e.Hit.Traits.SlideDirection, ElapsedTime: 0}
 				}
 				resolveSlide(e, s)
 			} else {
 				resolveSlide(e, s)
 			}
-			e.Hit.Traits.Slide = state.Slide{}
+			e.Hit.Traits.SlideDirection = state.DirectionNone
 
 			if e.Hit.Traits.Flinch {
 				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) && e.Hit.Traits.FlashTime == 0 {
@@ -158,11 +157,10 @@ func resolveHit(e *state.Entity, s *state.State) {
 			}
 		}
 		e.FinishMove(s)
-		e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}}
-		e.SlideState.Slide = e.Hit.Traits.Slide
-		e.SlideState.ElapsedTime = 0
-		e.Hit.Traits.Drag = false
-		e.Hit.Traits.Slide = state.Slide{}
+		e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime, Type: e.Hit.Traits.Drag}}
+		e.SlideState = state.SlideState{Direction: e.Hit.Traits.SlideDirection, ElapsedTime: 0}
+		e.Hit.Traits.Drag = state.DragTypeNone
+		e.Hit.Traits.SlideDirection = state.DirectionNone
 	}
 
 	if state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
@@ -172,19 +170,18 @@ func resolveHit(e *state.Entity, s *state.State) {
 }
 
 func resolveSlide(e *state.Entity, s *state.State) {
-	if e.SlideState.Slide.Direction != state.DirectionNone {
-		if e.SlideState.ElapsedTime%4 == 0 {
+	if e.SlideState.Direction != state.DirectionNone {
+		if e.SlideState.ElapsedTime == 0 {
 			x, y := e.TilePos.XY()
-			dx, dy := e.SlideState.Slide.Direction.XY()
+			dx, dy := e.SlideState.Direction.XY()
 
 			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 				e.SlideState = state.SlideState{}
 			}
-		} else if e.SlideState.ElapsedTime%4 == 2 {
+		} else if e.SlideState.ElapsedTime == 2 {
 			e.FinishMove(s)
-			if !e.SlideState.Slide.IsBig {
-				e.SlideState = state.SlideState{}
-			}
+		} else if e.SlideState.ElapsedTime == 4 {
+			e.SlideState = state.SlideState{}
 		}
 	}
 }

@@ -11,6 +11,7 @@ import (
 
 type Dragged struct {
 	PostDragParalyzeTime state.Ticks
+	Type                 state.DragType
 
 	dragComplete         bool
 	dragCompleteDuration state.Ticks
@@ -25,7 +26,7 @@ func (eb *Dragged) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *Dragged) Clone() state.EntityBehavior {
 	return &Dragged{
-		eb.PostDragParalyzeTime,
+		eb.PostDragParalyzeTime, eb.Type,
 		eb.dragComplete, eb.dragCompleteDuration,
 	}
 }
@@ -44,7 +45,8 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	if e.SlideState.Slide.Direction == state.DirectionNone {
+	// TODO: support big drags
+	if e.SlideState.Direction == state.DirectionNone {
 		eb.dragComplete = true
 	}
 }

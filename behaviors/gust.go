@@ -44,8 +44,7 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		}
 
 		var h state.Hit
-		h.Traits.Slide.Direction = eb.Direction
-		h.Traits.Slide.IsBig = true
+		h.Traits.SlideDirection = eb.Direction
 		target.Hit.Merge(h)
 	}
 }
