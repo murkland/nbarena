@@ -29,7 +29,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	// I was mostly sure that it's frames 2-16 of an action.
 	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
 	// TODO: Check the code for this.
-	if e.BehaviorState.Behavior.Traits(e).CanBeCountered && e.BehaviorState.ElapsedTime < 15 && e.Hit.Traits.Counters {
+	if e.BehaviorState.Behavior.Traits(e).CanBeCountered && e.Hit.Traits.Counters {
 		e.Hit.Traits.FlashTime = 0
 		e.Hit.Traits.ParalyzeTime = 150
 	}
@@ -76,7 +76,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 				if e.Hit.Traits.Flinch {
 					// TODO: This should probably not be here...
 					e.FinishMove(s)
-					e.NextBehavior = &behaviors.Flinch{}
+					e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Flinch{}}
 				}
 			}
 			e.Hit.Traits.Flinch = false
@@ -93,7 +93,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process paralyzed.
 			if e.Hit.Traits.ParalyzeTime > 0 {
 				e.FinishMove(s)
-				e.NextBehavior = &behaviors.Paralyzed{Duration: e.Hit.Traits.ParalyzeTime}
+				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Paralyzed{Duration: e.Hit.Traits.ParalyzeTime}}
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.ParalyzeTime = 0
 			}
@@ -101,7 +101,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process frozen.
 			if e.Hit.Traits.FreezeTime > 0 {
 				e.FinishMove(s)
-				e.NextBehavior = &behaviors.Frozen{Duration: e.Hit.Traits.FreezeTime}
+				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Frozen{Duration: e.Hit.Traits.FreezeTime}}
 				e.Hit.Traits.BubbleTime = 0
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.FreezeTime = 0
@@ -110,7 +110,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process bubbled.
 			if e.Hit.Traits.BubbleTime > 0 {
 				e.FinishMove(s)
-				e.NextBehavior = &behaviors.Bubbled{Duration: e.Hit.Traits.BubbleTime}
+				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Bubbled{Duration: e.Hit.Traits.BubbleTime}}
 				e.ConfusedTimeLeft = 0
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.BubbleTime = 0
@@ -121,7 +121,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 				e.ConfusedTimeLeft = e.Hit.Traits.ConfuseTime
 				// TODO: Double check if this is correct.
 				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-					e.NextBehavior = &behaviors.Idle{}
+					e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Idle{}}
 				}
 				e.Hit.Traits.FreezeTime = 0
 				e.Hit.Traits.BubbleTime = 0
@@ -164,7 +164,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			}
 		}
 		e.FinishMove(s)
-		e.NextBehavior = &behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}
+		e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime}}
 		e.SlideState.Slide = e.Hit.Traits.Slide
 		e.SlideState.ElapsedTime = 0
 		e.Hit.Traits.Drag = false
