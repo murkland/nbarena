@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/murkland/nbarena/behaviors"
+	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -22,10 +23,6 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 	if e.Hit.Traits.RemovesFlashing {
 		e.FlashingTimeLeft = 0
-	}
-
-	if e.FlashingTimeLeft > 0 {
-		e.Hit = state.Hit{}
 	}
 
 	// From Alyrsc#7506:
@@ -198,11 +195,22 @@ func resolveSlide(e *state.Entity, s *state.State) {
 	}
 }
 
-func Step(s *state.State) {
+func Step(s *state.State, b *bundle.Bundle) {
 	s.ElapsedTime++
 
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
+	}
+
+	for _, d := range s.Decorations {
+		if int(d.ElapsedTime) >= len(b.DecorationSprites[d.Type].Animation.Frames) {
+			delete(s.Decorations, d.ID())
+			continue
+		}
+
+		if !s.IsInTimeStop || d.RunsInTimestop {
+			d.Step()
+		}
 	}
 
 	// Step all entities in a random order.

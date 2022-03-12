@@ -163,23 +163,44 @@ type Sprites struct {
 	Animations []*pngsheet.Animation
 }
 
+type Sprite struct {
+	Image     *ebiten.Image
+	Animation *pngsheet.Animation
+}
+
+type DecorationType int
+
+const (
+	DecorationTypeNone            DecorationType = 0
+	DecorationTypeCannonExplosion DecorationType = iota
+	DecorationTypeBusterPowerShotExplosion
+	DecorationTypeBusterExplosion
+	DecorationTypePiercingExplosion
+)
+
 type Bundle struct {
-	Battletiles        *Battletiles
+	Battletiles *Battletiles
+
 	MegamanSprites     *CharacterSprites
-	ChargingSprites    *ChargingSprites
+	SwordSprites       *SwordSprites
+	CannonSprites      *CannonSprites
 	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
 	AreaGrabSprites    *Sprites
-	SwordSprites       *SwordSprites
+	SlashSprites       *SlashSprites
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
-	SlashSprites       *SlashSprites
 	WindSlashSprites   *Sprites
-	CannonSprites      *CannonSprites
-	ChipIconSprites    *Sprites
-	TallFont           font.Face
-	Tall2Font          font.Face
-	TinyNumFont        font.Face
+
+	DecorationSprites map[DecorationType]*Sprite
+
+	ChargingSprites *ChargingSprites
+
+	ChipIconSprites *Sprites
+
+	TallFont    font.Face
+	Tall2Font   font.Face
+	TinyNumFont font.Face
 }
 
 func loadBDF(ctx context.Context, f moreio.File) (font.Face, error) {
@@ -210,15 +231,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 
 	l, ctx := loader.New(ctx, loaderCallback)
 	loader.Add(ctx, l, "assets/battletiles.png", &b.Battletiles, loadBattletiles)
-	loader.Add(ctx, l, "assets/sprites/0000.png", &b.MegamanSprites, loadCharacterSprite)
-	loader.Add(ctx, l, "assets/sprites/0274.png", &b.ChargingSprites, makeSpriteLoader(func(sheet *Sheet) *ChargingSprites {
-		return &ChargingSprites{
-			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
 
-			ChargingAnimation: sheet.Info.Animations[1],
-			ChargedAnimation:  sheet.Info.Animations[2],
-		}
-	}))
+	loader.Add(ctx, l, "assets/sprites/0000.png", &b.MegamanSprites, loadCharacterSprite)
 	loader.Add(ctx, l, "assets/sprites/0069.png", &b.SwordSprites, makeSpriteLoader(func(sheet *Sheet) *SwordSprites {
 		return &SwordSprites{
 			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
@@ -256,9 +270,6 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 	loader.Add(ctx, l, "assets/sprites/0075.png", &b.MuzzleFlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0088.png", &b.AreaGrabSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0089.png", &b.SlashSprites, makeSpriteLoader(func(sheet *Sheet) *SlashSprites {
 		img := sheet.Image.(*image.Paletted)
 		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
@@ -279,13 +290,46 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 			VeryLongAnimation: sheet.Info.Animations[3],
 		}
 	}))
+	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
+
+	var cannonExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0267.png", &cannonExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	var chargeShotExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0270.png", &chargeShotExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	var explosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0271.png", &explosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	var piercingExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0281.png", &piercingExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
+	loader.Add(ctx, l, "assets/sprites/0274.png", &b.ChargingSprites, makeSpriteLoader(func(sheet *Sheet) *ChargingSprites {
+		return &ChargingSprites{
+			Image: ebiten.NewImageFromImage(sheet.Image.(*image.Paletted)),
+
+			ChargingAnimation: sheet.Info.Animations[1],
+			ChargedAnimation:  sheet.Info.Animations[2],
+		}
+	}))
+
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
+
 	loader.Add(ctx, l, "assets/fonts/tall.bdf", &b.TallFont, loadBDF)
 	loader.Add(ctx, l, "assets/fonts/tall2.bdf", &b.Tall2Font, loadBDF)
 	loader.Add(ctx, l, "assets/fonts/tinynum.bdf", &b.TinyNumFont, loadBDF)
 
 	if err := l.Load(); err != nil {
 		return nil, err
+	}
+
+	b.DecorationSprites = map[DecorationType]*Sprite{
+		DecorationTypeCannonExplosion:          {cannonExplosionDecorationSprites.Image, cannonExplosionDecorationSprites.Animations[0]},
+		DecorationTypeBusterPowerShotExplosion: {chargeShotExplosionDecorationSprites.Image, chargeShotExplosionDecorationSprites.Animations[0]},
+		DecorationTypeBusterExplosion:          {explosionDecorationSprites.Image, explosionDecorationSprites.Animations[0]},
+		DecorationTypePiercingExplosion:        {piercingExplosionDecorationSprites.Image, piercingExplosionDecorationSprites.Animations[0]},
 	}
 
 	return b, nil

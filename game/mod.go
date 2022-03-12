@@ -59,7 +59,7 @@ func (cs *clientState) SelfEntityID() state.EntityID {
 	return cs.OffererEntityID
 }
 
-func (cs *clientState) fastForward() error {
+func (cs *clientState) fastForward(b *bundle.Bundle) error {
 	n := cs.outgoingIntents.Used()
 	if cs.incomingIntents.Used() < n {
 		n = cs.incomingIntents.Used()
@@ -97,7 +97,7 @@ func (cs *clientState) fastForward() error {
 
 		cs.committedState.Entities[cs.OffererEntityID].Intent = offererIntent
 		cs.committedState.Entities[cs.AnswererEntityID].Intent = answererIntent
-		step.Step(cs.committedState)
+		step.Step(cs.committedState, b)
 	}
 
 	cs.dirtyState = cs.committedState.Clone()
@@ -116,7 +116,7 @@ func (cs *clientState) fastForward() error {
 
 		cs.dirtyState.Entities[cs.OffererEntityID].Intent = offererIntent
 		cs.dirtyState.Entities[cs.AnswererEntityID].Intent = answererIntent
-		step.Step(cs.dirtyState)
+		step.Step(cs.dirtyState, b)
 	}
 
 	return nil
@@ -307,7 +307,7 @@ func (g *Game) handleConn(ctx context.Context) error {
 					return err
 				}
 
-				if err := g.cs.fastForward(); err != nil {
+				if err := g.cs.fastForward(g.bundle); err != nil {
 					return err
 				}
 
@@ -509,7 +509,7 @@ func (g *Game) Update() error {
 		return err
 	}
 
-	if err := g.cs.fastForward(); err != nil {
+	if err := g.cs.fastForward(g.bundle); err != nil {
 		return err
 	}
 

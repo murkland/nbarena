@@ -1,6 +1,9 @@
 package behaviors
 
 import (
+	"image"
+	"math/rand"
+
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
@@ -8,8 +11,9 @@ import (
 )
 
 type Shot struct {
-	Damage    state.Damage
-	HitTraits state.HitTraits
+	Damage                  state.Damage
+	HitTraits               state.HitTraits
+	ExplosionDecorationType bundle.DecorationType
 }
 
 func (eb *Shot) Flip() {
@@ -19,6 +23,7 @@ func (eb *Shot) Clone() state.EntityBehavior {
 	return &Shot{
 		eb.Damage,
 		eb.HitTraits,
+		eb.ExplosionDecorationType,
 	}
 }
 
@@ -41,7 +46,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 	}
 
 	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}
 
@@ -50,12 +55,25 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 		h.AddDamage(eb.Damage)
 		target.Hit.Merge(h)
 
+		if eb.ExplosionDecorationType != bundle.DecorationTypeNone {
+			rand := rand.New(s.RandSource)
+
+			xOff := rand.Intn(state.TileRenderedWidth / 4)
+			yOff := -rand.Intn(state.TileRenderedHeight)
+
+			s.AddDecoration(&state.Decoration{
+				Type:    eb.ExplosionDecorationType,
+				TilePos: e.TilePos,
+				Offset:  image.Point{xOff, yOff},
+			})
+		}
+
 		e.IsPendingDestruction = true
 		return
 	}
 }
 
-func MakeShot(owner *state.Entity, pos state.TilePos, damage state.Damage, hitTraits state.HitTraits) *state.Entity {
+func MakeShot(owner *state.Entity, pos state.TilePos, damage state.Damage, hitTraits state.HitTraits, decorationType bundle.DecorationType) *state.Entity {
 	return &state.Entity{
 		TilePos: pos,
 
@@ -71,8 +89,9 @@ func MakeShot(owner *state.Entity, pos state.TilePos, damage state.Damage, hitTr
 
 		BehaviorState: state.EntityBehaviorState{
 			Behavior: &Shot{
-				Damage:    damage,
-				HitTraits: hitTraits,
+				Damage:                  damage,
+				HitTraits:               hitTraits,
+				ExplosionDecorationType: decorationType,
 			},
 		},
 	}

@@ -1,6 +1,9 @@
 package behaviors
 
 import (
+	"image"
+	"math/rand"
+
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
@@ -114,7 +117,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 	}
 
 	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}
 
@@ -125,6 +128,30 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		}
 		h.AddDamage(eb.Damage)
 		target.Hit.Merge(h)
+
+		rand := rand.New(s.RandSource)
+
+		xOff := rand.Intn(state.TileRenderedWidth / 4)
+		yOff := -rand.Intn(state.TileRenderedHeight)
+
+		s.AddDecoration(&state.Decoration{
+			Type:    bundle.DecorationTypeBusterExplosion,
+			TilePos: e.TilePos,
+			Offset:  image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
+		})
+
+		s.AddDecoration(&state.Decoration{
+			ElapsedTime: -1,
+			Type:        bundle.DecorationTypeBusterExplosion,
+			TilePos:     e.TilePos,
+			Offset:      image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
+		})
+
+		s.AddDecoration(&state.Decoration{
+			Type:    bundle.DecorationTypePiercingExplosion,
+			TilePos: e.TilePos,
+			Offset:  image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
+		})
 
 		e.IsPendingDestruction = true
 		return

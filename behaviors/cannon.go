@@ -47,7 +47,7 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 			Flinch:    true,
 			Counters:  true,
 			FlashTime: state.DefaultFlashTime,
-		}))
+		}, bundle.DecorationTypeCannonExplosion))
 	} else if e.BehaviorState.ElapsedTime == 33-1 {
 		e.NextBehavior = &Idle{}
 	}

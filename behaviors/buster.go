@@ -67,7 +67,11 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		if eb.IsPowerShot {
 			damage *= 10
 		}
-		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), state.Damage{Base: damage}, state.HitTraits{}))
+		decorationType := bundle.DecorationTypeBusterExplosion
+		if eb.IsPowerShot {
+			decorationType = bundle.DecorationTypeBusterPowerShotExplosion
+		}
+		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), state.Damage{Base: damage}, state.HitTraits{}, decorationType))
 	}
 
 	if e.Intent.Direction != state.DirectionNone && realElapsedTime >= 5 {

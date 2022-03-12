@@ -99,6 +99,8 @@ func (n *ImageNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) 
 func ImageWithAnimation(img *ebiten.Image, animation *pngsheet.Animation, t int) Node {
 	if animation.IsLooping {
 		t = t % len(animation.Frames)
+	} else if t >= len(animation.Frames) {
+		t = len(animation.Frames) - 1
 	}
 	frame := animation.Frames[t]
 	return ImageWithOrigin(img.SubImage(frame.Rect).(*ebiten.Image), frame.Origin)

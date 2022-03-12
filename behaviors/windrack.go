@@ -57,7 +57,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 					Direction: e.Facing(),
 					IsBig:     true,
 				},
-			}))
+			}, bundle.DecorationTypeNone))
 		}
 	} else if e.BehaviorState.ElapsedTime == 27-1 {
 		e.NextBehavior = &Idle{}
@@ -124,7 +124,7 @@ func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
 	}
 
 	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}
 
