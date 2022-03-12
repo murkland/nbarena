@@ -1,6 +1,10 @@
 package state
 
-const DefaultFlashTime Ticks = 120
+// This is maybe 1 frame shorter than expected?
+const DefaultFlashTime Ticks = 119
+
+// Apparently this is 1 frame shorter than expected - BN6 will remove paralyze if timeLeft - 1 == 0, but we only remove it if timeLeft = 0.
+const DefaultParalyzeTime Ticks = 149
 
 type Damage struct {
 	Base int

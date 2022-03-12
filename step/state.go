@@ -31,7 +31,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 	// TODO: Check the code for this.
 	if e.BehaviorState.Behavior.Traits(e).CanBeCountered && e.Hit.Traits.Counters {
 		e.Hit.Traits.FlashTime = 0
-		e.Hit.Traits.ParalyzeTime = 150
+		e.Hit.Traits.ParalyzeTime = state.DefaultParalyzeTime
 	}
 	e.Hit.Traits.Counters = false
 
