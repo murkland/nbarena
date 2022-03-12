@@ -43,11 +43,15 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 16 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
-		s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, y), e.MakeDamageAndConsume(eb.Damage), state.HitTraits{
-			Flinch:    true,
-			Counters:  true,
-			FlashTime: state.DefaultFlashTime,
-		}, bundle.DecorationTypeCannonExplosion))
+		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
+			Damage: e.MakeDamageAndConsume(eb.Damage),
+			HitTraits: state.HitTraits{
+				Flinch:    true,
+				FlashTime: state.DefaultFlashTime,
+			},
+			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,
+			CanCounter:              true,
+		}))
 	} else if e.BehaviorState.ElapsedTime == 33-1 {
 		e.NextBehavior = &Idle{}
 	}

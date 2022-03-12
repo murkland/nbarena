@@ -42,7 +42,6 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		for _, target := range entities {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
-				h.Traits.Counters = true
 				h.Traits.Drag = true
 				h.Traits.Slide.Direction = e.Facing()
 				h.Traits.Slide.IsBig = true
@@ -52,12 +51,23 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		}
 
 		for i := 1; i <= 3; i++ {
-			s.AddEntity(MakeShot(e, state.TilePosXY(x+dx, i), state.Damage{Base: 0}, state.HitTraits{
-				Slide: state.Slide{
-					Direction: e.Facing(),
-					IsBig:     true,
+			s.AddEntity(&state.Entity{
+				TilePos: state.TilePosXY(x+dx, i),
+
+				IsFlipped:            e.IsFlipped,
+				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
+
+				Traits: state.EntityTraits{
+					CanStepOnHoleLikeTiles: true,
+					IgnoresTileEffects:     true,
+					CannotFlinch:           true,
+					IgnoresTileOwnership:   true,
 				},
-			}, bundle.DecorationTypeNone))
+
+				BehaviorState: state.EntityBehaviorState{
+					Behavior: &windRackGust{e.Facing()},
+				},
+			})
 		}
 	} else if e.BehaviorState.ElapsedTime == 27-1 {
 		e.NextBehavior = &Idle{}
@@ -114,7 +124,7 @@ func (eb *windRackGust) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node 
 }
 
 func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime%2 == 1 {
+	if e.BehaviorState.ElapsedTime%4 == 1 {
 		x, y := e.TilePos.XY()
 		x += query.DXForward(e.IsFlipped)
 		if !e.MoveDirectly(state.TilePosXY(x, y)) {

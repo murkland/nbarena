@@ -91,8 +91,8 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
 				h.Traits.Flinch = true
-				h.Traits.Counters = true
 				h.Traits.FlashTime = state.DefaultFlashTime
+				state.MaybeApplyCounter(target, e, &h)
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)
 			}

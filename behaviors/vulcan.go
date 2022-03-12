@@ -56,9 +56,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 			},
 
 			BehaviorState: state.EntityBehaviorState{
-				Behavior: &vulcanShot{
-					Damage: e.MakeDamageAndConsume(eb.Damage),
-				},
+				Behavior: &vulcanShot{e.ID(), e.MakeDamageAndConsume(eb.Damage)},
 			},
 		})
 	}
@@ -91,6 +89,7 @@ func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type vulcanShot struct {
+	Owner  state.EntityID
 	Damage state.Damage
 }
 
@@ -99,6 +98,7 @@ func (eb *vulcanShot) Flip() {
 
 func (eb *vulcanShot) Clone() state.EntityBehavior {
 	return &vulcanShot{
+		eb.Owner,
 		eb.Damage,
 	}
 }
@@ -123,10 +123,10 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 
 		var h state.Hit
 		h.Traits = state.HitTraits{
-			Flinch:   true,
-			Counters: true,
+			Flinch: true,
 		}
 		h.AddDamage(eb.Damage)
+		state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
 		target.Hit.Merge(h)
 
 		rand := rand.New(s.RandSource)

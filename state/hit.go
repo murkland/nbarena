@@ -31,7 +31,6 @@ type HitTraits struct {
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool
-	Counters              bool
 	Flinch                bool
 }
 
@@ -79,13 +78,22 @@ func (h *Hit) Merge(h2 Hit) {
 	if h2.Traits.Flinch {
 		h.Traits.Flinch = true
 	}
-	if h2.Traits.Counters {
-		h.Traits.Counters = true
-	}
 	if h2.Traits.Drag {
 		h.Traits.Drag = true
 	}
 	if h2.Traits.Slide.Direction != DirectionNone {
 		h.Traits.Slide = h2.Traits.Slide
+	}
+}
+
+func MaybeApplyCounter(target *Entity, owner *Entity, h *Hit) {
+	// From Alyrsc#7506:
+	// I was mostly sure that it's frames 2-16 of an action.
+	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
+	// TODO: Check the code for this.
+	if target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
+		owner.IsFullSynchro = true
+		h.Traits.FlashTime = 0
+		h.Traits.ParalyzeTime = DefaultParalyzeTime
 	}
 }

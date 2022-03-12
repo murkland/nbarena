@@ -11,8 +11,10 @@ import (
 )
 
 type Shot struct {
+	Owner                   state.EntityID
 	Damage                  state.Damage
 	HitTraits               state.HitTraits
+	CanCounter              bool
 	ExplosionDecorationType bundle.DecorationType
 }
 
@@ -21,8 +23,10 @@ func (eb *Shot) Flip() {
 
 func (eb *Shot) Clone() state.EntityBehavior {
 	return &Shot{
+		eb.Owner,
 		eb.Damage,
 		eb.HitTraits,
+		eb.CanCounter,
 		eb.ExplosionDecorationType,
 	}
 }
@@ -52,6 +56,9 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 
 		var h state.Hit
 		h.Traits = eb.HitTraits
+		if eb.CanCounter {
+			state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
+		}
 		h.AddDamage(eb.Damage)
 		target.Hit.Merge(h)
 
@@ -73,7 +80,9 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 	}
 }
 
-func MakeShot(owner *state.Entity, pos state.TilePos, damage state.Damage, hitTraits state.HitTraits, decorationType bundle.DecorationType) *state.Entity {
+func MakeShotEntity(owner *state.Entity, pos state.TilePos, shot *Shot) *state.Entity {
+	shot.Owner = owner.ID()
+
 	return &state.Entity{
 		TilePos: pos,
 
@@ -88,11 +97,7 @@ func MakeShot(owner *state.Entity, pos state.TilePos, damage state.Damage, hitTr
 		},
 
 		BehaviorState: state.EntityBehaviorState{
-			Behavior: &Shot{
-				Damage:                  damage,
-				HitTraits:               hitTraits,
-				ExplosionDecorationType: decorationType,
-			},
+			Behavior: shot,
 		},
 	}
 }

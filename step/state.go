@@ -25,16 +25,6 @@ func resolveHit(e *state.Entity, s *state.State) {
 		e.FlashingTimeLeft = 0
 	}
 
-	// From Alyrsc#7506:
-	// I was mostly sure that it's frames 2-16 of an action.
-	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
-	// TODO: Check the code for this.
-	if e.BehaviorState.Behavior.Traits(e).CanBeCountered && e.Hit.Traits.Counters {
-		e.Hit.Traits.FlashTime = 0
-		e.Hit.Traits.ParalyzeTime = state.DefaultParalyzeTime
-	}
-	e.Hit.Traits.Counters = false
-
 	// TODO: Process poison damage.
 
 	// Process hit damage.
