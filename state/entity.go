@@ -72,6 +72,8 @@ type Entity struct {
 	TilePos       TilePos
 	FutureTilePos TilePos
 
+	SlideState SlideState
+
 	IsAlliedWithAnswerer bool
 
 	IsFlipped bool
@@ -82,10 +84,6 @@ type Entity struct {
 	DisplayHP int
 
 	Traits EntityTraits
-
-	Chips                  []Chip
-	ChipUseQueued          bool
-	ChipUseLockoutTimeLeft Ticks
 
 	PowerShotChargeTime Ticks
 
@@ -98,10 +96,12 @@ type Entity struct {
 	IsAngry       bool
 	IsFullSynchro bool
 
-	SlideState SlideState
-
 	Hit          Hit
 	PerTickState EntityPerTickState
+
+	Chips                  []Chip
+	ChipUseQueued          bool
+	ChipUseLockoutTimeLeft Ticks
 }
 
 func (e *Entity) ID() EntityID {
@@ -124,17 +124,17 @@ func (e *Entity) Clone() *Entity {
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
+		e.SlideState,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDead,
 		e.HP, e.DisplayHP,
 		e.Traits,
-		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro,
-		e.SlideState,
 		e.Hit, e.PerTickState,
+		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 	}
 }
 

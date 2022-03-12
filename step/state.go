@@ -51,12 +51,16 @@ func resolveHit(e *state.Entity, s *state.State) {
 
 	if !e.Hit.Traits.Drag {
 		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-			if e.Hit.Traits.Slide.Direction != state.DirectionNone {
-				e.SlideState.Slide = e.Hit.Traits.Slide
-				e.SlideState.ElapsedTime = 0
-				e.Hit.Traits.Slide = state.Slide{}
+			if e.SlideState.Slide.Direction == state.DirectionNone {
+				if e.Hit.Traits.Slide.Direction != state.DirectionNone {
+					e.SlideState.Slide = e.Hit.Traits.Slide
+					e.SlideState.ElapsedTime = 0
+				}
+				resolveSlide(e, s)
+			} else {
+				resolveSlide(e, s)
 			}
-			resolveSlide(e, s)
+			e.Hit.Traits.Slide = state.Slide{}
 
 			if e.Hit.Traits.Flinch {
 				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) && e.Hit.Traits.FlashTime == 0 {

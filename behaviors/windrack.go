@@ -65,7 +65,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &windRackGust{e.Facing()},
+					Behavior: &Gust{e.Facing()},
 				},
 			})
 		}
@@ -100,50 +100,4 @@ func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.WindSlashSprites.Image, b.WindSlashSprites.Animations[0].Frames[slashFrameIdx]))
 
 	return rootNode
-}
-
-type windRackGust struct {
-	direction state.Direction
-}
-
-func (eb *windRackGust) Flip() {
-}
-
-func (eb *windRackGust) Clone() state.EntityBehavior {
-	return &windRackGust{
-		eb.direction,
-	}
-}
-
-func (eb *windRackGust) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
-}
-
-func (eb *windRackGust) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return nil
-}
-
-func (eb *windRackGust) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime%4 == 1 {
-		x, y := e.TilePos.XY()
-		x += query.DXForward(e.IsFlipped)
-		if !e.MoveDirectly(state.TilePosXY(x, y)) {
-			e.IsPendingDestruction = true
-			return
-		}
-	}
-
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
-			continue
-		}
-
-		var h state.Hit
-		h.Traits.Slide.Direction = eb.direction
-		h.Traits.Slide.IsBig = true
-		target.Hit.Merge(h)
-
-		// Gust doesn't stop on hit.
-		return
-	}
 }
