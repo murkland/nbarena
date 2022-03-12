@@ -18,7 +18,7 @@ func (eb *Idle) Clone() state.EntityBehavior {
 }
 
 func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{CanBeCountered: true}
+	return state.EntityBehaviorTraits{}
 }
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
