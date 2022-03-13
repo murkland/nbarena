@@ -400,10 +400,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.compositor.Draw(screen, &opts)
 }
 
-func chipPlaqueApperance(b *bundle.Bundle, chip *state.Chip, anchor styledtext.Anchor) draw.Node {
+func chipPlaqueApperance(b *bundle.Bundle, chip *state.Chip, attackPlus int, doubleDamage bool, anchor styledtext.Anchor) draw.Node {
 	spans := []styledtext.Span{{Text: chip.Name, Background: whiteTextGradient}}
 	if chip.BaseDamage > 0 {
-		spans = append(spans, styledtext.Span{Text: strconv.Itoa(chip.BaseDamage), Background: chipDamageTextGradient})
+		s := strconv.Itoa(chip.BaseDamage)
+		if attackPlus > 0 {
+			s += "+" + strconv.Itoa(attackPlus)
+		}
+		spans = append(spans, styledtext.Span{Text: s, Background: chipDamageTextGradient})
+	}
+	if doubleDamage {
+		spans = append(spans, styledtext.Span{Text: "×2", Background: whiteTextGradient})
 	}
 	return styledtext.MakeNode(spans, anchor, b.TallFont, styledtext.BorderRightBottom, color.RGBA{0x00, 0x00, 0x00, 0xff})
 }
@@ -449,7 +456,7 @@ func (g *Game) uiAppearance() draw.Node {
 			chipPlaqueNode := &draw.OptionsNode{}
 			rootNode.Children = append(rootNode.Children, chipPlaqueNode)
 			chipPlaqueNode.Opts.GeoM.Translate(float64(sceneWidth-16), 36)
-			chipPlaqueNode.Children = append(chipPlaqueNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, styledtext.AnchorRight|styledtext.AnchorTop))
+			chipPlaqueNode.Children = append(chipPlaqueNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, opponent.ChipPlaque.AttackPlus, opponent.ChipPlaque.DoubleDamage, styledtext.AnchorRight|styledtext.AnchorTop))
 		}
 	}
 
@@ -461,7 +468,7 @@ func (g *Game) uiAppearance() draw.Node {
 		chipTextNode := &draw.OptionsNode{}
 		rootNode.Children = append(rootNode.Children, chipTextNode)
 		chipTextNode.Opts.GeoM.Translate(1, float64(sceneHeight-12))
-		chipTextNode.Children = append(chipTextNode.Children, chipPlaqueApperance(g.bundle, chip, styledtext.AnchorLeft|styledtext.AnchorTop))
+		chipTextNode.Children = append(chipTextNode.Children, chipPlaqueApperance(g.bundle, chip, 0, self.DoubleDamage(), styledtext.AnchorLeft|styledtext.AnchorTop))
 	}
 
 	return rootNode

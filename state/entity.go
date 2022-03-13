@@ -53,8 +53,10 @@ func (s EntityBehaviorState) Clone() EntityBehaviorState {
 type EntityID int
 
 type ChipPlaque struct {
-	ElapsedTime Ticks
-	Chip        *Chip
+	ElapsedTime  Ticks
+	Chip         *Chip
+	DoubleDamage bool
+	AttackPlus   int
 }
 
 type Emotion int
@@ -156,6 +158,10 @@ func (e *Entity) Facing() Direction {
 	return DirectionRight
 }
 
+func (e *Entity) DoubleDamage() bool {
+	return e.Emotion == EmotionAngry || e.Emotion == EmotionFullSynchro
+}
+
 func (e *Entity) UseChip(s *State) bool {
 	if len(e.Chips) == 0 {
 		return false
@@ -166,7 +172,7 @@ func (e *Entity) UseChip(s *State) bool {
 	dmg := Damage{
 		Base: chip.BaseDamage,
 
-		DoubleDamage: e.Emotion == EmotionAngry || e.Emotion == EmotionFullSynchro,
+		DoubleDamage: e.DoubleDamage(),
 	}
 	e.Emotion = EmotionNormal
 	if dmg.DoubleDamage {
@@ -174,7 +180,7 @@ func (e *Entity) UseChip(s *State) bool {
 	}
 
 	e.NextBehavior = chip.MakeBehavior(dmg)
-	e.ChipPlaque = ChipPlaque{Chip: chip}
+	e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
 	return true
 }
 
