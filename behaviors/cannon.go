@@ -56,6 +56,9 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Cannon) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Cannon) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	if e.BehaviorState.ElapsedTime >= 29 {
 		return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BraceAnimation.Frames[int(e.BehaviorState.ElapsedTime-29)])

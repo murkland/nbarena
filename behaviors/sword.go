@@ -68,6 +68,9 @@ func (eb *Sword) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	}
 }
 
+func (eb *Sword) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Sword) Clone() state.EntityBehavior {
 	return &Sword{
 		eb.Range,

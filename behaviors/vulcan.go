@@ -60,6 +60,9 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Vulcan) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	var megamanImageNode draw.Node
@@ -165,4 +168,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		e.IsPendingDestruction = true
 		return
 	}
+}
+
+func (eb *vulcanShot) Cleanup(e *state.Entity, s *state.State) {
 }

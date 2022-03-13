@@ -33,6 +33,9 @@ func (eb *Teleport) Clone() state.EntityBehavior {
 	return &Teleport{eb.ChargingElapsedTime, eb.endAction}
 }
 
+func (eb *Teleport) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip {
 		eb.endAction = teleportEndActionUseChip

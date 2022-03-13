@@ -50,6 +50,9 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Idle) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Idle) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 

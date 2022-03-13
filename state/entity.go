@@ -228,6 +228,7 @@ func (e *Entity) FinishMove(s *State) {
 
 // SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.
 func (e *Entity) SetBehaviorImmediate(behavior EntityBehavior, s *State) {
+	e.BehaviorState.Behavior.Cleanup(e, s)
 	e.BehaviorState = EntityBehaviorState{Behavior: behavior}
 	e.BehaviorState.Behavior.Step(e, s)
 }
@@ -359,6 +360,7 @@ func (e *Entity) Step(s *State) {
 	// TODO: Verify this behavior is correct.
 	e.BehaviorState.ElapsedTime++
 	if e.NextBehavior != nil {
+		e.BehaviorState.Behavior.Cleanup(e, s)
 		e.BehaviorState = EntityBehaviorState{e.NextBehavior, 0}
 	}
 	e.NextBehavior = nil
@@ -371,4 +373,5 @@ type EntityBehavior interface {
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
 	Traits(e *Entity) EntityBehaviorTraits
 	Step(e *Entity, s *State)
+	Cleanup(e *Entity, s *State)
 }

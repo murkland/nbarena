@@ -60,6 +60,9 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Dragged) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	var childNode draw.Node

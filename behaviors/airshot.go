@@ -45,6 +45,9 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *AirShot) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *AirShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.RecoilShotAnimation, int(e.BehaviorState.ElapsedTime)))

@@ -16,7 +16,7 @@ func (eb *Recov) Flip() {
 }
 
 func (eb *Recov) Clone() state.EntityBehavior {
-	return &Recov{}
+	return &Recov{eb.HP}
 }
 
 func (eb *Recov) Traits(e *state.Entity) state.EntityBehaviorTraits {
@@ -41,6 +41,9 @@ func (eb *Recov) Step(e *state.Entity, s *state.State) {
 
 		e.NextBehavior = &Idle{}
 	}
+}
+
+func (eb *Recov) Cleanup(e *state.Entity, s *state.State) {
 }
 
 func (eb *Recov) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

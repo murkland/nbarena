@@ -14,7 +14,7 @@ func (eb *Frozen) Flip() {
 }
 
 func (eb *Frozen) Clone() state.EntityBehavior {
-	return &Frozen{}
+	return &Frozen{eb.Duration}
 }
 
 func (eb *Frozen) Traits(e *state.Entity) state.EntityBehaviorTraits {
@@ -25,6 +25,9 @@ func (eb *Frozen) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
 		e.NextBehavior = &Idle{}
 	}
+}
+
+func (eb *Frozen) Cleanup(e *state.Entity, s *state.State) {
 }
 
 func (eb *Frozen) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

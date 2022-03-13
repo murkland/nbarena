@@ -81,6 +81,9 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Shot) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func MakeShotEntity(owner *state.Entity, pos state.TilePos, shot *Shot) *state.Entity {
 	shot.Owner = owner.ID()
 

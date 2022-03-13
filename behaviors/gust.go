@@ -49,3 +49,6 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		target.Hit.Merge(h)
 	}
 }
+
+func (eb *Gust) Cleanup(e *state.Entity, s *state.State) {
+}

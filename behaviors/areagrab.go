@@ -21,6 +21,9 @@ func (eb *areaGrabBall) Clone() state.EntityBehavior {
 	return &areaGrabBall{}
 }
 
+func (eb *areaGrabBall) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *areaGrabBall) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	ballNode := &draw.OptionsNode{Layer: 7}
 

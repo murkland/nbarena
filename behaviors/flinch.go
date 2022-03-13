@@ -26,6 +26,9 @@ func (eb *Flinch) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *Flinch) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Flinch) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	return draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.FlinchAnimation.Frames[int(e.BehaviorState.ElapsedTime)])
 }

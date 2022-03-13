@@ -18,13 +18,16 @@ func (eb *Bubbled) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *Bubbled) Clone() state.EntityBehavior {
-	return &Bubbled{}
+	return &Bubbled{eb.Duration}
 }
 
 func (eb *Bubbled) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
 		e.NextBehavior = &Idle{}
 	}
+}
+
+func (eb *Bubbled) Cleanup(e *state.Entity, s *state.State) {
 }
 
 func (eb *Bubbled) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {

@@ -98,6 +98,9 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 
 }
 
+func (eb *Buster) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	realElapsedTime := eb.realElapsedTime(e)
 

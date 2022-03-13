@@ -80,6 +80,9 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 	}
 }
 
+func (eb *WindRack) Cleanup(e *state.Entity, s *state.State) {
+}
+
 func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation, int(e.BehaviorState.ElapsedTime)))
