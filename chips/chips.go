@@ -31,6 +31,14 @@ var Chips = []state.Chip{
 		},
 	},
 	{
+		Index:  3,
+		Name:   "AirShot",
+		Damage: 20,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.NextBehavior = &behaviors.AirShot{Damage: 20}
+		},
+	},
+	{
 		Index:  4,
 		Name:   "Vulcan1",
 		Damage: 10,

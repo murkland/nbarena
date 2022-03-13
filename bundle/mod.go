@@ -187,6 +187,7 @@ type Bundle struct {
 	MegamanSprites     *CharacterSprites
 	SwordSprites       *SwordSprites
 	CannonSprites      *CannonSprites
+	AirShooterSprites  *Sprites
 	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
 	AreaGrabSprites    *Sprites
@@ -295,6 +296,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 			VeryLongAnimation: sheet.Info.Animations[3],
 		}
 	}))
+	loader.Add(ctx, l, "assets/sprites/0093.png", &b.AirShooterSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))

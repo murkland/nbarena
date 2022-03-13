@@ -26,7 +26,6 @@ import (
 	"github.com/murkland/ringbuf"
 	"github.com/murkland/syncrand"
 	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -153,7 +152,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: slices.Clone(chips.Chips),
+			Chips: []state.Chip{chips.Chips[3]},
 
 			PowerShotChargeTime: state.Ticks(50),
 
@@ -175,7 +174,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			DisplayHP: 1000,
 
-			Chips: slices.Clone(chips.Chips),
+			Chips: []state.Chip{chips.Chips[3]},
 
 			PowerShotChargeTime: state.Ticks(50),
 

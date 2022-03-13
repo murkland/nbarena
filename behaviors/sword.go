@@ -83,8 +83,6 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 }
 
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
-	// TODO: Counter timing.
-
 	// Only hits while the slash is coming out.
 	if e.BehaviorState.ElapsedTime == 9 {
 		for _, target := range swordTargetEntities(s, e, eb.Range) {

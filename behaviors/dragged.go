@@ -43,7 +43,9 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	if e.BehaviorState.ElapsedTime%4 == 0 {
+	if !eb.IsBig && e.BehaviorState.ElapsedTime == 4 {
+		e.SlideState = state.SlideState{}
+	} else if e.BehaviorState.ElapsedTime%4 == 0 {
 		x, y := e.TilePos.XY()
 		dx, dy := e.SlideState.Direction.XY()
 
