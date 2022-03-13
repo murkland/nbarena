@@ -198,6 +198,7 @@ func (e *Entity) FinishMove(s *State) {
 	e.TilePos = e.FutureTilePos
 }
 
+// SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.
 func (e *Entity) SetBehaviorImmediate(behavior EntityBehavior, s *State) {
 	e.BehaviorState = EntityBehaviorState{Behavior: behavior}
 	e.BehaviorState.Behavior.Step(e, s)
