@@ -31,7 +31,6 @@ func (d *Decoration) ID() DecorationID {
 
 func (d *Decoration) Flip() {
 	d.TilePos = d.TilePos.Flipped()
-	d.Offset.X = -d.Offset.X
 	d.IsFlipped = !d.IsFlipped
 }
 
@@ -59,8 +58,8 @@ func (d *Decoration) Appearance(b *bundle.Bundle) draw.Node {
 	x, y := d.TilePos.XY()
 
 	rootNode.Opts.GeoM.Translate(
-		float64((x-1)*TileRenderedWidth+TileRenderedWidth/2+d.Offset.X),
-		float64((y-1)*TileRenderedHeight+TileRenderedHeight/2+d.Offset.Y),
+		float64((x-1)*TileRenderedWidth+TileRenderedWidth/2),
+		float64((y-1)*TileRenderedHeight+TileRenderedHeight/2),
 	)
 
 	spriteNode := &draw.OptionsNode{}
@@ -68,6 +67,7 @@ func (d *Decoration) Appearance(b *bundle.Bundle) draw.Node {
 
 	sprite := b.DecorationSprites[d.Type]
 	spriteNode.Children = append(spriteNode.Children, draw.ImageWithAnimation(sprite.Image, sprite.Animation, int(d.ElapsedTime)))
+	spriteNode.Opts.GeoM.Translate(float64(d.Offset.X), float64(d.Offset.Y))
 	if d.IsFlipped {
 		spriteNode.Opts.GeoM.Scale(-1, 1)
 	}
