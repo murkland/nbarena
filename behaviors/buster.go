@@ -8,6 +8,7 @@ import (
 )
 
 type Buster struct {
+	Speed        int
 	BaseDamage   int
 	IsPowerShot  bool
 	isJammed     bool
@@ -31,6 +32,7 @@ func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 
 func (eb *Buster) Clone() state.EntityBehavior {
 	return &Buster{
+		eb.Speed,
 		eb.BaseDamage,
 		eb.IsPowerShot,
 		eb.isJammed,
@@ -58,7 +60,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 
 	if realElapsedTime == 1 {
 		_, d := query.FindNearestEntity(s, e.ID(), e.TilePos, e.IsAlliedWithAnswerer, e.IsFlipped, query.HorizontalDistance)
-		eb.cooldownTime = busterCooldownDurations[0][d]
+		eb.cooldownTime = busterCooldownDurations[eb.Speed][d]
 
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
