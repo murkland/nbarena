@@ -41,19 +41,17 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		dx := query.DXForward(e.IsFlipped)
 
 		var entities []*state.Entity
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y))...)
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y+1))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y-1))...)
 
 		for _, target := range entities {
-			if target.FlashingTimeLeft == 0 {
-				var h state.Hit
-				h.Traits.Drag = state.DragTypeBig
-				h.Traits.SlideDirection = e.Facing()
-				h.Traits.Element = state.ElementWind
-				h.AddDamage(eb.Damage)
-				target.Hit.Merge(h)
-			}
+			var h state.Hit
+			h.Traits.Drag = state.DragTypeBig
+			h.Traits.SlideDirection = e.Facing()
+			h.Traits.Element = state.ElementWind
+			h.AddDamage(eb.Damage)
+			target.Hit.Merge(h)
 		}
 
 		for i := 1; i <= 3; i++ {

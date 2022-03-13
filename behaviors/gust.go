@@ -38,11 +38,7 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		}
 	}
 
-	for _, target := range query.TangibleEntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
-			continue
-		}
-
+	for _, target := range query.HittableEntitiesAt(s, e, e.TilePos) {
 		var h state.Hit
 		h.Traits.Element = state.ElementWind
 		h.Traits.SlideDirection = eb.Direction

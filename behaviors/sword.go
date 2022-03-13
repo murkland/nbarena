@@ -83,17 +83,17 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 	x, y := e.TilePos.XY()
 	dx := query.DXForward(e.IsFlipped)
 	var entities []*state.Entity
-	entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y))...)
+	entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y))...)
 
 	switch r {
 	case SwordRangeWide:
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y+1))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y-1))...)
 	case SwordRangeLong:
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+2*dx, y))...)
 	case SwordRangeVeryLong:
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
-		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+3*dx, y))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+2*dx, y))...)
+		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+3*dx, y))...)
 	}
 
 	return entities
@@ -110,16 +110,14 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 		})
 
 		for _, target := range swordTargetEntities(s, e, eb.Range) {
-			if target.FlashingTimeLeft == 0 {
-				var h state.Hit
-				h.Traits.Flinch = true
-				h.Traits.FlashTime = state.DefaultFlashTime
-				h.Traits.Element = state.ElementSword
-				h.Traits.SecondaryElementSword = true
-				state.MaybeApplyCounter(target, e, &h)
-				h.AddDamage(eb.Damage)
-				target.Hit.Merge(h)
-			}
+			var h state.Hit
+			h.Traits.Flinch = true
+			h.Traits.FlashTime = state.DefaultFlashTime
+			h.Traits.Element = state.ElementSword
+			h.Traits.SecondaryElementSword = true
+			state.MaybeApplyCounter(target, e, &h)
+			h.AddDamage(eb.Damage)
+			target.Hit.Merge(h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 21-1 {
 		e.NextBehavior = &Idle{}

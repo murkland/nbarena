@@ -119,8 +119,8 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	for _, target := range query.TangibleEntitiesAt(s, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
+	for _, target := range query.HittableEntitiesAt(s, e, e.TilePos) {
+		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
 			continue
 		}
 

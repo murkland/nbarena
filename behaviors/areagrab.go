@@ -52,7 +52,7 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 			tile.IsAlliedWithAnswerer = e.IsAlliedWithAnswerer
 			s.Field.ColumnInfo[x].AllySwapTimeLeft = 1800
 		} else {
-			entities := query.TangibleEntitiesAt(s, state.TilePosXY(x, y))
+			entities := query.HittableEntitiesAt(s, e, state.TilePosXY(x, y))
 			_ = entities
 			// TODO: Damage.
 		}
