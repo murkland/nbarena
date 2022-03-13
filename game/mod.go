@@ -59,6 +59,13 @@ func (cs *clientState) SelfEntityID() state.EntityID {
 	return cs.OffererEntityID
 }
 
+func (cs *clientState) OpponentEntityID() state.EntityID {
+	if cs.isAnswerer {
+		return cs.OffererEntityID
+	}
+	return cs.AnswererEntityID
+}
+
 func (cs *clientState) fastForward(b *bundle.Bundle) error {
 	n := cs.outgoingIntents.Used()
 	if cs.incomingIntents.Used() < n {
@@ -429,6 +436,29 @@ func (g *Game) uiAppearance() draw.Node {
 		hpPlaqueNode.Opts.GeoM.Translate(float64(-hpTextImage.Bounds().Dx()+39), float64(3))
 		hpPlaqueNode.Children = append(hpPlaqueNode.Children, &draw.ImageNode{Image: hpTextImage})
 		rootNode.Children = append(rootNode.Children, hpPlaqueNode)
+	}
+
+	{
+		opponent := g.cs.dirtyState.Entities[g.cs.OpponentEntityID()]
+		if opponent.ChipPlaque.Chip != nil {
+			chipTextNode := &draw.OptionsNode{}
+			chipTextNode.Opts.GeoM.Translate(float64(sceneWidth-16), 36)
+			rootNode.Children = append(rootNode.Children, chipTextNode)
+
+			s := opponent.ChipPlaque.Chip.Name
+
+			chipTextBgNode := &draw.OptionsNode{}
+			chipTextNode.Children = append(chipTextNode.Children, chipTextBgNode)
+			chipTextBgNode.Opts.ColorM.Translate(-1.0, -1.0, -1.0, 0.0)
+			chipTextBgNode.Opts.GeoM.Translate(float64(1), float64(1))
+			chipTextBgNode.Children = append(chipTextBgNode.Children, &draw.TextNode{Text: s, Face: g.bundle.TallFont, Anchor: draw.TextAnchorRight})
+
+			chipTextFgNode := &draw.OptionsNode{}
+			chipTextNode.Children = append(chipTextNode.Children, chipTextFgNode)
+			chipTextFgNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
+			chipTextFgNode.Children = append(chipTextFgNode.Children, &draw.TextNode{Text: s, Face: g.bundle.TallFont, Anchor: draw.TextAnchorRight})
+
+		}
 	}
 
 	// TODO: Render chip. Must be not in chip use lockout.

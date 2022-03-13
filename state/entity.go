@@ -11,6 +11,7 @@ import (
 	"github.com/murkland/clone"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -50,6 +51,11 @@ func (s EntityBehaviorState) Clone() EntityBehaviorState {
 }
 
 type EntityID int
+
+type ChipPlaque struct {
+	ElapsedTime Ticks
+	Chip        *Chip
+}
 
 type Entity struct {
 	id EntityID
@@ -94,9 +100,11 @@ type Entity struct {
 	Hit          Hit
 	PerTickState EntityPerTickState
 
-	Chips                  []Chip
+	Chips                  []*Chip
 	ChipUseQueued          bool
 	ChipUseLockoutTimeLeft Ticks
+
+	ChipPlaque ChipPlaque
 }
 
 func (e *Entity) ID() EntityID {
@@ -129,7 +137,8 @@ func (e *Entity) Clone() *Entity {
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.IsAngry, e.IsFullSynchro,
 		e.Hit, e.PerTickState,
-		clone.Slice(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
+		slices.Clone(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
+		e.ChipPlaque,
 	}
 }
 
@@ -146,7 +155,8 @@ func (e *Entity) UseChip(s *State) bool {
 	}
 	chip := e.Chips[len(e.Chips)-1]
 	e.Chips = e.Chips[:len(e.Chips)-1]
-	chip.OnUse(s, e)
+	e.NextBehavior = chip.MakeBehavior()
+	e.ChipPlaque = ChipPlaque{Chip: chip}
 	return true
 }
 
@@ -317,6 +327,13 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 func (e *Entity) Step(s *State) {
 	if e.ChipUseLockoutTimeLeft > 0 {
 		e.ChipUseLockoutTimeLeft--
+	}
+
+	if e.ChipPlaque.Chip != nil {
+		e.ChipPlaque.ElapsedTime++
+		if e.ChipPlaque.ElapsedTime >= 60 {
+			e.ChipPlaque = ChipPlaque{}
+		}
 	}
 
 	e.elapsedTime++
