@@ -6,6 +6,20 @@ const DefaultFlashTime Ticks = 119
 // Apparently this is 1 frame shorter than expected - BN6 will remove paralyze if timeLeft - 1 == 0, but we only remove it if timeLeft = 0.
 const DefaultParalyzeTime Ticks = 149
 
+type Element int
+
+const (
+	ElementNull   Element = 0
+	ElementFire   Element = 1
+	ElementAqua   Element = 2
+	ElementElec   Element = 3
+	ElementWood   Element = 4
+	ElementSword  Element = 5
+	ElementWind   Element = 6
+	ElementCursor Element = 7
+	ElementBreak  Element = 8
+)
+
 type Damage struct {
 	Base int
 
