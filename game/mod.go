@@ -359,12 +359,13 @@ func makeTextGradient(color0 color.Color, color1 color.Color, color2 color.Color
 var (
 	whiteTextGradient      = makeTextGradient(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}, color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}, color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
 	chipDamageTextGradient = makeTextGradient(color.RGBA{0xFF, 0xA5, 0x00, 0xFF}, color.RGBA{0xFF, 0xDE, 0x00, 0xFF}, color.RGBA{0xFF, 0xDE, 0x00, 0xFF})
-	hpNeutralTextGradient  = makeTextGradient(color.RGBA{0xCE, 0xE7, 0xFF, 0xFF}, color.RGBA{0xE7, 0xE7, 0xFF, 0xFF}, color.RGBA{0xF7, 0xF7, 0xF7, 0xFF})
+	hpNeutralTextGradient  = makeTextGradient(color.RGBA{0xCE, 0xE7, 0xFF, 0xFF}, color.RGBA{0xE7, 0xEF, 0xFF, 0xFF}, color.RGBA{0xF7, 0xF7, 0xF7, 0xFF})
 	hpLossTextGradient     = makeTextGradient(color.RGBA{0xFF, 0xA5, 0x21, 0xFF}, color.RGBA{0xFF, 0xC6, 0x63, 0xFF}, color.RGBA{0xFF, 0xEF, 0xAD, 0xFF})
 	hpGainTextGradient     = makeTextGradient(color.RGBA{0x39, 0xFF, 0x94, 0xFF}, color.RGBA{0x84, 0xFF, 0xC6, 0xFF}, color.RGBA{0xD7, 0xFF, 0xF7, 0xFF})
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{0xCE, 0xFF, 0xC6, 0xFF})
 	k := scaleFactor(screen.Bounds())
 	compositorBounds := image.Rect(0, 0, sceneWidth*k, sceneHeight*k)
 
@@ -407,6 +408,15 @@ func chipPlaqueApperance(b *bundle.Bundle, chip *state.Chip, anchor styledtext.A
 	return styledtext.MakeNode(spans, anchor, b.TallFont, styledtext.BorderRightBottom, color.RGBA{0x00, 0x00, 0x00, 0xff})
 }
 
+var (
+	hpBoxImage = func() *ebiten.Image {
+		img := ebiten.NewImage(44, 16)
+		img.Fill(color.RGBA{0xf8, 0xff, 0xff, 0xff})
+		img.SubImage(image.Rect(2, 1, 42, 15)).(*ebiten.Image).Fill(color.RGBA{0x39, 0x52, 0x6b, 0xff})
+		return img
+	}()
+)
+
 func (g *Game) uiAppearance() draw.Node {
 	rootNode := &draw.OptionsNode{Layer: 9}
 	{
@@ -418,10 +428,19 @@ func (g *Game) uiAppearance() draw.Node {
 		} else if self.DisplayHP < self.HP {
 			gradientImage = hpGainTextGradient
 		}
+
 		hpPlaqueNode := &draw.OptionsNode{}
+		hpPlaqueNode.Opts.GeoM.Translate(float64(2), float64(0))
 		rootNode.Children = append(rootNode.Children, hpPlaqueNode)
-		hpPlaqueNode.Opts.GeoM.Translate(float64(39), float64(3))
-		hpPlaqueNode.Children = append(hpPlaqueNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: strconv.Itoa(self.DisplayHP), Background: gradientImage}}, styledtext.AnchorRight|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderNone, color.RGBA{}))
+
+		hpPlaqueBgNode := &draw.OptionsNode{}
+		hpPlaqueNode.Children = append(hpPlaqueNode.Children, hpPlaqueBgNode)
+		hpPlaqueBgNode.Children = append(hpPlaqueBgNode.Children, &draw.ImageNode{Image: hpBoxImage})
+
+		hpPlaqueTextNode := &draw.OptionsNode{}
+		hpPlaqueTextNode.Opts.GeoM.Translate(float64(38), float64(3))
+		hpPlaqueNode.Children = append(hpPlaqueNode.Children, hpPlaqueTextNode)
+		hpPlaqueTextNode.Children = append(hpPlaqueTextNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: strconv.Itoa(self.DisplayHP), Background: gradientImage}}, styledtext.AnchorRight|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderNone, color.RGBA{}))
 	}
 
 	{
