@@ -61,6 +61,7 @@ func (eb *Dragged) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	if eb.PostDragParalyzeTime > 0 {
 		childNode = (&Paralyzed{Duration: 0}).Appearance(e, b)
 	} else {
+		// TODO: The timing is correct but the animation is wrong.
 		childNode = draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.FlinchAnimation.Frames[eb.dragCompleteDuration])
 	}
 
