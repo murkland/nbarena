@@ -140,6 +140,16 @@ func (e *Entity) Facing() Direction {
 	return DirectionRight
 }
 
+func (e *Entity) UseChip(s *State) bool {
+	if len(e.Chips) == 0 {
+		return false
+	}
+	chip := e.Chips[len(e.Chips)-1]
+	e.Chips = e.Chips[:len(e.Chips)-1]
+	chip.OnUse(s, e)
+	return true
+}
+
 func (e *Entity) ElapsedTime() Ticks {
 	return e.elapsedTime
 }
