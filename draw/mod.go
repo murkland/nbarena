@@ -120,9 +120,21 @@ func ImageWithOrigin(img *ebiten.Image, origin image.Point) Node {
 	return node
 }
 
+type TextAnchor int
+
+const (
+	TextAnchorLeft   TextAnchor = 0b0000
+	TextAnchorCenter TextAnchor = 0b0001
+	TextAnchorRight  TextAnchor = 0b0010
+	TextAnchorTop    TextAnchor = 0b0000
+	TextAnchorMiddle TextAnchor = 0b0100
+	TextAnchorBottom TextAnchor = 0b1000
+)
+
 type TextNode struct {
-	Face font.Face
-	Text string
+	Anchor TextAnchor
+	Face   font.Face
+	Text   string
 }
 
 func (n *TextNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
@@ -130,6 +142,18 @@ func (n *TextNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
 	bounds := text.BoundString(n.Face, n.Text)
 	o.GeoM = ebiten.GeoM{}
 	o.GeoM.Translate(0, float64(-bounds.Min.Y))
+	switch n.Anchor & 0b0011 {
+	case TextAnchorCenter:
+		o.GeoM.Translate(float64(-bounds.Dx()/2), 0)
+	case TextAnchorRight:
+		o.GeoM.Translate(float64(-bounds.Dx()), 0)
+	}
+	switch n.Anchor & 0b1100 {
+	case TextAnchorMiddle:
+		o.GeoM.Translate(0, float64(-bounds.Dy()/2))
+	case TextAnchorBottom:
+		o.GeoM.Translate(0, float64(-bounds.Dy()/2))
+	}
 	o.GeoM.Concat(opts.GeoM)
 	text.DrawWithOptions(compositor.currentLayer, n.Text, n.Face, &o)
 }

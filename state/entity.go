@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/murkland/clone"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
@@ -275,8 +274,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 			// Render HP.
 			hpText := strconv.Itoa(int(e.DisplayHP))
-			rect := text.BoundString(b.TinyNumFont, hpText)
-			hpNode.Opts.GeoM.Translate(float64(-rect.Max.X/2), float64(4))
+			hpNode.Opts.GeoM.Translate(float64(0), float64(4))
 
 			for dx := -1; dx <= 1; dx++ {
 				for dy := -1; dy <= 1; dy++ {
@@ -284,7 +282,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 					hpNode.Children = append(hpNode.Children, strokeNode)
 					strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
 					strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
-					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont})
+					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter})
 				}
 
 				fillNode := &draw.OptionsNode{}
@@ -294,7 +292,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 				} else if e.DisplayHP < e.HP {
 					fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
 				}
-				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont})
+				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter})
 			}
 		}
 	} else {
