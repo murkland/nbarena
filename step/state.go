@@ -5,7 +5,6 @@ import (
 
 	"github.com/murkland/nbarena/behaviors"
 	"github.com/murkland/nbarena/bundle"
-	"github.com/murkland/nbarena/chips"
 	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
