@@ -232,6 +232,7 @@ func (e *Entity) FinishMove(s *State) {
 	// TODO: Trigger on leave?
 	s.Field.Tiles[e.TilePos].Reserver = 0
 	e.TilePos = e.FutureTilePos
+	s.Field.Tiles[e.TilePos].Reserver = e.ID()
 }
 
 // SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.
