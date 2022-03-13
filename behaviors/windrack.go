@@ -81,19 +81,11 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 
 func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	megamanFrameIdx := int(e.BehaviorState.ElapsedTime)
-	if megamanFrameIdx >= len(b.MegamanSprites.SlashAnimation.Frames) {
-		megamanFrameIdx = len(b.MegamanSprites.SlashAnimation.Frames) - 1
-	}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[megamanFrameIdx]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation, int(e.BehaviorState.ElapsedTime)))
 
 	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
-	rackFrameIdx := int(e.BehaviorState.ElapsedTime)
-	if rackFrameIdx >= len(b.WindRackSprites.Animations[0].Frames) {
-		rackFrameIdx = len(b.WindRackSprites.Animations[0].Frames) - 1
-	}
-	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.WindRackSprites.Image, b.WindRackSprites.Animations[0].Frames[rackFrameIdx]))
+	swordNode.Children = append(swordNode.Children, draw.ImageWithAnimation(b.WindRackSprites.Image, b.WindRackSprites.Animations[0], int(e.BehaviorState.ElapsedTime)))
 
 	return rootNode
 }

@@ -102,33 +102,19 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	realElapsedTime := eb.realElapsedTime(e)
 
 	if realElapsedTime < 0 {
-		frame := b.MegamanSprites.IdleAnimation.Frames[0]
-		return draw.ImageWithFrame(b.MegamanSprites.Image, frame)
+		return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime()))
 	}
 
 	rootNode := &draw.OptionsNode{}
-
-	megamanBusterAnimTime := int(realElapsedTime)
-	if megamanBusterAnimTime >= len(b.MegamanSprites.BusterAnimation.Frames) {
-		megamanBusterAnimTime = len(b.MegamanSprites.BusterAnimation.Frames) - 1
-	}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation.Frames[megamanBusterAnimTime]))
-
-	busterFrames := b.BusterSprites.BaseAnimation
-	busterAnimTime := int(realElapsedTime)
-	if busterAnimTime >= len(busterFrames.Frames) {
-		busterAnimTime = len(busterFrames.Frames) - 1
-	}
-	busterFrame := busterFrames.Frames[busterAnimTime]
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.BusterSprites.Image, busterFrame))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.BusterAnimation, int(realElapsedTime)))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.BusterSprites.Image, b.BusterSprites.BaseAnimation, int(realElapsedTime)))
 
 	if !eb.isJammed {
 		muzzleFlashAnimTime := int(realElapsedTime) - 1
 		if muzzleFlashAnimTime > 0 && muzzleFlashAnimTime < len(b.MuzzleFlashSprites.Animations[0].Frames) {
 			muzzleFlashNode := &draw.OptionsNode{Layer: 7}
 			muzzleFlashNode.Opts.GeoM.Translate(float64(state.TileRenderedWidth), float64(-26))
-			muzzleFlashFrame := b.MuzzleFlashSprites.Animations[0].Frames[muzzleFlashAnimTime]
-			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithFrame(b.MuzzleFlashSprites.Image, muzzleFlashFrame))
+			muzzleFlashNode.Children = append(muzzleFlashNode.Children, draw.ImageWithAnimation(b.MuzzleFlashSprites.Image, b.MuzzleFlashSprites.Animations[0], muzzleFlashAnimTime))
 			rootNode.Children = append(rootNode.Children, muzzleFlashNode)
 		}
 	}

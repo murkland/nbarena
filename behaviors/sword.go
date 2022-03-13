@@ -124,11 +124,11 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 
 func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation.Frames[e.BehaviorState.ElapsedTime]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.SlashAnimation, int(e.BehaviorState.ElapsedTime)))
 
 	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
-	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorState.ElapsedTime]))
+	swordNode.Children = append(swordNode.Children, draw.ImageWithAnimation(b.SwordSprites.Image, b.SwordSprites.BaseAnimation, int(e.BehaviorState.ElapsedTime)))
 
 	return rootNode
 }

@@ -30,6 +30,6 @@ func (eb *Frozen) Step(e *state.Entity, s *state.State) {
 func (eb *Frozen) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	rootNode.Opts.ColorM.Translate(float64(0xa5)/float64(0xff), float64(0xa5)/float64(0xff), float64(0xff)/float64(0xff), 0.0)
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation.Frames[int(e.BehaviorState.ElapsedTime)%len(b.MegamanSprites.StuckAnimation.Frames)]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation, int(e.BehaviorState.ElapsedTime)))
 	return rootNode
 }

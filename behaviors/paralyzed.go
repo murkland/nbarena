@@ -32,6 +32,6 @@ func (eb *Paralyzed) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	if (e.ElapsedTime()/2)%2 == 1 {
 		rootNode.Opts.ColorM.Translate(1.0, 1.0, 0.0, 0.0)
 	}
-	rootNode.Children = append(rootNode.Children, draw.ImageWithFrame(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation.Frames[int(e.BehaviorState.ElapsedTime)%len(b.MegamanSprites.StuckAnimation.Frames)]))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.StuckAnimation, int(e.BehaviorState.ElapsedTime)))
 	return rootNode
 }
