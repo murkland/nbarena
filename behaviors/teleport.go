@@ -9,9 +9,17 @@ import (
 
 const teleportEndlagTicks = 6
 
+type teleportEndAction int
+
+const (
+	teleportEndActionIdle      teleportEndAction = 0
+	teleportEndActionUseChip   teleportEndAction = 1
+	teleportEndActionUseBuster teleportEndAction = 2
+)
+
 type Teleport struct {
 	ChargingElapsedTime state.Ticks
-	useChip             bool
+	endAction           teleportEndAction
 }
 
 func (eb *Teleport) Flip() {
@@ -22,16 +30,20 @@ func (eb *Teleport) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *Teleport) Clone() state.EntityBehavior {
-	return &Teleport{eb.ChargingElapsedTime, eb.useChip}
+	return &Teleport{eb.ChargingElapsedTime, eb.endAction}
 }
 
 func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip {
-		eb.useChip = true
+		eb.endAction = teleportEndActionUseChip
 	}
 
 	if e.Intent.ChargeBasicWeapon {
 		eb.ChargingElapsedTime++
+	}
+
+	if !e.Intent.ChargeBasicWeapon && eb.ChargingElapsedTime > 0 && eb.endAction == teleportEndActionIdle {
+		eb.endAction = teleportEndActionUseBuster
 	}
 
 	if e.BehaviorState.ElapsedTime == 3 {
@@ -40,8 +52,13 @@ func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 
 	if e.BehaviorState.ElapsedTime == 6+teleportEndlagTicks-1 {
 		e.NextBehavior = &Idle{eb.ChargingElapsedTime}
-		if eb.useChip && e.ChipUseLockoutTimeLeft == 0 {
-			e.UseChip(s)
+		switch eb.endAction {
+		case teleportEndActionUseChip:
+			if e.ChipUseLockoutTimeLeft == 0 {
+				e.UseChip(s)
+			}
+		case teleportEndActionUseBuster:
+			e.NextBehavior = &Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}
 		}
 	}
 }
