@@ -311,7 +311,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 					hpNode.Children = append(hpNode.Children, strokeNode)
 					strokeNode.Opts.GeoM.Translate(float64(dx), float64(dy))
 					strokeNode.Opts.ColorM.Scale(float64(0x31)/float64(0xFF), float64(0x39)/float64(0xFF), float64(0x52)/float64(0xFF), 1.0)
-					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter})
+					strokeNode.Children = append(strokeNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter | draw.TextAnchorBottom})
 				}
 
 				fillNode := &draw.OptionsNode{}
@@ -321,7 +321,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 				} else if e.DisplayHP < e.HP {
 					fillNode.Opts.ColorM.Scale(float64(0x73)/float64(0xFF), float64(0xFF)/float64(0xFF), float64(0x4A)/float64(0xFF), 1.0)
 				}
-				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter})
+				fillNode.Children = append(fillNode.Children, &draw.TextNode{Text: hpText, Face: b.TinyNumFont, Anchor: draw.TextAnchorCenter | draw.TextAnchorBottom})
 			}
 		}
 	} else {

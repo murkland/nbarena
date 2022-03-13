@@ -12,13 +12,13 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/keegancsmith/nth"
 	"github.com/murkland/ctxwebrtc"
 	"github.com/murkland/nbarena/behaviors"
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/chips"
 	"github.com/murkland/nbarena/draw"
+	"github.com/murkland/nbarena/draw/styledtext"
 	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/packets"
 	"github.com/murkland/nbarena/state"
@@ -341,7 +341,7 @@ func (g *Game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
 
-func makeHPGradient(color0 color.Color, color1 color.Color, color2 color.Color) *ebiten.Image {
+func makeTextGradient(color0 color.Color, color1 color.Color, color2 color.Color) *ebiten.Image {
 	gradientImage := ebiten.NewImage(1, 10)
 	gradientImage.Set(0, 0, color0)
 	gradientImage.Set(0, 1, color0)
@@ -357,9 +357,11 @@ func makeHPGradient(color0 color.Color, color1 color.Color, color2 color.Color) 
 }
 
 var (
-	hpNeutralGradient = makeHPGradient(color.RGBA{0xCE, 0xE7, 0xFF, 0xFF}, color.RGBA{0xE7, 0xE7, 0xFF, 0xFF}, color.RGBA{0xF7, 0xF7, 0xF7, 0xFF})
-	hpLossGradient    = makeHPGradient(color.RGBA{0xFF, 0xA5, 0x21, 0xFF}, color.RGBA{0xFF, 0xC6, 0x63, 0xFF}, color.RGBA{0xFF, 0xEF, 0xAD, 0xFF})
-	hpGainGradient    = makeHPGradient(color.RGBA{0x39, 0xFF, 0x94, 0xFF}, color.RGBA{0x84, 0xFF, 0xC6, 0xFF}, color.RGBA{0xD7, 0xFF, 0xF7, 0xFF})
+	whiteTextGradient      = makeTextGradient(color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}, color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}, color.RGBA{0xFF, 0xFF, 0xFF, 0xFF})
+	chipDamageTextGradient = makeTextGradient(color.RGBA{0xFF, 0xA5, 0x00, 0xFF}, color.RGBA{0xFF, 0xDE, 0x00, 0xFF}, color.RGBA{0xFF, 0xDE, 0x00, 0xFF})
+	hpNeutralTextGradient  = makeTextGradient(color.RGBA{0xCE, 0xE7, 0xFF, 0xFF}, color.RGBA{0xE7, 0xE7, 0xFF, 0xFF}, color.RGBA{0xF7, 0xF7, 0xF7, 0xFF})
+	hpLossTextGradient     = makeTextGradient(color.RGBA{0xFF, 0xA5, 0x21, 0xFF}, color.RGBA{0xFF, 0xC6, 0x63, 0xFF}, color.RGBA{0xFF, 0xEF, 0xAD, 0xFF})
+	hpGainTextGradient     = makeTextGradient(color.RGBA{0x39, 0xFF, 0x94, 0xFF}, color.RGBA{0x84, 0xFF, 0xC6, 0xFF}, color.RGBA{0xD7, 0xFF, 0xF7, 0xFF})
 )
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -397,27 +399,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.compositor.Draw(screen, &opts)
 }
 
-func chipPlaqueApperance(b *bundle.Bundle, chip *state.Chip, anchor draw.TextAnchor) draw.Node {
-	s := chip.Name
-
+func chipPlaqueApperance(b *bundle.Bundle, chip *state.Chip, anchor styledtext.Anchor) draw.Node {
+	spans := []styledtext.Span{{Text: chip.Name, Background: whiteTextGradient}}
 	if chip.BaseDamage > 0 {
-		s = s + strconv.Itoa(chip.BaseDamage)
+		spans = append(spans, styledtext.Span{Text: strconv.Itoa(chip.BaseDamage), Background: chipDamageTextGradient})
 	}
-
-	rootNode := &draw.OptionsNode{}
-
-	chipTextBgNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, chipTextBgNode)
-	chipTextBgNode.Opts.ColorM.Translate(-1.0, -1.0, -1.0, 0.0)
-	chipTextBgNode.Opts.GeoM.Translate(float64(1), float64(1))
-	chipTextBgNode.Children = append(chipTextBgNode.Children, &draw.TextNode{Text: s, Face: b.TallFont, Anchor: anchor})
-
-	chipTextFgNode := &draw.OptionsNode{}
-	rootNode.Children = append(rootNode.Children, chipTextFgNode)
-	chipTextFgNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
-	chipTextFgNode.Children = append(chipTextFgNode.Children, &draw.TextNode{Text: s, Face: b.TallFont, Anchor: anchor})
-
-	return rootNode
+	return styledtext.MakeNode(spans, anchor, b.TallFont, styledtext.BorderRightBottom, color.RGBA{0x00, 0x00, 0x00, 0xff})
 }
 
 func (g *Game) uiAppearance() draw.Node {
@@ -425,51 +412,25 @@ func (g *Game) uiAppearance() draw.Node {
 	{
 		self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
 
-		hpText := strconv.Itoa(int(self.DisplayHP))
-		rect := text.BoundString(g.bundle.TallFont, hpText)
-
-		textOnlyImage := ebiten.NewImage(rect.Max.X, rect.Dy())
-		{
-			opts := &ebiten.DrawImageOptions{}
-			opts.GeoM.Translate(float64(0), float64(-rect.Min.Y))
-			text.DrawWithOptions(textOnlyImage, hpText, g.bundle.TallFont, opts)
-		}
-
-		gradientImage := hpNeutralGradient
+		gradientImage := hpNeutralTextGradient
 		if self.DisplayHP > self.HP {
-			gradientImage = hpLossGradient
+			gradientImage = hpLossTextGradient
 		} else if self.DisplayHP < self.HP {
-			gradientImage = hpGainGradient
+			gradientImage = hpGainTextGradient
 		}
-
-		hpTextImage := ebiten.NewImage(textOnlyImage.Bounds().Dx(), textOnlyImage.Bounds().Dy())
-		{
-			opts := &ebiten.DrawImageOptions{}
-			opts.GeoM.Scale(float64(hpTextImage.Bounds().Dx()), 1.0)
-			hpTextImage.DrawImage(gradientImage, opts)
-		}
-
-		{
-			opts := &ebiten.DrawImageOptions{}
-			opts.CompositeMode = ebiten.CompositeModeDestinationIn
-			hpTextImage.DrawImage(textOnlyImage, opts)
-		}
-
 		hpPlaqueNode := &draw.OptionsNode{}
-		hpPlaqueNode.Opts.GeoM.Translate(float64(-hpTextImage.Bounds().Dx()+39), float64(3))
-		hpPlaqueNode.Children = append(hpPlaqueNode.Children, &draw.ImageNode{Image: hpTextImage})
 		rootNode.Children = append(rootNode.Children, hpPlaqueNode)
+		hpPlaqueNode.Opts.GeoM.Translate(float64(39), float64(3))
+		hpPlaqueNode.Children = append(hpPlaqueNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: strconv.Itoa(self.DisplayHP), Background: gradientImage}}, styledtext.AnchorRight|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderNone, color.RGBA{}))
 	}
 
 	{
 		opponent := g.cs.dirtyState.Entities[g.cs.OpponentEntityID()]
 		if opponent.ChipPlaque.Chip != nil {
-			rootNode.Opts.GeoM.Translate(1, float64(sceneHeight-12))
-
-			chipTextNode := &draw.OptionsNode{}
-			chipTextNode.Opts.GeoM.Translate(float64(sceneWidth-16), 36)
-			rootNode.Children = append(rootNode.Children, chipTextNode)
-			rootNode.Children = append(rootNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, draw.TextAnchorRight))
+			chipPlaqueNode := &draw.OptionsNode{}
+			rootNode.Children = append(rootNode.Children, chipPlaqueNode)
+			chipPlaqueNode.Opts.GeoM.Translate(float64(sceneWidth-16), 36)
+			chipPlaqueNode.Children = append(chipPlaqueNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, styledtext.AnchorRight|styledtext.AnchorTop))
 		}
 	}
 
@@ -479,9 +440,9 @@ func (g *Game) uiAppearance() draw.Node {
 		chip := self.Chips[len(self.Chips)-1]
 
 		chipTextNode := &draw.OptionsNode{}
-		chipTextNode.Opts.GeoM.Translate(1, float64(sceneHeight-12))
 		rootNode.Children = append(rootNode.Children, chipTextNode)
-		chipTextNode.Children = append(chipTextNode.Children, chipPlaqueApperance(g.bundle, chip, draw.TextAnchorLeft))
+		chipTextNode.Opts.GeoM.Translate(1, float64(sceneHeight-12))
+		chipTextNode.Children = append(chipTextNode.Children, chipPlaqueApperance(g.bundle, chip, styledtext.AnchorLeft|styledtext.AnchorTop))
 	}
 
 	return rootNode

@@ -126,9 +126,9 @@ const (
 	TextAnchorLeft   TextAnchor = 0b0000
 	TextAnchorCenter TextAnchor = 0b0001
 	TextAnchorRight  TextAnchor = 0b0010
-	TextAnchorTop    TextAnchor = 0b0000
+	TextAnchorTop    TextAnchor = 0b1000
 	TextAnchorMiddle TextAnchor = 0b0100
-	TextAnchorBottom TextAnchor = 0b1000
+	TextAnchorBottom TextAnchor = 0b0000
 )
 
 type TextNode struct {
@@ -150,9 +150,9 @@ func (n *TextNode) Draw(compositor *Compositor, opts *ebiten.DrawImageOptions) {
 	}
 	switch n.Anchor & 0b1100 {
 	case TextAnchorMiddle:
-		o.GeoM.Translate(0, float64(-bounds.Dy()/2))
-	case TextAnchorBottom:
-		o.GeoM.Translate(0, float64(-bounds.Dy()/2))
+		o.GeoM.Translate(0, float64(bounds.Min.Y/2))
+	case TextAnchorTop:
+		o.GeoM.Translate(0, float64(bounds.Min.Y))
 	}
 	o.GeoM.Concat(opts.GeoM)
 	text.DrawWithOptions(compositor.currentLayer, n.Text, n.Face, &o)
