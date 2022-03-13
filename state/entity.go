@@ -40,7 +40,6 @@ type SlideState struct {
 
 type EntityBehaviorTraits struct {
 	CanBeCountered bool
-	RunsInTimestop bool
 }
 
 type EntityBehaviorState struct {
@@ -73,6 +72,8 @@ type Entity struct {
 	id EntityID
 
 	elapsedTime Ticks
+
+	RunsInTimestop bool
 
 	BehaviorState        EntityBehaviorState
 	NextBehavior         EntityBehavior
@@ -135,6 +136,7 @@ func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
 		e.elapsedTime,
+		e.RunsInTimestop,
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,

@@ -46,6 +46,8 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 
 		for y := 1; y < 4; y++ {
 			s.AddEntity(&state.Entity{
+				RunsInTimestop: true,
+
 				TilePos: state.TilePosXY(x, y),
 
 				IsFlipped:            e.IsFlipped,
@@ -84,7 +86,7 @@ func (eb *areaGrabBall) Flip() {
 }
 
 func (eb *areaGrabBall) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{RunsInTimestop: true}
+	return state.EntityBehaviorTraits{}
 }
 
 func (eb *areaGrabBall) Clone() state.EntityBehavior {

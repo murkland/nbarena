@@ -223,7 +223,7 @@ func Step(s *state.State, b *bundle.Bundle) {
 			continue
 		}
 
-		if !s.IsInTimeStop || e.BehaviorState.Behavior.Traits(e).RunsInTimestop {
+		if !s.IsInTimeStop || e.RunsInTimestop {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}
