@@ -20,6 +20,17 @@ const (
 	ElementBreak  Element = 8
 )
 
+func (e Element) IsSuperEffectiveAgainst(e2 Element) bool {
+	return (e == ElementFire && e2 == ElementWood) ||
+		(e == ElementAqua && e2 == ElementFire) ||
+		(e == ElementElec && e2 == ElementAqua) ||
+		(e == ElementWood && e2 == ElementElec) ||
+		(e == ElementSword && e2 == ElementWind) ||
+		(e == ElementWind && e2 == ElementCursor) ||
+		(e == ElementCursor && e2 == ElementBreak) ||
+		(e == ElementBreak && e2 == ElementSword)
+}
+
 type Damage struct {
 	Base int
 
