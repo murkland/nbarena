@@ -179,6 +179,7 @@ const (
 	DecorationTypeUninstallExplosion
 	DecorationTypeChipDeleteExplosion
 	DecorationTypeShieldHitExplosion
+	DecorationTypeWindSlash
 )
 
 type Bundle struct {
@@ -194,7 +195,6 @@ type Bundle struct {
 	SlashSprites       *SlashSprites
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
-	WindSlashSprites   *Sprites
 	FullSynchroSprites *Sprites
 	IcedSprites        *Sprites
 
@@ -299,9 +299,11 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	loader.Add(ctx, l, "assets/sprites/0093.png", &b.AirShooterSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0109.png", &b.WindSlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
+
+	var windSlashDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0109.png", &windSlashDecorationSprites, makeSpriteLoader(sheetToSprites))
 
 	var cannonExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0267.png", &cannonExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
@@ -351,6 +353,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeUninstallExplosion:       {uninstallExplosionDecorationSprites.Image, uninstallExplosionDecorationSprites.Animations[0]},
 		DecorationTypeChipDeleteExplosion:      {chipDeleteExplosionDecorationSprites.Image, chipDeleteExplosionDecorationSprites.Animations[0]},
 		DecorationTypeShieldHitExplosion:       {shieldHitExplosionDecorationSprites.Image, shieldHitExplosionDecorationSprites.Animations[0]},
+		DecorationTypeWindSlash:                {windSlashDecorationSprites.Image, windSlashDecorationSprites.Animations[0]},
 	}
 
 	return b, nil

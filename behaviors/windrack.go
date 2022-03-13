@@ -1,6 +1,8 @@
 package behaviors
 
 import (
+	"image"
+
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
@@ -27,8 +29,13 @@ func (eb *WindRack) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
-	// Only hits while the slash is coming out.
-	if e.BehaviorState.ElapsedTime == 9 {
+	if e.BehaviorState.ElapsedTime == 0 {
+		s.AddDecoration(&state.Decoration{
+			Type:    bundle.DecorationTypeWindSlash,
+			TilePos: e.TilePos,
+			Offset:  image.Point{0, -16},
+		})
+	} else if e.BehaviorState.ElapsedTime == 9 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 
@@ -87,15 +94,6 @@ func (eb *WindRack) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 		rackFrameIdx = len(b.WindRackSprites.Animations[0].Frames) - 1
 	}
 	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.WindRackSprites.Image, b.WindRackSprites.Animations[0].Frames[rackFrameIdx]))
-
-	slashNode := &draw.OptionsNode{Layer: 7}
-	slashNode.Opts.GeoM.Translate(0, float64(-16))
-	rootNode.Children = append(rootNode.Children, slashNode)
-	slashFrameIdx := int(e.BehaviorState.ElapsedTime)
-	if slashFrameIdx >= len(b.WindSlashSprites.Animations[0].Frames) {
-		slashFrameIdx = len(b.WindSlashSprites.Animations[0].Frames) - 1
-	}
-	slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(b.WindSlashSprites.Image, b.WindSlashSprites.Animations[0].Frames[slashFrameIdx]))
 
 	return rootNode
 }
