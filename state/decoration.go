@@ -31,6 +31,7 @@ func (d *Decoration) ID() DecorationID {
 
 func (d *Decoration) Flip() {
 	d.TilePos = d.TilePos.Flipped()
+	d.Offset.X = -d.Offset.X
 	d.IsFlipped = !d.IsFlipped
 }
 
