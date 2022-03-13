@@ -33,9 +33,10 @@ func (eb *Recov) Step(e *state.Entity, s *state.State) {
 		// TODO: Trigger antirecovery.
 
 		s.AddDecoration(&state.Decoration{
-			Type:    bundle.DecorationTypeRecov,
-			TilePos: e.TilePos,
-			Offset:  image.Point{0, 0},
+			Type:      bundle.DecorationTypeRecov,
+			TilePos:   e.TilePos,
+			Offset:    image.Point{0, 0},
+			IsFlipped: e.IsFlipped,
 		})
 
 		e.NextBehavior = &Idle{}

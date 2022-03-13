@@ -17,6 +17,8 @@ type Decoration struct {
 
 	RunsInTimestop bool
 
+	IsFlipped bool
+
 	Type bundle.DecorationType
 
 	TilePos TilePos
@@ -29,6 +31,7 @@ func (d *Decoration) ID() DecorationID {
 
 func (d *Decoration) Flip() {
 	d.TilePos = d.TilePos.Flipped()
+	d.IsFlipped = !d.IsFlipped
 }
 
 func (d *Decoration) Clone() *Decoration {
@@ -36,6 +39,7 @@ func (d *Decoration) Clone() *Decoration {
 		d.id,
 		d.Delay, d.ElapsedTime,
 		d.RunsInTimestop,
+		d.IsFlipped,
 		d.Type,
 		d.TilePos, d.Offset,
 	}
@@ -58,8 +62,14 @@ func (d *Decoration) Appearance(b *bundle.Bundle) draw.Node {
 		float64((y-1)*TileRenderedHeight+TileRenderedHeight/2+d.Offset.Y),
 	)
 
+	spriteNode := &draw.OptionsNode{}
+	rootNode.Children = append(rootNode.Children, spriteNode)
+
 	sprite := b.DecorationSprites[d.Type]
-	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(sprite.Image, sprite.Animation, int(d.ElapsedTime)))
+	spriteNode.Children = append(spriteNode.Children, draw.ImageWithAnimation(sprite.Image, sprite.Animation, int(d.ElapsedTime)))
+	if d.IsFlipped {
+		spriteNode.Opts.GeoM.Scale(-1, 1)
+	}
 
 	return rootNode
 }

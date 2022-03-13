@@ -100,9 +100,10 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
 	if e.BehaviorState.ElapsedTime == 9 {
 		s.AddDecoration(&state.Decoration{
-			Type:    swordSlashDecorationType(eb.Style, eb.Range),
-			TilePos: e.TilePos,
-			Offset:  image.Point{state.TileRenderedWidth, -16},
+			Type:      swordSlashDecorationType(eb.Style, eb.Range),
+			TilePos:   e.TilePos,
+			Offset:    image.Point{state.TileRenderedWidth, -16},
+			IsFlipped: e.IsFlipped,
 		})
 
 		for _, target := range swordTargetEntities(s, e, eb.Range) {

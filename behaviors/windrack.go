@@ -31,9 +31,10 @@ func (eb *WindRack) Traits(e *state.Entity) state.EntityBehaviorTraits {
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 0 {
 		s.AddDecoration(&state.Decoration{
-			Type:    bundle.DecorationTypeWindSlash,
-			TilePos: e.TilePos,
-			Offset:  image.Point{0, -16},
+			Type:      bundle.DecorationTypeWindSlash,
+			TilePos:   e.TilePos,
+			Offset:    image.Point{0, -16},
+			IsFlipped: e.IsFlipped,
 		})
 	} else if e.BehaviorState.ElapsedTime == 9 {
 		x, y := e.TilePos.XY()
