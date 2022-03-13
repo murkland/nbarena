@@ -47,9 +47,9 @@ type HitTraits struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
+	Drag           DragType
 	SlideDirection Direction
 
-	Drag                  DragType
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool

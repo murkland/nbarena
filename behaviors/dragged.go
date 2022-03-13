@@ -11,9 +11,8 @@ import (
 
 type Dragged struct {
 	PostDragParalyzeTime state.Ticks
-	Type                 state.DragType
+	IsBig                bool
 
-	dragComplete         bool
 	dragCompleteDuration state.Ticks
 }
 
@@ -26,13 +25,13 @@ func (eb *Dragged) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *Dragged) Clone() state.EntityBehavior {
 	return &Dragged{
-		eb.PostDragParalyzeTime, eb.Type,
-		eb.dragComplete, eb.dragCompleteDuration,
+		eb.PostDragParalyzeTime, eb.IsBig,
+		eb.dragCompleteDuration,
 	}
 }
 
 func (eb *Dragged) Step(e *state.Entity, s *state.State) {
-	if eb.dragComplete {
+	if e.SlideState.Direction == state.DirectionNone {
 		eb.dragCompleteDuration++
 		if eb.dragCompleteDuration == 24-1 {
 			if eb.PostDragParalyzeTime > 0 {
@@ -40,14 +39,19 @@ func (eb *Dragged) Step(e *state.Entity, s *state.State) {
 			} else {
 				e.NextBehavior = &Idle{}
 			}
-			return
 		}
 		return
 	}
 
-	// TODO: support big drags
-	if e.SlideState.Direction == state.DirectionNone {
-		eb.dragComplete = true
+	if e.BehaviorState.ElapsedTime%4 == 0 {
+		x, y := e.TilePos.XY()
+		dx, dy := e.SlideState.Direction.XY()
+
+		if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
+			e.SlideState = state.SlideState{}
+		}
+	} else if e.BehaviorState.ElapsedTime%4 == 2 {
+		e.FinishMove(s)
 	}
 }
 

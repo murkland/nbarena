@@ -49,7 +49,24 @@ func resolveHit(e *state.Entity, s *state.State) {
 		e.SlideState.ElapsedTime++
 	}
 
-	if e.Hit.Traits.Drag == state.DragTypeNone {
+	if e.Hit.Traits.Drag != state.DragTypeNone {
+		var postDragParalyzeTime state.Ticks
+		if e.Hit.Traits.FlashTime == 0 {
+			// Only add post drag paralysis if we're not going to be flashing afterwards.
+			if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
+				postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
+			}
+		}
+		e.FinishMove(s)
+		isBig := false
+		if e.Hit.Traits.Drag == state.DragTypeBig {
+			isBig = true
+		}
+		e.SlideState = state.SlideState{Direction: e.Hit.Traits.SlideDirection}
+		e.SetBehaviorImmediate(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime, IsBig: isBig}, s)
+		e.Hit.Traits.Drag = state.DragTypeNone
+		e.Hit.Traits.SlideDirection = state.DirectionNone
+	} else {
 		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
 			if e.SlideState.Direction == state.DirectionNone {
 				if e.Hit.Traits.SlideDirection != state.DirectionNone {
@@ -69,7 +86,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 				if e.Hit.Traits.Flinch {
 					// TODO: This should probably not be here...
 					e.FinishMove(s)
-					e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Flinch{}}
+					e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
 				}
 			}
 			e.Hit.Traits.Flinch = false
@@ -86,7 +103,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process paralyzed.
 			if e.Hit.Traits.ParalyzeTime > 0 {
 				e.FinishMove(s)
-				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Paralyzed{Duration: e.Hit.Traits.ParalyzeTime}}
+				e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.Hit.Traits.ParalyzeTime}, s)
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.ParalyzeTime = 0
 			}
@@ -94,7 +111,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process frozen.
 			if e.Hit.Traits.FreezeTime > 0 {
 				e.FinishMove(s)
-				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Frozen{Duration: e.Hit.Traits.FreezeTime}}
+				e.SetBehaviorImmediate(&behaviors.Frozen{Duration: e.Hit.Traits.FreezeTime}, s)
 				e.Hit.Traits.BubbleTime = 0
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.FreezeTime = 0
@@ -103,7 +120,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 			// Process bubbled.
 			if e.Hit.Traits.BubbleTime > 0 {
 				e.FinishMove(s)
-				e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Bubbled{Duration: e.Hit.Traits.BubbleTime}}
+				e.SetBehaviorImmediate(&behaviors.Bubbled{Duration: e.Hit.Traits.BubbleTime}, s)
 				e.ConfusedTimeLeft = 0
 				e.Hit.Traits.ConfuseTime = 0
 				e.Hit.Traits.BubbleTime = 0
@@ -114,7 +131,7 @@ func resolveHit(e *state.Entity, s *state.State) {
 				e.ConfusedTimeLeft = e.Hit.Traits.ConfuseTime
 				// TODO: Double check if this is correct.
 				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-					e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Idle{}}
+					e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 				}
 				e.Hit.Traits.FreezeTime = 0
 				e.Hit.Traits.BubbleTime = 0
@@ -148,24 +165,6 @@ func resolveHit(e *state.Entity, s *state.State) {
 				e.InvincibleTimeLeft--
 			}
 		}
-	} else {
-		var postDragParalyzeTime state.Ticks
-		if e.Hit.Traits.FlashTime == 0 {
-			// Only add post drag paralysis if we're not going to be flashing afterwards.
-			if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
-				postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
-			}
-		}
-		e.FinishMove(s)
-		e.BehaviorState = state.EntityBehaviorState{Behavior: &behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime, Type: e.Hit.Traits.Drag}}
-		e.SlideState = state.SlideState{Direction: e.Hit.Traits.SlideDirection, ElapsedTime: 0}
-		e.Hit.Traits.Drag = state.DragTypeNone
-		e.Hit.Traits.SlideDirection = state.DirectionNone
-	}
-
-	if state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-		// Resolve drag-based slide.
-		resolveSlide(e, s)
 	}
 }
 

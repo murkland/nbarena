@@ -198,6 +198,11 @@ func (e *Entity) FinishMove(s *State) {
 	e.TilePos = e.FutureTilePos
 }
 
+func (e *Entity) SetBehaviorImmediate(behavior EntityBehavior, s *State) {
+	e.BehaviorState = EntityBehaviorState{Behavior: behavior}
+	e.BehaviorState.Behavior.Step(e, s)
+}
+
 var debugEntityMarkerImage *ebiten.Image
 var debugEntityMarkerImageOnce sync.Once
 
