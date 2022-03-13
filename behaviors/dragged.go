@@ -31,6 +31,9 @@ func (eb *Dragged) Clone() state.EntityBehavior {
 }
 
 func (eb *Dragged) Step(e *state.Entity, s *state.State) {
+	// The implementation of drag hijacks normal slide processing: it relies on a precise interaction between how sliding is discarded in step.resolveOne if drag is active.
+	//
+	// We use the slide mechanism here because it's the only way nbarena is able to render players being partially on a tile.
 	if e.SlideState.Direction == state.DirectionNone {
 		eb.dragCompleteDuration++
 		if eb.dragCompleteDuration == 24-1 {

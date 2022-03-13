@@ -5,12 +5,13 @@ import (
 
 	"github.com/murkland/nbarena/behaviors"
 	"github.com/murkland/nbarena/bundle"
+	"github.com/murkland/nbarena/chips"
 	"github.com/murkland/nbarena/state"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
-func resolveHit(e *state.Entity, s *state.State) {
+func resolveOne(e *state.Entity, s *state.State) {
 	if e.Traits.CannotFlinch || e.Emotion == state.EmotionAngry {
 		// TODO: Double check if this
 		e.Hit.Traits.Flinch = false
@@ -232,7 +233,7 @@ func Step(s *state.State, b *bundle.Bundle) {
 		pending[i], pending[j] = pending[j], pending[i]
 	})
 	for _, e := range pending {
-		resolveHit(e, s)
+		resolveOne(e, s)
 
 		if e.HP == 0 {
 			// Do something special.
