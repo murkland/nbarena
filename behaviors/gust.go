@@ -44,6 +44,7 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		}
 
 		var h state.Hit
+		h.Traits.Element = state.ElementWind
 		h.Traits.SlideDirection = eb.Direction
 		target.Hit.Merge(h)
 	}

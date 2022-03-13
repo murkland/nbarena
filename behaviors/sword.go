@@ -90,6 +90,8 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				var h state.Hit
 				h.Traits.Flinch = true
 				h.Traits.FlashTime = state.DefaultFlashTime
+				h.Traits.Element = state.ElementSword
+				h.Traits.SecondaryElementSword = true
 				state.MaybeApplyCounter(target, e, &h)
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)

@@ -50,6 +50,7 @@ type HitTraits struct {
 	Drag           DragType
 	SlideDirection Direction
 
+	Element               Element
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool

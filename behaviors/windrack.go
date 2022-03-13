@@ -42,6 +42,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				var h state.Hit
 				h.Traits.Drag = state.DragTypeBig
 				h.Traits.SlideDirection = e.Facing()
+				h.Traits.Element = state.ElementWind
 				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
 				target.Hit.Merge(h)
 			}

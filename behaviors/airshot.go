@@ -33,6 +33,7 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: e.MakeDamageAndConsume(eb.Damage),
 			HitTraits: state.HitTraits{
+				Element:        state.ElementWind,
 				Drag:           state.DragTypeSmall,
 				SlideDirection: e.Facing(),
 			},

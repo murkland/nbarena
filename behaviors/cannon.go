@@ -44,6 +44,7 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: e.MakeDamageAndConsume(eb.Damage),
 			HitTraits: state.HitTraits{
+				Element:   state.ElementNull,
 				Flinch:    true,
 				FlashTime: state.DefaultFlashTime,
 			},

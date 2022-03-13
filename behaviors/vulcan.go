@@ -124,6 +124,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 			Flinch: true,
 		}
 		h.AddDamage(eb.Damage)
+		h.Traits.Element = state.ElementNull
 		state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
 		target.Hit.Merge(h)
 
