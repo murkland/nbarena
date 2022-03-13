@@ -68,8 +68,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.Hit.Traits.SlideDirection = state.DirectionNone
 	} else {
 		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-			if e.SlideState.Direction == state.DirectionNone {
-				if e.Hit.Traits.SlideDirection != state.DirectionNone {
+			if e.Hit.Traits.SlideDirection != state.DirectionNone {
+				// HACK: Allow immediate application of slide if the last slide is ending.
+				if e.SlideState.Direction == state.DirectionNone || e.SlideState.ElapsedTime == 4 {
 					e.SlideState = state.SlideState{Direction: e.Hit.Traits.SlideDirection, ElapsedTime: 0}
 				}
 				resolveSlide(e, s)
