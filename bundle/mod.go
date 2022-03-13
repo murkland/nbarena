@@ -188,6 +188,7 @@ const (
 	DecorationTypeNullLongBladeSlash
 	DecorationTypeNullVeryLongBladeSlash
 	DecorationTypeWindSlash
+	DecorationTypeRecov
 )
 
 type Bundle struct {
@@ -311,6 +312,9 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		}
 	}))
 
+	var recovDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0087.png", &recovDecorationSprites, makeSpriteLoader(sheetToSprites))
+
 	var windSlashDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0109.png", &windSlashDecorationSprites, makeSpriteLoader(sheetToSprites))
 
@@ -371,6 +375,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeNullLongBladeSlash:       {slashDecorationSprites.BladeImage, slashDecorationSprites.LongAnimation},
 		DecorationTypeNullVeryLongBladeSlash:   {slashDecorationSprites.BladeImage, slashDecorationSprites.VeryLongAnimation},
 		DecorationTypeWindSlash:                {windSlashDecorationSprites.Image, windSlashDecorationSprites.Animations[0]},
+		DecorationTypeRecov:                    {recovDecorationSprites.Image, recovDecorationSprites.Animations[0]},
 	}
 
 	return b, nil

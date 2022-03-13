@@ -86,6 +86,14 @@ var Chips = []state.Chip{
 			e.NextBehavior = &behaviors.WindRack{Damage: 140}
 		},
 	},
+	{
+		Index:  160,
+		Name:   "Recov300",
+		Damage: 0,
+		OnUse: func(s *state.State, e *state.Entity) {
+			e.NextBehavior = &behaviors.Recov{HP: 300}
+		},
+	},
 	// {
 	// 	Index: 162,
 	// 	Name:  "AreaGrab",

@@ -151,6 +151,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	{
 		e := &state.Entity{
 			HP:        1000,
+			MaxHP:     1000,
 			DisplayHP: 1000,
 
 			Chips: slices.Clone(chips.Chips),
@@ -173,6 +174,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	{
 		e := &state.Entity{
 			HP:        1000,
+			MaxHP:     1000,
 			DisplayHP: 1000,
 
 			Chips: slices.Clone(chips.Chips),
