@@ -1,10 +1,10 @@
 package state
 
 type Chip struct {
-	Index  int
-	Name   string
-	Damage int
-	OnUse  func(s *State, e *Entity)
+	Index        int
+	Name         string
+	Damage       int
+	MakeBehavior func() EntityBehavior
 }
 
 func (c Chip) Clone() Chip {

@@ -41,7 +41,7 @@ func (eb *Teleport) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 6+teleportEndlagTicks-1 {
 		e.NextBehavior = &Idle{eb.ChargingElapsedTime}
 		if eb.useChip && e.ChipUseLockoutTimeLeft == 0 {
-			e.UseChip(s)
+			UseNextChip(e)
 		}
 	}
 }
