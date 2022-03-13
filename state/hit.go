@@ -24,6 +24,7 @@ type Damage struct {
 	Base int
 
 	ParalyzeTime Ticks
+	Flinch       bool
 	Uninstall    bool
 	Skull        bool
 	DoubleDamage bool
@@ -70,6 +71,9 @@ func (h *Hit) AddDamage(d Damage) {
 	h.TotalDamage += v
 	if d.ParalyzeTime > 0 {
 		h.Traits.ParalyzeTime = d.ParalyzeTime
+	}
+	if d.Flinch {
+		h.Traits.Flinch = true
 	}
 }
 
