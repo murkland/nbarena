@@ -51,6 +51,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 				IgnoresTileEffects:     true,
 				CannotFlinch:           true,
 				IgnoresTileOwnership:   true,
+				CannotSlide:            true,
 			},
 
 			BehaviorState: state.EntityBehaviorState{

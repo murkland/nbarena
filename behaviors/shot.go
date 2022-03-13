@@ -98,6 +98,7 @@ func MakeShotEntity(owner *state.Entity, pos state.TilePos, shot *Shot) *state.E
 			IgnoresTileEffects:     true,
 			CannotFlinch:           true,
 			IgnoresTileOwnership:   true,
+			CannotSlide:            true,
 		},
 
 		BehaviorState: state.EntityBehaviorState{

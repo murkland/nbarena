@@ -16,6 +16,11 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.Hit.Traits.Flinch = false
 	}
 
+	if e.Traits.CannotSlide {
+		e.Hit.Traits.SlideDirection = state.DirectionNone
+		e.Hit.Traits.Drag = state.DragTypeNone
+	}
+
 	// Set anger, if required.
 	if e.Hit.TotalDamage >= 300 {
 		e.Emotion = state.EmotionAngry
