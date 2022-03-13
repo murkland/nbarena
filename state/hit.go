@@ -115,7 +115,7 @@ func MaybeApplyCounter(target *Entity, owner *Entity, h *Hit) {
 	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
 	// TODO: Check the code for this.
 	if target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
-		owner.IsFullSynchro = true
+		owner.Emotion = EmotionFullSynchro
 		h.Traits.FlashTime = 0
 		h.Traits.ParalyzeTime = DefaultParalyzeTime
 	}

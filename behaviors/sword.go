@@ -56,7 +56,7 @@ func swordSlashDecorationType(s SwordStyle, r SwordRange) bundle.DecorationType 
 type Sword struct {
 	Range  SwordRange
 	Style  SwordStyle
-	Damage int
+	Damage state.Damage
 }
 
 func (eb *Sword) Flip() {
@@ -113,7 +113,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 				h.Traits.Element = state.ElementSword
 				h.Traits.SecondaryElementSword = true
 				state.MaybeApplyCounter(target, e, &h)
-				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
+				h.AddDamage(eb.Damage)
 				target.Hit.Merge(h)
 			}
 		}

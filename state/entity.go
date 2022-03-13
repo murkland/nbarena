@@ -57,6 +57,14 @@ type ChipPlaque struct {
 	Chip        *Chip
 }
 
+type Emotion int
+
+const (
+	EmotionNormal      Emotion = 0
+	EmotionFullSynchro Emotion = 1
+	EmotionAngry       Emotion = 2
+)
+
 type Entity struct {
 	id EntityID
 
@@ -94,8 +102,7 @@ type Entity struct {
 	FlashingTimeLeft    Ticks
 	InvincibleTimeLeft  Ticks
 
-	IsAngry       bool
-	IsFullSynchro bool
+	Emotion Emotion
 
 	Hit          Hit
 	PerTickState EntityPerTickState
@@ -135,7 +142,7 @@ func (e *Entity) Clone() *Entity {
 		e.Traits,
 		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
-		e.IsAngry, e.IsFullSynchro,
+		e.Emotion,
 		e.Hit, e.PerTickState,
 		slices.Clone(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChipPlaque,
@@ -155,7 +162,18 @@ func (e *Entity) UseChip(s *State) bool {
 	}
 	chip := e.Chips[len(e.Chips)-1]
 	e.Chips = e.Chips[:len(e.Chips)-1]
-	e.NextBehavior = chip.MakeBehavior()
+
+	dmg := Damage{
+		Base: chip.BaseDamage,
+
+		DoubleDamage: e.Emotion == EmotionAngry || e.Emotion == EmotionFullSynchro,
+	}
+	e.Emotion = EmotionNormal
+	if dmg.DoubleDamage {
+		e.PerTickState.DoubleDamageWasConsumed = true
+	}
+
+	e.NextBehavior = chip.MakeBehavior(dmg)
 	e.ChipPlaque = ChipPlaque{Chip: chip}
 	return true
 }
@@ -254,7 +272,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	if e.PerTickState.WasHit {
 		characterNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 0.0)
 	}
-	if e.IsFullSynchro {
+	if e.Emotion == EmotionFullSynchro {
 		characterNode.Opts.ColorM.Translate(float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), 0.0)
 
 		fullSynchroNode := &draw.OptionsNode{Layer: 8}
@@ -345,20 +363,6 @@ func (e *Entity) Step(s *State) {
 	}
 	e.NextBehavior = nil
 	e.BehaviorState.Behavior.Step(e, s)
-}
-
-func (e *Entity) MakeDamageAndConsume(base int) Damage {
-	dmg := Damage{
-		Base: base,
-
-		DoubleDamage: e.IsAngry || e.IsFullSynchro,
-	}
-	e.IsAngry = false
-	e.IsFullSynchro = false
-	if dmg.DoubleDamage {
-		e.PerTickState.DoubleDamageWasConsumed = true
-	}
-	return dmg
 }
 
 type EntityBehavior interface {

@@ -3,8 +3,8 @@ package state
 type Chip struct {
 	Index        int
 	Name         string
-	Damage       int
-	MakeBehavior func() EntityBehavior
+	BaseDamage   int
+	MakeBehavior func(damage Damage) EntityBehavior
 }
 
 func (c Chip) Clone() Chip {

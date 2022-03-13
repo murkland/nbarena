@@ -12,7 +12,7 @@ import (
 
 type Vulcan struct {
 	Shots  int
-	Damage int
+	Damage state.Damage
 }
 
 func (eb *Vulcan) Flip() {
@@ -54,7 +54,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 			},
 
 			BehaviorState: state.EntityBehaviorState{
-				Behavior: &vulcanShot{e.ID(), e.MakeDamageAndConsume(eb.Damage)},
+				Behavior: &vulcanShot{e.ID(), eb.Damage},
 			},
 		})
 	}

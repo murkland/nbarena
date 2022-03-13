@@ -10,7 +10,7 @@ import (
 )
 
 type WindRack struct {
-	Damage int
+	Damage state.Damage
 }
 
 func (eb *WindRack) Flip() {
@@ -50,7 +50,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				h.Traits.Drag = state.DragTypeBig
 				h.Traits.SlideDirection = e.Facing()
 				h.Traits.Element = state.ElementWind
-				h.AddDamage(e.MakeDamageAndConsume(eb.Damage))
+				h.AddDamage(eb.Damage)
 				target.Hit.Merge(h)
 			}
 		}

@@ -11,14 +11,14 @@ import (
 )
 
 func resolveHit(e *state.Entity, s *state.State) {
-	if e.Traits.CannotFlinch || e.IsAngry {
+	if e.Traits.CannotFlinch || e.Emotion == state.EmotionAngry {
 		// TODO: Double check if this
 		e.Hit.Traits.Flinch = false
 	}
 
 	// Set anger, if required.
 	if e.Hit.TotalDamage >= 300 {
-		e.IsAngry = true
+		e.Emotion = state.EmotionAngry
 	}
 
 	if e.Hit.Traits.RemovesFlashing {

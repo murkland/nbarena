@@ -18,7 +18,7 @@ const (
 
 type Cannon struct {
 	Style  CannonStyle
-	Damage int
+	Damage state.Damage
 }
 
 func (eb *Cannon) Flip() {
@@ -42,7 +42,7 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
-			Damage: e.MakeDamageAndConsume(eb.Damage),
+			Damage: eb.Damage,
 			HitTraits: state.HitTraits{
 				Element:   state.ElementNull,
 				Flinch:    true,

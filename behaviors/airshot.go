@@ -8,7 +8,7 @@ import (
 )
 
 type AirShot struct {
-	Damage int
+	Damage state.Damage
 }
 
 func (eb *AirShot) Flip() {
@@ -31,7 +31,7 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
-			Damage: e.MakeDamageAndConsume(eb.Damage),
+			Damage: eb.Damage,
 			HitTraits: state.HitTraits{
 				Element:        state.ElementWind,
 				Drag:           state.DragTypeSmall,
