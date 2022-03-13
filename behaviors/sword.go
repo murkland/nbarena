@@ -1,12 +1,12 @@
 package behaviors
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	"image"
+
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/state/query"
-	"github.com/murkland/pngsheet"
 )
 
 type SwordRange int
@@ -25,18 +25,32 @@ const (
 	SwordStyleBlade SwordStyle = 1
 )
 
-func slashAnimation(b *bundle.Bundle, r SwordRange) *pngsheet.Animation {
-	switch r {
-	case SwordRangeShort:
-		return b.SlashSprites.ShortAnimation
-	case SwordRangeWide:
-		return b.SlashSprites.WideAnimation
-	case SwordRangeLong:
-		return b.SlashSprites.LongAnimation
-	case SwordRangeVeryLong:
-		return b.SlashSprites.VeryLongAnimation
+func swordSlashDecorationType(s SwordStyle, r SwordRange) bundle.DecorationType {
+	switch s {
+	case SwordStyleSword:
+		switch r {
+		case SwordRangeShort:
+			return bundle.DecorationTypeNullShortSwordSlash
+		case SwordRangeWide:
+			return bundle.DecorationTypeNullWideSwordSlash
+		case SwordRangeLong:
+			return bundle.DecorationTypeNullLongSwordSlash
+		case SwordRangeVeryLong:
+			return bundle.DecorationTypeNullVeryLongSwordSlash
+		}
+	case SwordStyleBlade:
+		switch r {
+		case SwordRangeShort:
+			return bundle.DecorationTypeNullShortBladeSlash
+		case SwordRangeWide:
+			return bundle.DecorationTypeNullWideBladeSlash
+		case SwordRangeLong:
+			return bundle.DecorationTypeNullLongBladeSlash
+		case SwordRangeVeryLong:
+			return bundle.DecorationTypeNullVeryLongBladeSlash
+		}
 	}
-	return nil
+	return bundle.DecorationTypeNone
 }
 
 type Sword struct {
@@ -85,6 +99,12 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
 	if e.BehaviorState.ElapsedTime == 9 {
+		s.AddDecoration(&state.Decoration{
+			Type:    swordSlashDecorationType(eb.Style, eb.Range),
+			TilePos: e.TilePos,
+			Offset:  image.Point{state.TileRenderedWidth, -16},
+		})
+
 		for _, target := range swordTargetEntities(s, e, eb.Range) {
 			if target.FlashingTimeLeft == 0 {
 				var h state.Hit
@@ -109,22 +129,6 @@ func (eb *Sword) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	swordNode := &draw.OptionsNode{Layer: 6}
 	rootNode.Children = append(rootNode.Children, swordNode)
 	swordNode.Children = append(swordNode.Children, draw.ImageWithFrame(b.SwordSprites.Image, b.SwordSprites.BaseAnimation.Frames[e.BehaviorState.ElapsedTime]))
-
-	if e.BehaviorState.ElapsedTime >= 9 && e.BehaviorState.ElapsedTime < 19 {
-		slashNode := &draw.OptionsNode{Layer: 7}
-		slashNode.Opts.GeoM.Translate(float64(state.TileRenderedWidth), float64(-16))
-		rootNode.Children = append(rootNode.Children, slashNode)
-
-		slashAnim := slashAnimation(b, eb.Range)
-		var img *ebiten.Image
-		switch eb.Style {
-		case SwordStyleSword:
-			img = b.SlashSprites.SwordImage
-		case SwordStyleBlade:
-			img = b.SlashSprites.BladeImage
-		}
-		slashNode.Children = append(slashNode.Children, draw.ImageWithFrame(img, slashAnim.Frames[e.BehaviorState.ElapsedTime-9]))
-	}
 
 	return rootNode
 }

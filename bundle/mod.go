@@ -128,7 +128,7 @@ type ChargingSprites struct {
 	ChargedAnimation  *pngsheet.Animation
 }
 
-type SlashSprites struct {
+type SlashDecorationSprites struct {
 	SwordImage *ebiten.Image
 	BladeImage *ebiten.Image
 
@@ -179,6 +179,14 @@ const (
 	DecorationTypeUninstallExplosion
 	DecorationTypeChipDeleteExplosion
 	DecorationTypeShieldHitExplosion
+	DecorationTypeNullShortSwordSlash
+	DecorationTypeNullWideSwordSlash
+	DecorationTypeNullLongSwordSlash
+	DecorationTypeNullVeryLongSwordSlash
+	DecorationTypeNullShortBladeSlash
+	DecorationTypeNullWideBladeSlash
+	DecorationTypeNullLongBladeSlash
+	DecorationTypeNullVeryLongBladeSlash
 	DecorationTypeWindSlash
 )
 
@@ -192,7 +200,6 @@ type Bundle struct {
 	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
 	AreaGrabSprites    *Sprites
-	SlashSprites       *SlashSprites
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
 	FullSynchroSprites *Sprites
@@ -276,7 +283,14 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 	loader.Add(ctx, l, "assets/sprites/0075.png", &b.MuzzleFlashSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0088.png", &b.AreaGrabSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0089.png", &b.SlashSprites, makeSpriteLoader(func(sheet *Sheet) *SlashSprites {
+	loader.Add(ctx, l, "assets/sprites/0093.png", &b.AirShooterSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
+
+	var slashDecorationSprites *SlashDecorationSprites
+	loader.Add(ctx, l, "assets/sprites/0089.png", &slashDecorationSprites, makeSpriteLoader(func(sheet *Sheet) *SlashDecorationSprites {
 		img := sheet.Image.(*image.Paletted)
 		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
 		img.Palette = palette[0 : 0+16]
@@ -286,7 +300,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		img.Palette = palette[16 : 16+16]
 		bladeImage := ebiten.NewImageFromImage(img)
 
-		return &SlashSprites{
+		return &SlashDecorationSprites{
 			SwordImage: swordImage,
 			BladeImage: bladeImage,
 
@@ -296,11 +310,6 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 			VeryLongAnimation: sheet.Info.Animations[3],
 		}
 	}))
-	loader.Add(ctx, l, "assets/sprites/0093.png", &b.AirShooterSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
-	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
 
 	var windSlashDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0109.png", &windSlashDecorationSprites, makeSpriteLoader(sheetToSprites))
@@ -353,6 +362,14 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeUninstallExplosion:       {uninstallExplosionDecorationSprites.Image, uninstallExplosionDecorationSprites.Animations[0]},
 		DecorationTypeChipDeleteExplosion:      {chipDeleteExplosionDecorationSprites.Image, chipDeleteExplosionDecorationSprites.Animations[0]},
 		DecorationTypeShieldHitExplosion:       {shieldHitExplosionDecorationSprites.Image, shieldHitExplosionDecorationSprites.Animations[0]},
+		DecorationTypeNullShortSwordSlash:      {slashDecorationSprites.SwordImage, slashDecorationSprites.ShortAnimation},
+		DecorationTypeNullWideSwordSlash:       {slashDecorationSprites.SwordImage, slashDecorationSprites.WideAnimation},
+		DecorationTypeNullLongSwordSlash:       {slashDecorationSprites.SwordImage, slashDecorationSprites.LongAnimation},
+		DecorationTypeNullVeryLongSwordSlash:   {slashDecorationSprites.SwordImage, slashDecorationSprites.VeryLongAnimation},
+		DecorationTypeNullShortBladeSlash:      {slashDecorationSprites.BladeImage, slashDecorationSprites.ShortAnimation},
+		DecorationTypeNullWideBladeSlash:       {slashDecorationSprites.BladeImage, slashDecorationSprites.WideAnimation},
+		DecorationTypeNullLongBladeSlash:       {slashDecorationSprites.BladeImage, slashDecorationSprites.LongAnimation},
+		DecorationTypeNullVeryLongBladeSlash:   {slashDecorationSprites.BladeImage, slashDecorationSprites.VeryLongAnimation},
 		DecorationTypeWindSlash:                {windSlashDecorationSprites.Image, windSlashDecorationSprites.Animations[0]},
 	}
 
