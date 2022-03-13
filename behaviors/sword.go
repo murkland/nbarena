@@ -83,17 +83,17 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state
 	x, y := e.TilePos.XY()
 	dx := query.DXForward(e.IsFlipped)
 	var entities []*state.Entity
-	entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y))...)
+	entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y))...)
 
 	switch r {
 	case SwordRangeWide:
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
 	case SwordRangeLong:
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
 	case SwordRangeVeryLong:
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+3*dx, y))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+2*dx, y))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+3*dx, y))...)
 	}
 
 	return entities

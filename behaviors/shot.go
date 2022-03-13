@@ -49,7 +49,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 		}
 	}
 
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
+	for _, target := range query.TangibleEntitiesAt(s, e.TilePos) {
 		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}
@@ -99,6 +99,7 @@ func MakeShotEntity(owner *state.Entity, pos state.TilePos, shot *Shot) *state.E
 			CannotFlinch:           true,
 			IgnoresTileOwnership:   true,
 			CannotSlide:            true,
+			Intangible:             true,
 		},
 
 		BehaviorState: state.EntityBehaviorState{

@@ -38,7 +38,7 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		}
 	}
 
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
+	for _, target := range query.TangibleEntitiesAt(s, e.TilePos) {
 		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}

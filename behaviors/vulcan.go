@@ -52,6 +52,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 				CannotFlinch:           true,
 				IgnoresTileOwnership:   true,
 				CannotSlide:            true,
+				Intangible:             true,
 			},
 
 			BehaviorState: state.EntityBehaviorState{
@@ -118,7 +119,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	for _, target := range query.EntitiesAt(s, e.TilePos) {
+	for _, target := range query.TangibleEntitiesAt(s, e.TilePos) {
 		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer || target.FlashingTimeLeft > 0 {
 			continue
 		}

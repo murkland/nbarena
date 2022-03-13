@@ -25,6 +25,7 @@ type EntityTraits struct {
 	FatalHitLeaves1HP      bool
 	IgnoresTileOwnership   bool
 	CannotSlide            bool
+	Intangible             bool
 }
 
 type EntityPerTickState struct {

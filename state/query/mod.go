@@ -63,3 +63,14 @@ func EntitiesAt(s *state.State, pos state.TilePos) []*state.Entity {
 	}
 	return entities
 }
+
+func TangibleEntitiesAt(s *state.State, pos state.TilePos) []*state.Entity {
+	var entities []*state.Entity
+	for _, e := range s.Entities {
+		if e.TilePos != pos || !e.Traits.Intangible {
+			continue
+		}
+		entities = append(entities, e)
+	}
+	return entities
+}

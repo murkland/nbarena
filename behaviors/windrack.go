@@ -41,9 +41,9 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		dx := query.DXForward(e.IsFlipped)
 
 		var entities []*state.Entity
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y))...)
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.EntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y+1))...)
+		entities = append(entities, query.TangibleEntitiesAt(s, state.TilePosXY(x+dx, y-1))...)
 
 		for _, target := range entities {
 			if target.FlashingTimeLeft == 0 {
@@ -69,6 +69,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 					CannotFlinch:           true,
 					IgnoresTileOwnership:   true,
 					CannotSlide:            true,
+					Intangible:             true,
 				},
 
 				BehaviorState: state.EntityBehaviorState{
