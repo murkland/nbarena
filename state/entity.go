@@ -75,6 +75,7 @@ type Entity struct {
 	IsDead bool
 
 	HP        int
+	MaxHP     int
 	DisplayHP int
 
 	Traits EntityTraits
@@ -122,7 +123,7 @@ func (e *Entity) Clone() *Entity {
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDead,
-		e.HP, e.DisplayHP,
+		e.HP, e.MaxHP, e.DisplayHP,
 		e.Traits,
 		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
