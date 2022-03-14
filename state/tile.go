@@ -19,7 +19,8 @@ func (s TileBehaviorState) Clone() TileBehaviorState {
 type Tile struct {
 	BehaviorState TileBehaviorState
 
-	IsFlipped bool
+	IsFlipped     bool
+	IsHighlighted bool
 
 	Reserver EntityID
 
@@ -29,7 +30,8 @@ type Tile struct {
 func (t *Tile) Clone() *Tile {
 	return &Tile{
 		t.BehaviorState.Clone(),
-		t.IsFlipped, t.Reserver,
+		t.IsFlipped, t.IsHighlighted,
+		t.Reserver,
 		t.IsAlliedWithAnswerer,
 	}
 }
@@ -71,6 +73,7 @@ func (t *Tile) Step() {
 }
 
 func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
+	rootNode := &draw.OptionsNode{}
 	if t.BehaviorState.Behavior == nil {
 		return nil
 	}
@@ -78,7 +81,12 @@ func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
 	if t.IsAlliedWithAnswerer {
 		tiles = b.Battletiles.AnswererTiles
 	}
-	return t.BehaviorState.Behavior.Appearance(t, y, b, tiles)
+	rootNode.Children = append(rootNode.Children, t.BehaviorState.Behavior.Appearance(t, y, b, tiles))
+	if t.IsHighlighted {
+		rootNode.Opts.ColorM.Translate(1.0, 1.0, 1.0, 1.0)
+		rootNode.Opts.ColorM.Scale(1.0, 1.0, 0.0, 1.0)
+	}
+	return rootNode
 }
 
 const TileRows = 5
