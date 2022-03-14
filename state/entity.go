@@ -68,6 +68,22 @@ const (
 	EmotionAngry       Emotion = 2
 )
 
+type HitResolution struct {
+	Damage int
+
+	Flinch         bool
+	FlashTime      Ticks
+	ParalyzeTime   Ticks
+	ConfuseTime    Ticks
+	BlindTime      Ticks
+	ImmobilizeTime Ticks
+	FreezeTime     Ticks
+	BubbleTime     Ticks
+
+	Drag           DragType
+	SlideDirection Direction
+}
+
 type Entity struct {
 	id EntityID
 
@@ -111,8 +127,8 @@ type Entity struct {
 
 	Emotion Emotion
 
-	Hit          Hit
-	PerTickState EntityPerTickState
+	HitResolution HitResolution
+	PerTickState  EntityPerTickState
 
 	Chips                  []*Chip
 	ChipUseQueued          bool
@@ -152,7 +168,7 @@ func (e *Entity) Clone() *Entity {
 		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
 		e.Emotion,
-		e.Hit, e.PerTickState,
+		e.HitResolution, e.PerTickState,
 		slices.Clone(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
 		e.ChipPlaque,
 	}
@@ -362,38 +378,38 @@ func (e *Entity) AddHit(h2 Hit) {
 		h2.TotalDamage *= 2
 	}
 
-	e.Hit.TotalDamage += h2.TotalDamage
+	e.HitResolution.Damage += h2.TotalDamage
 
 	// TODO: Verify this is correct behavior.
-	if h2.ParalyzeTime > e.Hit.ParalyzeTime {
-		e.Hit.ParalyzeTime = h2.ParalyzeTime
+	if h2.ParalyzeTime > e.HitResolution.ParalyzeTime {
+		e.HitResolution.ParalyzeTime = h2.ParalyzeTime
 	}
-	if h2.ConfuseTime > e.Hit.ConfuseTime {
-		e.Hit.ConfuseTime = h2.ConfuseTime
+	if h2.ConfuseTime > e.HitResolution.ConfuseTime {
+		e.HitResolution.ConfuseTime = h2.ConfuseTime
 	}
-	if h2.BlindTime > e.Hit.BlindTime {
-		e.Hit.BlindTime = h2.BlindTime
+	if h2.BlindTime > e.HitResolution.BlindTime {
+		e.HitResolution.BlindTime = h2.BlindTime
 	}
-	if h2.ImmobilizeTime > e.Hit.ImmobilizeTime {
-		e.Hit.ImmobilizeTime = h2.ImmobilizeTime
+	if h2.ImmobilizeTime > e.HitResolution.ImmobilizeTime {
+		e.HitResolution.ImmobilizeTime = h2.ImmobilizeTime
 	}
-	if h2.FreezeTime > e.Hit.FreezeTime {
-		e.Hit.FreezeTime = h2.FreezeTime
+	if h2.FreezeTime > e.HitResolution.FreezeTime {
+		e.HitResolution.FreezeTime = h2.FreezeTime
 	}
-	if h2.BubbleTime > e.Hit.BubbleTime {
-		e.Hit.BubbleTime = h2.BubbleTime
+	if h2.BubbleTime > e.HitResolution.BubbleTime {
+		e.HitResolution.BubbleTime = h2.BubbleTime
 	}
-	if h2.FlashTime > e.Hit.FlashTime {
-		e.Hit.FlashTime = h2.FlashTime
+	if h2.FlashTime > e.HitResolution.FlashTime {
+		e.HitResolution.FlashTime = h2.FlashTime
 	}
 	if h2.Flinch {
-		e.Hit.Flinch = true
+		e.HitResolution.Flinch = true
 	}
 	if h2.Drag != DragTypeNone {
-		e.Hit.Drag = h2.Drag
+		e.HitResolution.Drag = h2.Drag
 	}
 	if h2.SlideDirection != DirectionNone {
-		e.Hit.SlideDirection = h2.SlideDirection
+		e.HitResolution.SlideDirection = h2.SlideDirection
 	}
 }
 
