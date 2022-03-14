@@ -147,3 +147,52 @@ func (s *State) Appearance(b *bundle.Bundle) draw.Node {
 	}
 	return rootNode
 }
+
+func (s *State) EntitiesAt(pos TilePos) []*Entity {
+	var entities []*Entity
+	for _, e := range s.Entities {
+		if e.TilePos != pos {
+			continue
+		}
+		entities = append(entities, e)
+	}
+	slices.SortFunc(entities, func(a, b *Entity) bool {
+		return a.ID() > b.ID()
+	})
+	return entities
+}
+
+func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
+	for _, target := range s.EntitiesAt(pos) {
+		if target.IsAlliedWithAnswerer == owner.IsAlliedWithAnswerer {
+			continue
+		}
+
+		if target.Traits.Intangible {
+			continue
+		}
+
+		if h.RemovesFlashing {
+			target.FlashingTimeLeft = 0
+		}
+
+		if target.FlashingTimeLeft > 0 {
+			continue
+		}
+
+		if h.CanCounter && target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
+			// From Alyrsc#7506:
+			// I was mostly sure that it's frames 2-16 of an action.
+			// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
+			// TODO: Check the code for this.
+			owner.Emotion = EmotionFullSynchro
+			h.FlashTime = 0
+			h.ParalyzeTime = DefaultParalyzeTime
+		}
+
+		target.ApplyHit(h)
+		return true
+	}
+
+	return false
+}

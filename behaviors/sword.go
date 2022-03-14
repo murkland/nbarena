@@ -79,24 +79,22 @@ func (eb *Sword) Clone() state.EntityBehavior {
 	}
 }
 
-func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []*state.Entity {
+func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []state.TilePos {
 	x, y := e.TilePos.XY()
 	dx := query.DXForward(e.IsFlipped)
-	var entities []*state.Entity
-	entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y))...)
+	var positions []state.TilePos
+	positions = append(positions, state.TilePosXY(x+dx, y))
 
 	switch r {
 	case SwordRangeWide:
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y-1))...)
+		positions = append(positions, state.TilePosXY(x+dx, y+1), state.TilePosXY(x+dx, y-1))
 	case SwordRangeLong:
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+2*dx, y))...)
+		positions = append(positions, state.TilePosXY(x+2*dx, y))
 	case SwordRangeVeryLong:
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+2*dx, y))...)
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+3*dx, y))...)
+		positions = append(positions, state.TilePosXY(x+2*dx, y), state.TilePosXY(x+3*dx, y))
 	}
 
-	return entities
+	return positions
 }
 
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
@@ -109,15 +107,14 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 			IsFlipped: e.IsFlipped,
 		})
 
-		for _, target := range swordTargetEntities(s, e, eb.Range) {
+		for _, pos := range swordTargetEntities(s, e, eb.Range) {
 			var h state.Hit
 			h.Flinch = true
 			h.FlashTime = state.DefaultFlashTime
 			h.Element = state.ElementSword
 			h.SecondaryElementSword = true
-			state.MaybeApplyCounter(target, e, &h)
 			h.AddDamage(eb.Damage)
-			target.AddHit(h)
+			s.ApplyHit(e, pos, h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 21-1 {
 		e.NextBehavior = &Idle{}

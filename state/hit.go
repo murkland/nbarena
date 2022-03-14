@@ -60,15 +60,16 @@ type Hit struct {
 	ImmobilizeTime Ticks
 	FreezeTime     Ticks
 	BubbleTime     Ticks
+	Flinch         bool
 
 	Drag           DragType
 	SlideDirection Direction
 
 	Element               Element
+	CanCounter            bool
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool
-	Flinch                bool
 }
 
 func (h *Hit) AddDamage(d Damage) {
@@ -82,17 +83,5 @@ func (h *Hit) AddDamage(d Damage) {
 	}
 	if d.Flinch {
 		h.Flinch = true
-	}
-}
-
-func MaybeApplyCounter(target *Entity, owner *Entity, h *Hit) {
-	// From Alyrsc#7506:
-	// I was mostly sure that it's frames 2-16 of an action.
-	// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
-	// TODO: Check the code for this.
-	if target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
-		owner.Emotion = EmotionFullSynchro
-		h.FlashTime = 0
-		h.ParalyzeTime = DefaultParalyzeTime
 	}
 }

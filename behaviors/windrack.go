@@ -40,18 +40,17 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 
-		var entities []*state.Entity
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y))...)
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y+1))...)
-		entities = append(entities, query.HittableEntitiesAt(s, e, state.TilePosXY(x+dx, y-1))...)
-
-		for _, target := range entities {
+		for _, pos := range []state.TilePos{
+			state.TilePosXY(x+dx, y),
+			state.TilePosXY(x+dx, y+1),
+			state.TilePosXY(x+dx, y-1),
+		} {
 			var h state.Hit
 			h.Drag = state.DragTypeBig
 			h.SlideDirection = e.Facing()
 			h.Element = state.ElementWind
 			h.AddDamage(eb.Damage)
-			target.AddHit(h)
+			s.ApplyHit(e, pos, h)
 		}
 
 		for i := 1; i <= 3; i++ {
@@ -71,7 +70,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &Gust{e.Facing()},
+					Behavior: &Gust{e.ID(), e.Facing()},
 				},
 			})
 		}

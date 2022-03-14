@@ -14,7 +14,6 @@ type Shot struct {
 	Owner                   state.EntityID
 	Damage                  state.Damage
 	Hit                     state.Hit
-	CanCounter              bool
 	ExplosionDecorationType bundle.DecorationType
 }
 
@@ -26,7 +25,6 @@ func (eb *Shot) Clone() state.EntityBehavior {
 		eb.Owner,
 		eb.Damage,
 		eb.Hit,
-		eb.CanCounter,
 		eb.ExplosionDecorationType,
 	}
 }
@@ -49,14 +47,9 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 		}
 	}
 
-	for _, target := range query.HittableEntitiesAt(s, e, e.TilePos) {
-		h := eb.Hit
-		if eb.CanCounter {
-			state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
-		}
-		h.AddDamage(eb.Damage)
-		target.AddHit(h)
-
+	h := eb.Hit
+	h.AddDamage(eb.Damage)
+	if s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h) {
 		if eb.ExplosionDecorationType != bundle.DecorationTypeNone {
 			rand := rand.New(s.RandSource)
 

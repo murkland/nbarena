@@ -4,7 +4,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type AreaGrab struct {
@@ -64,7 +63,7 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &areaGrabBall{},
+					Behavior: &areaGrabBall{e.ID()},
 				},
 			})
 		}
@@ -84,6 +83,7 @@ func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type areaGrabBall struct {
+	Owner state.EntityID
 }
 
 func (eb *areaGrabBall) Flip() {
@@ -94,7 +94,7 @@ func (eb *areaGrabBall) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *areaGrabBall) Clone() state.EntityBehavior {
-	return &areaGrabBall{}
+	return &areaGrabBall{eb.Owner}
 }
 
 func (eb *areaGrabBall) Cleanup(e *state.Entity, s *state.State) {
@@ -117,8 +117,7 @@ func (eb *areaGrabBall) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node 
 
 func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 31 {
-		x, y := e.TilePos.XY()
-
+		x, _ := e.TilePos.XY()
 		if x == 1 || x == state.TileCols-2 {
 			return
 		}
@@ -129,12 +128,10 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 			tile.IsAlliedWithAnswerer = e.IsAlliedWithAnswerer
 			s.Field.ColumnInfo[x].AllySwapTimeLeft = 1800
 		} else {
-			for _, entity := range query.HittableEntitiesAt(s, e, state.TilePosXY(x, y)) {
-				var h state.Hit
-				h.Flinch = true
-				h.AddDamage(state.Damage{Base: 10})
-				entity.AddHit(h)
-			}
+			var h state.Hit
+			h.Flinch = true
+			h.AddDamage(state.Damage{Base: 10})
+			s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 30+15 {
 		e.IsPendingDestruction = true

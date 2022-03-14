@@ -52,25 +52,3 @@ func FindNearestEntity(s *state.State, myEntityID state.EntityID, pos state.Tile
 
 	return targetID, bestDist
 }
-
-func EntitiesAt(s *state.State, pos state.TilePos) []*state.Entity {
-	var entities []*state.Entity
-	for _, e := range s.Entities {
-		if e.TilePos != pos {
-			continue
-		}
-		entities = append(entities, e)
-	}
-	return entities
-}
-
-func HittableEntitiesAt(s *state.State, self *state.Entity, pos state.TilePos) []*state.Entity {
-	var entities []*state.Entity
-	for _, e := range s.Entities {
-		if e.TilePos != pos || e.Traits.Intangible || e.FlashingTimeLeft > 0 || e.IsAlliedWithAnswerer == self.IsAlliedWithAnswerer {
-			continue
-		}
-		entities = append(entities, e)
-	}
-	return entities
-}

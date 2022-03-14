@@ -8,6 +8,7 @@ import (
 )
 
 type Gust struct {
+	Owner     state.EntityID
 	Direction state.Direction
 }
 
@@ -16,6 +17,7 @@ func (eb *Gust) Flip() {
 
 func (eb *Gust) Clone() state.EntityBehavior {
 	return &Gust{
+		eb.Owner,
 		eb.Direction,
 	}
 }
@@ -38,12 +40,10 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 		}
 	}
 
-	for _, target := range query.HittableEntitiesAt(s, e, e.TilePos) {
-		var h state.Hit
-		h.Element = state.ElementWind
-		h.SlideDirection = eb.Direction
-		target.AddHit(h)
-	}
+	var h state.Hit
+	h.Element = state.ElementWind
+	h.SlideDirection = eb.Direction
+	s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h)
 }
 
 func (eb *Gust) Cleanup(e *state.Entity, s *state.State) {

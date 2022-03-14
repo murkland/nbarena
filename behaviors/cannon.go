@@ -44,12 +44,12 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
 			Hit: state.Hit{
-				Element:   state.ElementNull,
-				Flinch:    true,
-				FlashTime: state.DefaultFlashTime,
+				Element:    state.ElementNull,
+				Flinch:     true,
+				FlashTime:  state.DefaultFlashTime,
+				CanCounter: true,
 			},
 			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,
-			CanCounter:              true,
 		}))
 	} else if e.BehaviorState.ElapsedTime == 33-1 {
 		e.NextBehavior = &Idle{}

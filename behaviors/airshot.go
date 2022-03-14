@@ -36,9 +36,9 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 				Element:        state.ElementWind,
 				Drag:           state.DragTypeSmall,
 				SlideDirection: e.Facing(),
+				CanCounter:     true,
 			},
 			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,
-			CanCounter:              true,
 		}))
 	} else if e.BehaviorState.ElapsedTime == 21-1 {
 		e.NextBehavior = &Idle{}

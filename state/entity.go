@@ -373,7 +373,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (e *Entity) AddHit(h2 Hit) {
+func (e *Entity) ApplyHit(h2 Hit) {
 	if h2.Element.IsSuperEffectiveAgainst(e.Element) {
 		h2.TotalDamage *= 2
 	}

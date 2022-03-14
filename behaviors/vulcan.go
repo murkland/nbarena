@@ -119,18 +119,12 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		return
 	}
 
-	for _, target := range query.HittableEntitiesAt(s, e, e.TilePos) {
-		if target.IsAlliedWithAnswerer == e.IsAlliedWithAnswerer {
-			continue
-		}
+	var h state.Hit
+	h.Flinch = true
+	h.AddDamage(eb.Damage)
+	h.Element = state.ElementNull
 
-		var h state.Hit
-		h.Flinch = true
-		h.AddDamage(eb.Damage)
-		h.Element = state.ElementNull
-		state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
-		target.AddHit(h)
-
+	if s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h) {
 		rand := rand.New(s.RandSource)
 
 		xOff := rand.Intn(state.TileRenderedWidth / 4)
