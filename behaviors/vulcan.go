@@ -16,9 +16,6 @@ type Vulcan struct {
 	ExplosionDecorationType bundle.DecorationType
 }
 
-func (eb *Vulcan) Flip() {
-}
-
 func (eb *Vulcan) Clone() state.EntityBehavior {
 	return &Vulcan{
 		eb.Shots,
@@ -97,9 +94,6 @@ type vulcanShot struct {
 	Owner                   state.EntityID
 	Damage                  state.Damage
 	ExplosionDecorationType bundle.DecorationType
-}
-
-func (eb *vulcanShot) Flip() {
 }
 
 func (eb *vulcanShot) Clone() state.EntityBehavior {

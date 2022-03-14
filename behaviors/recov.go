@@ -12,9 +12,6 @@ type Recov struct {
 	HP int
 }
 
-func (eb *Recov) Flip() {
-}
-
 func (eb *Recov) Clone() state.EntityBehavior {
 	return &Recov{eb.HP}
 }

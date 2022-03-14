@@ -15,9 +15,6 @@ type Buster struct {
 	cooldownTime state.Ticks
 }
 
-func (eb *Buster) Flip() {
-}
-
 func (eb *Buster) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{}
 }

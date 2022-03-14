@@ -17,9 +17,6 @@ type Shot struct {
 	ExplosionDecorationType bundle.DecorationType
 }
 
-func (eb *Shot) Flip() {
-}
-
 func (eb *Shot) Clone() state.EntityBehavior {
 	return &Shot{
 		eb.Owner,

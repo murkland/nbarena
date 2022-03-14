@@ -11,9 +11,6 @@ type AirShot struct {
 	Damage state.Damage
 }
 
-func (eb *AirShot) Flip() {
-}
-
 func (eb *AirShot) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{
 		CanBeCountered: true,

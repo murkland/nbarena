@@ -59,9 +59,6 @@ type Sword struct {
 	Damage state.Damage
 }
 
-func (eb *Sword) Flip() {
-}
-
 func (eb *Sword) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{
 		CanBeCountered: true,

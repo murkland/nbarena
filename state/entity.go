@@ -147,7 +147,6 @@ func (e *Entity) Flip() {
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
 	e.SlideState.Direction = e.SlideState.Direction.FlipH()
-	e.BehaviorState.Behavior.Flip()
 }
 
 func (e *Entity) Clone() *Entity {
@@ -439,7 +438,6 @@ func (e *Entity) Step(s *State) {
 
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
-	Flip()
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
 	Traits(e *Entity) EntityBehaviorTraits
 	Step(e *Entity, s *State)

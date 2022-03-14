@@ -10,9 +10,6 @@ type Bubbled struct {
 	Duration state.Ticks
 }
 
-func (eb *Bubbled) Flip() {
-}
-
 func (eb *Bubbled) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{}
 }

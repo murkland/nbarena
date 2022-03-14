@@ -10,9 +10,6 @@ type Frozen struct {
 	Duration state.Ticks
 }
 
-func (eb *Frozen) Flip() {
-}
-
 func (eb *Frozen) Clone() state.EntityBehavior {
 	return &Frozen{eb.Duration}
 }

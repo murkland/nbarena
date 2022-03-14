@@ -12,9 +12,6 @@ type Gust struct {
 	Direction state.Direction
 }
 
-func (eb *Gust) Flip() {
-}
-
 func (eb *Gust) Clone() state.EntityBehavior {
 	return &Gust{
 		eb.Owner,

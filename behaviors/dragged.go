@@ -16,9 +16,6 @@ type Dragged struct {
 	dragCompleteDuration state.Ticks
 }
 
-func (eb *Dragged) Flip() {
-}
-
 func (eb *Dragged) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{}
 }

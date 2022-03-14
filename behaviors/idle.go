@@ -10,9 +10,6 @@ type Idle struct {
 	ChargingElapsedTime state.Ticks
 }
 
-func (eb *Idle) Flip() {
-}
-
 func (eb *Idle) Clone() state.EntityBehavior {
 	return &Idle{eb.ChargingElapsedTime}
 }

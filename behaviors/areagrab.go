@@ -9,9 +9,6 @@ import (
 type AreaGrab struct {
 }
 
-func (eb *AreaGrab) Flip() {
-}
-
 func (eb *AreaGrab) Clone() state.EntityBehavior {
 	return &AreaGrab{}
 }
@@ -84,9 +81,6 @@ func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 type areaGrabBall struct {
 	Owner state.EntityID
-}
-
-func (eb *areaGrabBall) Flip() {
 }
 
 func (eb *areaGrabBall) Traits(e *state.Entity) state.EntityBehaviorTraits {

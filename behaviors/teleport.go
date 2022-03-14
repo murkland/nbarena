@@ -22,9 +22,6 @@ type Teleport struct {
 	endAction           teleportEndAction
 }
 
-func (eb *Teleport) Flip() {
-}
-
 func (eb *Teleport) Traits(e *state.Entity) state.EntityBehaviorTraits {
 	return state.EntityBehaviorTraits{}
 }
