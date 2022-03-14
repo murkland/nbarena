@@ -2,6 +2,7 @@ package chips
 
 import (
 	"github.com/murkland/nbarena/behaviors"
+	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/state"
 )
 
@@ -43,7 +44,7 @@ var Chips = []*state.Chip{
 		Name:       "Vulcan1",
 		BaseDamage: 10,
 		MakeBehavior: func(damage state.Damage) state.EntityBehavior {
-			return &behaviors.Vulcan{Shots: 3, Damage: damage}
+			return &behaviors.Vulcan{Shots: 3, Damage: damage, ExplosionDecorationType: bundle.DecorationTypeVulcanExplosion}
 		},
 	},
 	{
@@ -51,7 +52,7 @@ var Chips = []*state.Chip{
 		Name:       "Vulcan2",
 		BaseDamage: 15,
 		MakeBehavior: func(damage state.Damage) state.EntityBehavior {
-			return &behaviors.Vulcan{Shots: 4, Damage: damage}
+			return &behaviors.Vulcan{Shots: 4, Damage: damage, ExplosionDecorationType: bundle.DecorationTypeVulcanExplosion}
 		},
 	},
 	{
@@ -59,7 +60,7 @@ var Chips = []*state.Chip{
 		Name:       "Vulcan3",
 		BaseDamage: 20,
 		MakeBehavior: func(damage state.Damage) state.EntityBehavior {
-			return &behaviors.Vulcan{Shots: 5, Damage: damage}
+			return &behaviors.Vulcan{Shots: 5, Damage: damage, ExplosionDecorationType: bundle.DecorationTypeVulcanExplosion}
 		},
 	},
 	{
@@ -67,7 +68,7 @@ var Chips = []*state.Chip{
 		Name:       "SuprVulc",
 		BaseDamage: 20,
 		MakeBehavior: func(damage state.Damage) state.EntityBehavior {
-			return &behaviors.Vulcan{Shots: 10, Damage: damage}
+			return &behaviors.Vulcan{Shots: 10, Damage: damage, ExplosionDecorationType: bundle.DecorationTypeSuperVulcanExplosion}
 		},
 	},
 	{

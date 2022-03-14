@@ -11,8 +11,9 @@ import (
 )
 
 type Vulcan struct {
-	Shots  int
-	Damage state.Damage
+	Shots                   int
+	Damage                  state.Damage
+	ExplosionDecorationType bundle.DecorationType
 }
 
 func (eb *Vulcan) Flip() {
@@ -22,6 +23,7 @@ func (eb *Vulcan) Clone() state.EntityBehavior {
 	return &Vulcan{
 		eb.Shots,
 		eb.Damage,
+		eb.ExplosionDecorationType,
 	}
 }
 
@@ -56,7 +58,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 			},
 
 			BehaviorState: state.EntityBehaviorState{
-				Behavior: &vulcanShot{e.ID(), eb.Damage},
+				Behavior: &vulcanShot{e.ID(), eb.Damage, eb.ExplosionDecorationType},
 			},
 		})
 	}
@@ -92,8 +94,9 @@ func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type vulcanShot struct {
-	Owner  state.EntityID
-	Damage state.Damage
+	Owner                   state.EntityID
+	Damage                  state.Damage
+	ExplosionDecorationType bundle.DecorationType
 }
 
 func (eb *vulcanShot) Flip() {
@@ -103,6 +106,7 @@ func (eb *vulcanShot) Clone() state.EntityBehavior {
 	return &vulcanShot{
 		eb.Owner,
 		eb.Damage,
+		eb.ExplosionDecorationType,
 	}
 }
 
@@ -146,7 +150,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		})
 
 		s.AddDecoration(&state.Decoration{
-			Type:      bundle.DecorationTypePiercingExplosion,
+			Type:      eb.ExplosionDecorationType,
 			TilePos:   e.TilePos,
 			Offset:    image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
 			IsFlipped: e.IsFlipped,

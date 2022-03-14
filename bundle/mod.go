@@ -128,16 +128,6 @@ type ChargingSprites struct {
 	ChargedAnimation  *pngsheet.Animation
 }
 
-type SlashDecorationSprites struct {
-	SwordImage *ebiten.Image
-	BladeImage *ebiten.Image
-
-	WideAnimation     *pngsheet.Animation
-	LongAnimation     *pngsheet.Animation
-	ShortAnimation    *pngsheet.Animation
-	VeryLongAnimation *pngsheet.Animation
-}
-
 type CannonSprites struct {
 	CannonImage   *ebiten.Image
 	HiCannonImage *ebiten.Image
@@ -175,7 +165,8 @@ const (
 	DecorationTypeCannonExplosion DecorationType = iota
 	DecorationTypeBusterPowerShotExplosion
 	DecorationTypeBusterExplosion
-	DecorationTypePiercingExplosion
+	DecorationTypeVulcanExplosion
+	DecorationTypeSuperVulcanExplosion
 	DecorationTypeUninstallExplosion
 	DecorationTypeChipDeleteExplosion
 	DecorationTypeShieldHitExplosion
@@ -290,6 +281,16 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
 
+	type SlashDecorationSprites struct {
+		SwordImage *ebiten.Image
+		BladeImage *ebiten.Image
+
+		WideAnimation     *pngsheet.Animation
+		LongAnimation     *pngsheet.Animation
+		ShortAnimation    *pngsheet.Animation
+		VeryLongAnimation *pngsheet.Animation
+	}
+
 	var slashDecorationSprites *SlashDecorationSprites
 	loader.Add(ctx, l, "assets/sprites/0089.png", &slashDecorationSprites, makeSpriteLoader(func(sheet *Sheet) *SlashDecorationSprites {
 		img := sheet.Image.(*image.Paletted)
@@ -333,8 +334,35 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	var chipDeleteExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0278.png", &chipDeleteExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
 
-	var piercingExplosionDecorationSprites *Sprites
-	loader.Add(ctx, l, "assets/sprites/0281.png", &piercingExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+	type VulcanExplosionDecorationSprites struct {
+		VulcanImage      *ebiten.Image
+		SuperVulcanImage *ebiten.Image
+		DarkVulcanImage  *ebiten.Image
+
+		Animation *pngsheet.Animation
+	}
+	var vulcanExplosionDecorationSprites *VulcanExplosionDecorationSprites
+	loader.Add(ctx, l, "assets/sprites/0281.png", &vulcanExplosionDecorationSprites, makeSpriteLoader(func(sheet *Sheet) *VulcanExplosionDecorationSprites {
+		img := sheet.Image.(*image.Paletted)
+		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
+		img.Palette = palette[0 : 0+16]
+
+		vulcanImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[16 : 16+16]
+		superVulcanImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[32 : 32+16]
+		darkVulcanImage := ebiten.NewImageFromImage(img)
+
+		return &VulcanExplosionDecorationSprites{
+			VulcanImage:      vulcanImage,
+			SuperVulcanImage: superVulcanImage,
+			DarkVulcanImage:  darkVulcanImage,
+
+			Animation: sheet.Info.Animations[0],
+		}
+	}))
 
 	var uninstallExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0290.png", &uninstallExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
@@ -362,7 +390,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeCannonExplosion:          {cannonExplosionDecorationSprites.Image, cannonExplosionDecorationSprites.Animations[0]},
 		DecorationTypeBusterPowerShotExplosion: {chargeShotExplosionDecorationSprites.Image, chargeShotExplosionDecorationSprites.Animations[0]},
 		DecorationTypeBusterExplosion:          {explosionDecorationSprites.Image, explosionDecorationSprites.Animations[0]},
-		DecorationTypePiercingExplosion:        {piercingExplosionDecorationSprites.Image, piercingExplosionDecorationSprites.Animations[0]},
+		DecorationTypeVulcanExplosion:          {vulcanExplosionDecorationSprites.VulcanImage, vulcanExplosionDecorationSprites.Animation},
+		DecorationTypeSuperVulcanExplosion:     {vulcanExplosionDecorationSprites.SuperVulcanImage, vulcanExplosionDecorationSprites.Animation},
 		DecorationTypeUninstallExplosion:       {uninstallExplosionDecorationSprites.Image, uninstallExplosionDecorationSprites.Animations[0]},
 		DecorationTypeChipDeleteExplosion:      {chipDeleteExplosionDecorationSprites.Image, chipDeleteExplosionDecorationSprites.Animations[0]},
 		DecorationTypeShieldHitExplosion:       {shieldHitExplosionDecorationSprites.Image, shieldHitExplosionDecorationSprites.Animations[0]},
