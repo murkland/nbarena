@@ -29,8 +29,7 @@ type EntityTraits struct {
 }
 
 type EntityPerTickState struct {
-	WasHit                  bool
-	DoubleDamageWasConsumed bool
+	WasHit bool
 }
 
 type SlideState struct {
@@ -198,7 +197,9 @@ func (e *Entity) UseChip(s *State) bool {
 	}
 	e.Emotion = EmotionNormal
 	if dmg.DoubleDamage {
-		e.PerTickState.DoubleDamageWasConsumed = true
+		s.AttachSound(&Sound{
+			Type: bundle.SoundTypeDoubleDamageConsumed,
+		})
 	}
 
 	e.NextBehavior = chip.MakeBehavior(dmg)
