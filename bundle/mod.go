@@ -5,12 +5,14 @@ import (
 	"image"
 	_ "image/png"
 	"io/ioutil"
+	"os"
 
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/vorbis"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/moreio"
 	"github.com/murkland/nbarena/loader"
+	"github.com/murkland/oggloop"
 	"github.com/murkland/pngsheet"
 	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
@@ -198,6 +200,15 @@ const (
 	SoundTypeRecov
 )
 
+type BGM struct {
+	Buffer   *beep.Buffer
+	LoopInfo oggloop.Info
+}
+
+func (b *BGM) Streamer() beep.Streamer {
+	return oggloop.Wrap(b.Buffer.Streamer(0, b.Buffer.Len()), b.LoopInfo)
+}
+
 type Bundle struct {
 	Battletiles *Battletiles
 
@@ -218,6 +229,8 @@ type Bundle struct {
 	ChargingSprites *ChargingSprites
 
 	ChipIconSprites *Sprites
+
+	BattleBGM *BGM
 
 	Sounds map[SoundType]*beep.Buffer
 
@@ -240,6 +253,26 @@ func loadBDF(ctx context.Context, f moreio.File) (font.Face, error) {
 	}
 
 	return font.NewFace(), nil
+}
+
+func loadBGM(ctx context.Context, f moreio.File) (*BGM, error) {
+	defer f.Close()
+
+	info, err := oggloop.ReadInfo(f)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := f.Seek(0, os.SEEK_SET); err != nil {
+		return nil, err
+	}
+
+	s, fmt, err := vorbis.Decode(f)
+
+	buf := beep.NewBuffer(fmt)
+	buf.Append(s)
+
+	return &BGM{buf, info}, nil
 }
 
 func loadSound(ctx context.Context, f moreio.File) (*beep.Buffer, error) {
@@ -408,6 +441,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}))
 
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
+
+	loader.Add(ctx, l, "assets/sounds/034.ogg", &b.BattleBGM, loadBGM)
 
 	var busterSound *beep.Buffer
 	loader.Add(ctx, l, "assets/sounds/106.ogg", &busterSound, loadSound)

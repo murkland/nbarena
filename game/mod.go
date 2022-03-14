@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/faiface/beep"
+	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/speaker"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -138,6 +139,7 @@ type Game struct {
 	compositor *draw.Compositor
 
 	mixer          *beep.Mixer
+	volume         *effects.Volume
 	soundScheduler sound.Scheduler
 
 	cs   *clientState
@@ -158,12 +160,15 @@ var sampleRate = beep.SampleRate(48000)
 func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int, inputFrameDelay int) *Game {
 	speaker.Init(sampleRate, 128)
 	mixer := &beep.Mixer{}
-	speaker.Play(mixer)
+	volume := &effects.Volume{Streamer: mixer}
+	speaker.Play(volume)
 
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("nbarena")
 	const defaultScale = 4
 	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
+
+	mixer.Add(b.BattleBGM.Streamer())
 
 	s := state.New(rng)
 	var offererEntityID state.EntityID
@@ -218,6 +223,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	g := &Game{
 		bundle:         b,
 		dc:             dc,
+		volume:         volume,
 		mixer:          mixer,
 		soundScheduler: sound.NewScheduler(sampleRate, mixer),
 		cs: &clientState{
@@ -499,6 +505,9 @@ func (g *Game) uiAppearance() draw.Node {
 }
 
 func (g *Game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyM) {
+		g.volume.Silent = !g.volume.Silent
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
 		g.paused = !g.paused
 	}

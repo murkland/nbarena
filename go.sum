@@ -75,6 +75,10 @@ github.com/murkland/moreflag v0.0.0-20220305211654-c2205a2290ac h1:MHrOlxTm9A0lu
 github.com/murkland/moreflag v0.0.0-20220305211654-c2205a2290ac/go.mod h1:FQw9G31RX1T0gS7FAZKSZmXYTGEoMBh9rrYoa5qekMM=
 github.com/murkland/moreio v0.0.0-20220305211655-3f4f0d40df7a h1:AQrRIZH3P3OklFuacGxbOY8Y3tXA1sAYpef757s+fk8=
 github.com/murkland/moreio v0.0.0-20220305211655-3f4f0d40df7a/go.mod h1:5M3dRFQC2Q3BpcFIW7FNKzu+8Kkl+NVZRXUQxw7dUtE=
+github.com/murkland/oggloop v0.0.0-20220314220807-742edb733499 h1:Qm4TGa6aVoRclP1cCxkHniQ6HfpufA8YyjueY35ZcW0=
+github.com/murkland/oggloop v0.0.0-20220314220807-742edb733499/go.mod h1:FMFYwvVqyuKNKGbDhzul6FLbjBH/48P1l1J58HLyrdQ=
+github.com/murkland/oggloop v0.0.0-20220314221412-9948de408f12 h1:asO01P+b78Jl2JIg1oZNLmklxlw+8GGKV1PEC+/bsIg=
+github.com/murkland/oggloop v0.0.0-20220314221412-9948de408f12/go.mod h1:FMFYwvVqyuKNKGbDhzul6FLbjBH/48P1l1J58HLyrdQ=
 github.com/murkland/pngchunks v0.0.0-20220305211659-3f322c254e68 h1:m/83dMW0EpFweuOEJiHUsdtKwcqxdLj91LYM+i91zBg=
 github.com/murkland/pngchunks v0.0.0-20220305211659-3f322c254e68/go.mod h1:R10AASouoLqvXfvNYg87Ks/ScgVocSvO/sj173nU8nE=
 github.com/murkland/pngsheet v0.0.0-20220305212058-b7725a05d54a h1:+oM4rbVMr0PTdxJE0JHKCNg7Unf5+xlT/q97Vc3czis=

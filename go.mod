@@ -33,6 +33,7 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210727001814-0db043d8d5be // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jezek/xgb v0.0.0-20210312150743-0e0f116e1240 // indirect
+	github.com/murkland/oggloop v0.0.0-20220314221412-9948de408f12
 	github.com/murkland/pngchunks v0.0.0-20220305211659-3f322c254e68 // indirect
 	github.com/pion/datachannel v1.5.2 // indirect
 	github.com/pion/dtls/v2 v2.1.2 // indirect
