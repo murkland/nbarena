@@ -172,7 +172,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 				Behavior: &behaviors.Idle{},
 			},
 		}
-		s.AddEntity(e)
+		s.AttachEntity(e)
 		offererEntityID = e.ID()
 		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
@@ -198,7 +198,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 				Behavior: &behaviors.Idle{},
 			},
 		}
-		s.AddEntity(e)
+		s.AttachEntity(e)
 		answererEntityID = e.ID()
 		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}

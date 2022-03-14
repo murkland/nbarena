@@ -48,7 +48,7 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 	found:
 
 		for y := 1; y < 4; y++ {
-			s.AddEntity(&state.Entity{
+			s.AttachEntity(&state.Entity{
 				TilePos: state.TilePosXY(x, y),
 
 				IsFlipped:            e.IsFlipped,

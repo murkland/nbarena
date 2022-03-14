@@ -40,7 +40,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 	if (e.BehaviorState.ElapsedTime-2)%11 == 0 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
-		s.AddEntity(&state.Entity{
+		s.AttachEntity(&state.Entity{
 			TilePos: state.TilePosXY(x+dx, y),
 
 			IsFlipped:            e.IsFlipped,

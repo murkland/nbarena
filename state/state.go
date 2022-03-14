@@ -42,7 +42,7 @@ func New(randSource *syncrand.Source) *State {
 	}
 }
 
-func (s *State) AddEntity(e *Entity) {
+func (s *State) AttachEntity(e *Entity) {
 	e.id = s.nextEntityID
 	if s.IsInTimeStop {
 		e.RunsInTimestop = true

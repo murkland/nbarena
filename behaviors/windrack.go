@@ -55,7 +55,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		}
 
 		for i := 1; i <= 3; i++ {
-			s.AddEntity(&state.Entity{
+			s.AttachEntity(&state.Entity{
 				TilePos: state.TilePosXY(x+dx, i),
 
 				IsFlipped:            e.IsFlipped,

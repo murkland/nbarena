@@ -30,7 +30,7 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 6 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
-		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
+		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
 			HitTraits: state.HitTraits{
 				Element:        state.ElementWind,

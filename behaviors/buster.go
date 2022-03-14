@@ -73,7 +73,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		if eb.IsPowerShot {
 			decorationType = bundle.DecorationTypeBusterPowerShotExplosion
 		}
-		s.AddEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
+		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: state.Damage{Base: damage},
 			HitTraits: state.HitTraits{
 				Element: state.ElementNull,
