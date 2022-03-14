@@ -50,7 +50,7 @@ func (s EntityBehaviorState) Clone() EntityBehaviorState {
 	return EntityBehaviorState{s.Behavior.Clone(), s.ElapsedTime}
 }
 
-type EntityID int
+type EntityID uint64
 
 type ChipPlaque struct {
 	ElapsedTime  Ticks

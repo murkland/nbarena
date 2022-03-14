@@ -7,7 +7,7 @@ import (
 	"github.com/murkland/nbarena/bundle"
 )
 
-type SoundID int
+type SoundID uint64
 
 type Sound struct {
 	id          SoundID

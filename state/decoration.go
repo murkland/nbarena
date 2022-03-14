@@ -7,7 +7,7 @@ import (
 	"github.com/murkland/nbarena/draw"
 )
 
-type DecorationID int
+type DecorationID uint64
 
 type Decoration struct {
 	id DecorationID
