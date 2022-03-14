@@ -44,6 +44,9 @@ func New(randSource *syncrand.Source) *State {
 
 func (s *State) AddEntity(e *Entity) {
 	e.id = s.nextEntityID
+	if s.IsInTimeStop {
+		e.RunsInTimestop = true
+	}
 	s.Entities[e.id] = e
 	e.BehaviorState.Behavior.Step(e, s)
 	s.nextEntityID++

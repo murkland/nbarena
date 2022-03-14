@@ -23,6 +23,9 @@ func (eb *AreaGrab) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 0 {
+		s.IsInTimeStop = true
+		e.RunsInTimestop = true
+
 		xStart := 1
 		xEnd := state.TileCols - 2
 		xStep := 1
@@ -46,8 +49,6 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 
 		for y := 1; y < 4; y++ {
 			s.AddEntity(&state.Entity{
-				RunsInTimestop: true,
-
 				TilePos: state.TilePosXY(x, y),
 
 				IsFlipped:            e.IsFlipped,
@@ -67,12 +68,15 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 				},
 			})
 		}
-
+	} else if e.BehaviorState.ElapsedTime == 40 {
+		// TODO: Probably not 40!
 		e.NextBehavior = &Idle{}
 	}
 }
 
 func (eb *AreaGrab) Cleanup(e *state.Entity, s *state.State) {
+	s.IsInTimeStop = false
+	e.RunsInTimestop = false
 }
 
 func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
