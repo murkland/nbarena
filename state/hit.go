@@ -50,7 +50,9 @@ const (
 	DragTypeBig   DragType = 2
 )
 
-type HitTraits struct {
+type Hit struct {
+	TotalDamage int
+
 	FlashTime      Ticks
 	ParalyzeTime   Ticks
 	ConfuseTime    Ticks
@@ -69,11 +71,6 @@ type HitTraits struct {
 	Flinch                bool
 }
 
-type Hit struct {
-	Traits      HitTraits
-	TotalDamage int
-}
-
 func (h *Hit) AddDamage(d Damage) {
 	v := d.Base + d.AttackPlus
 	if d.DoubleDamage {
@@ -81,46 +78,10 @@ func (h *Hit) AddDamage(d Damage) {
 	}
 	h.TotalDamage += v
 	if d.ParalyzeTime > 0 {
-		h.Traits.ParalyzeTime = d.ParalyzeTime
+		h.ParalyzeTime = d.ParalyzeTime
 	}
 	if d.Flinch {
-		h.Traits.Flinch = true
-	}
-}
-
-func (h *Hit) Merge(h2 Hit) {
-	h.TotalDamage += h2.TotalDamage
-
-	// TODO: Verify this is correct behavior.
-	if h2.Traits.ParalyzeTime > h.Traits.ParalyzeTime {
-		h.Traits.ParalyzeTime = h2.Traits.ParalyzeTime
-	}
-	if h2.Traits.ConfuseTime > h.Traits.ConfuseTime {
-		h.Traits.ConfuseTime = h2.Traits.ConfuseTime
-	}
-	if h2.Traits.BlindTime > h.Traits.BlindTime {
-		h.Traits.BlindTime = h2.Traits.BlindTime
-	}
-	if h2.Traits.ImmobilizeTime > h.Traits.ImmobilizeTime {
-		h.Traits.ImmobilizeTime = h2.Traits.ImmobilizeTime
-	}
-	if h2.Traits.FreezeTime > h.Traits.FreezeTime {
-		h.Traits.FreezeTime = h2.Traits.FreezeTime
-	}
-	if h2.Traits.BubbleTime > h.Traits.BubbleTime {
-		h.Traits.BubbleTime = h2.Traits.BubbleTime
-	}
-	if h2.Traits.FlashTime > h.Traits.FlashTime {
-		h.Traits.FlashTime = h2.Traits.FlashTime
-	}
-	if h2.Traits.Flinch {
-		h.Traits.Flinch = true
-	}
-	if h2.Traits.Drag != DragTypeNone {
-		h.Traits.Drag = h2.Traits.Drag
-	}
-	if h2.Traits.SlideDirection != DirectionNone {
-		h.Traits.SlideDirection = h2.Traits.SlideDirection
+		h.Flinch = true
 	}
 }
 
@@ -131,7 +92,7 @@ func MaybeApplyCounter(target *Entity, owner *Entity, h *Hit) {
 	// TODO: Check the code for this.
 	if target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
 		owner.Emotion = EmotionFullSynchro
-		h.Traits.FlashTime = 0
-		h.Traits.ParalyzeTime = DefaultParalyzeTime
+		h.FlashTime = 0
+		h.ParalyzeTime = DefaultParalyzeTime
 	}
 }

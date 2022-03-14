@@ -111,13 +111,13 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 
 		for _, target := range swordTargetEntities(s, e, eb.Range) {
 			var h state.Hit
-			h.Traits.Flinch = true
-			h.Traits.FlashTime = state.DefaultFlashTime
-			h.Traits.Element = state.ElementSword
-			h.Traits.SecondaryElementSword = true
+			h.Flinch = true
+			h.FlashTime = state.DefaultFlashTime
+			h.Element = state.ElementSword
+			h.SecondaryElementSword = true
 			state.MaybeApplyCounter(target, e, &h)
 			h.AddDamage(eb.Damage)
-			target.Hit.Merge(h)
+			target.AddHit(h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 21-1 {
 		e.NextBehavior = &Idle{}

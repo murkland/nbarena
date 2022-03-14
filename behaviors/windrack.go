@@ -47,11 +47,11 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 
 		for _, target := range entities {
 			var h state.Hit
-			h.Traits.Drag = state.DragTypeBig
-			h.Traits.SlideDirection = e.Facing()
-			h.Traits.Element = state.ElementWind
+			h.Drag = state.DragTypeBig
+			h.SlideDirection = e.Facing()
+			h.Element = state.ElementWind
 			h.AddDamage(eb.Damage)
-			target.Hit.Merge(h)
+			target.AddHit(h)
 		}
 
 		for i := 1; i <= 3; i++ {

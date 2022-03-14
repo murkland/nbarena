@@ -125,13 +125,11 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		}
 
 		var h state.Hit
-		h.Traits = state.HitTraits{
-			Flinch: true,
-		}
+		h.Flinch = true
 		h.AddDamage(eb.Damage)
-		h.Traits.Element = state.ElementNull
+		h.Element = state.ElementNull
 		state.MaybeApplyCounter(target, s.Entities[eb.Owner], &h)
-		target.Hit.Merge(h)
+		target.AddHit(h)
 
 		rand := rand.New(s.RandSource)
 

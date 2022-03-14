@@ -93,6 +93,8 @@ type Entity struct {
 
 	IsDead bool
 
+	Element Element
+
 	HP        int
 	MaxHP     int
 	DisplayHP int
@@ -144,6 +146,7 @@ func (e *Entity) Clone() *Entity {
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDead,
+		e.Element,
 		e.HP, e.MaxHP, e.DisplayHP,
 		e.Traits,
 		e.PowerShotChargeTime,
@@ -352,6 +355,46 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	}
 
 	return rootNode
+}
+
+func (e *Entity) AddHit(h2 Hit) {
+	if h2.Element.IsSuperEffectiveAgainst(e.Element) {
+		h2.TotalDamage *= 2
+	}
+
+	e.Hit.TotalDamage += h2.TotalDamage
+
+	// TODO: Verify this is correct behavior.
+	if h2.ParalyzeTime > e.Hit.ParalyzeTime {
+		e.Hit.ParalyzeTime = h2.ParalyzeTime
+	}
+	if h2.ConfuseTime > e.Hit.ConfuseTime {
+		e.Hit.ConfuseTime = h2.ConfuseTime
+	}
+	if h2.BlindTime > e.Hit.BlindTime {
+		e.Hit.BlindTime = h2.BlindTime
+	}
+	if h2.ImmobilizeTime > e.Hit.ImmobilizeTime {
+		e.Hit.ImmobilizeTime = h2.ImmobilizeTime
+	}
+	if h2.FreezeTime > e.Hit.FreezeTime {
+		e.Hit.FreezeTime = h2.FreezeTime
+	}
+	if h2.BubbleTime > e.Hit.BubbleTime {
+		e.Hit.BubbleTime = h2.BubbleTime
+	}
+	if h2.FlashTime > e.Hit.FlashTime {
+		e.Hit.FlashTime = h2.FlashTime
+	}
+	if h2.Flinch {
+		e.Hit.Flinch = true
+	}
+	if h2.Drag != DragTypeNone {
+		e.Hit.Drag = h2.Drag
+	}
+	if h2.SlideDirection != DirectionNone {
+		e.Hit.SlideDirection = h2.SlideDirection
+	}
 }
 
 func (e *Entity) Step(s *State) {

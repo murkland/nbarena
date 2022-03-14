@@ -32,7 +32,7 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 		dx := query.DXForward(e.IsFlipped)
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
-			HitTraits: state.HitTraits{
+			Hit: state.Hit{
 				Element:        state.ElementWind,
 				Drag:           state.DragTypeSmall,
 				SlideDirection: e.Facing(),

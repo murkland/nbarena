@@ -75,7 +75,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		}
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: state.Damage{Base: damage},
-			HitTraits: state.HitTraits{
+			Hit: state.Hit{
 				Element: state.ElementNull,
 			},
 			ExplosionDecorationType: decorationType,

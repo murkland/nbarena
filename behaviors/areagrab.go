@@ -131,9 +131,9 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 		} else {
 			for _, entity := range query.HittableEntitiesAt(s, e, state.TilePosXY(x, y)) {
 				var h state.Hit
-				h.Traits.Flinch = true
+				h.Flinch = true
 				h.AddDamage(state.Damage{Base: 10})
-				entity.Hit.Merge(h)
+				entity.AddHit(h)
 			}
 		}
 	} else if e.BehaviorState.ElapsedTime == 30+15 {
