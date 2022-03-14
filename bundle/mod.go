@@ -6,6 +6,8 @@ import (
 	_ "image/png"
 	"io/ioutil"
 
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/vorbis"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/moreio"
 	"github.com/murkland/nbarena/loader"
@@ -182,6 +184,20 @@ const (
 	DecorationTypeRecov
 )
 
+type SoundType int
+
+const (
+	SoundTypeNone   SoundType = 0
+	SoundTypeBuster SoundType = iota
+	SoundTypeOuch
+	SoundTypeCharging
+	SoundTypeCharged
+	SoundTypeSwordSlash
+	SoundTypeCounterHit
+	SoundTypeDoubleDamageConsumed
+	SoundTypeRecov
+)
+
 type Bundle struct {
 	Battletiles *Battletiles
 
@@ -203,6 +219,8 @@ type Bundle struct {
 
 	ChipIconSprites *Sprites
 
+	Sounds map[SoundType]*beep.Buffer
+
 	TallFont    font.Face
 	Tall2Font   font.Face
 	TinyNumFont font.Face
@@ -222,6 +240,19 @@ func loadBDF(ctx context.Context, f moreio.File) (font.Face, error) {
 	}
 
 	return font.NewFace(), nil
+}
+
+func loadSound(ctx context.Context, f moreio.File) (*beep.Buffer, error) {
+	defer f.Close()
+
+	s, fmt, err := vorbis.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := beep.NewBuffer(fmt)
+	buf.Append(s)
+	return buf, nil
 }
 
 func sheetToSprites(sheet *Sheet) *Sprites {
@@ -378,6 +409,42 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 
 	loader.Add(ctx, l, "assets/chipicons.png", &b.ChipIconSprites, makeSpriteLoader(sheetToSprites))
 
+	var busterSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/106.ogg", &busterSound, loadSound)
+
+	var ouchSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/107.ogg", &ouchSound, loadSound)
+
+	var chargingSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/113.ogg", &chargingSound, loadSound)
+
+	var chargedSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/114.ogg", &chargedSound, loadSound)
+
+	var counterHitSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/134.ogg", &counterHitSound, loadSound)
+
+	var doubleDamageConsumedSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/135.ogg", &doubleDamageConsumedSound, loadSound)
+
+	var confusedSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/136.ogg", &confusedSound, loadSound)
+
+	var recovSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/138.ogg", &recovSound, loadSound)
+
+	// 110: shield?
+	// 120: battle start
+	// 121: enter custom
+	// 122: crossselect
+	// 130: confirm
+	// 132: low hp?
+	// 134: counter hit
+	// 151: tile destroyed?
+	// 168: fanfare
+	var swordSlashSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/176.ogg", &swordSlashSound, loadSound)
+
 	loader.Add(ctx, l, "assets/fonts/tall.bdf", &b.TallFont, loadBDF)
 	loader.Add(ctx, l, "assets/fonts/tall2.bdf", &b.Tall2Font, loadBDF)
 	loader.Add(ctx, l, "assets/fonts/tinynum.bdf", &b.TinyNumFont, loadBDF)
@@ -405,6 +472,17 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		DecorationTypeNullVeryLongBladeSlash:   {slashDecorationSprites.BladeImage, slashDecorationSprites.VeryLongAnimation},
 		DecorationTypeWindSlash:                {windSlashDecorationSprites.Image, windSlashDecorationSprites.Animations[0]},
 		DecorationTypeRecov:                    {recovDecorationSprites.Image, recovDecorationSprites.Animations[0]},
+	}
+
+	b.Sounds = map[SoundType]*beep.Buffer{
+		SoundTypeBuster:               busterSound,
+		SoundTypeOuch:                 ouchSound,
+		SoundTypeCharging:             chargingSound,
+		SoundTypeCharged:              chargedSound,
+		SoundTypeSwordSlash:           swordSlashSound,
+		SoundTypeCounterHit:           counterHitSound,
+		SoundTypeDoubleDamageConsumed: doubleDamageConsumedSound,
+		SoundTypeRecov:                recovSound,
 	}
 
 	return b, nil

@@ -70,6 +70,9 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		if eb.IsPowerShot {
 			decorationType = bundle.DecorationTypeBusterPowerShotExplosion
 		}
+		s.AttachSound(&state.Sound{
+			Type: bundle.SoundTypeBuster,
+		})
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: state.Damage{Base: damage},
 			Hit: state.Hit{

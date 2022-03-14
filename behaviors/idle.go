@@ -26,6 +26,16 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 
 	if e.Intent.ChargeBasicWeapon {
 		eb.ChargingElapsedTime++
+		if eb.ChargingElapsedTime == 10 {
+			s.AttachSound(&state.Sound{
+				Type: bundle.SoundTypeCharging,
+			})
+		}
+		if eb.ChargingElapsedTime == e.PowerShotChargeTime {
+			s.AttachSound(&state.Sound{
+				Type: bundle.SoundTypeCharged,
+			})
+		}
 	}
 
 	if eb.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {

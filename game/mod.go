@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/keegancsmith/nth"
@@ -21,6 +23,7 @@ import (
 	"github.com/murkland/nbarena/draw/styledtext"
 	"github.com/murkland/nbarena/input"
 	"github.com/murkland/nbarena/packets"
+	"github.com/murkland/nbarena/sound"
 	"github.com/murkland/nbarena/state"
 	"github.com/murkland/nbarena/step"
 	"github.com/murkland/ringbuf"
@@ -134,6 +137,9 @@ type Game struct {
 
 	compositor *draw.Compositor
 
+	mixer          *beep.Mixer
+	soundScheduler sound.Scheduler
+
 	cs   *clientState
 	csMu sync.Mutex
 
@@ -147,7 +153,13 @@ type Game struct {
 	delayRingbufMu sync.RWMutex
 }
 
+var sampleRate = beep.SampleRate(48000)
+
 func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAnswerer bool, delaysWindowSize int, inputFrameDelay int) *Game {
+	speaker.Init(sampleRate, 128)
+	mixer := &beep.Mixer{}
+	speaker.Play(mixer)
+
 	ebiten.SetWindowResizable(true)
 	ebiten.SetWindowTitle("nbarena")
 	const defaultScale = 4
@@ -204,8 +216,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	}
 
 	g := &Game{
-		bundle: b,
-		dc:     dc,
+		bundle:         b,
+		dc:             dc,
+		mixer:          mixer,
+		soundScheduler: sound.NewScheduler(sampleRate, mixer),
 		cs: &clientState{
 			OffererEntityID:  offererEntityID,
 			AnswererEntityID: answererEntityID,
@@ -381,6 +395,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		state = g.cs.dirtyState.Clone()
 		state.Flip()
 	}
+
+	g.soundScheduler.Dispatch(g.bundle, state.Sounds)
 
 	rootNode := &draw.OptionsNode{}
 	sceneNode := &draw.OptionsNode{}

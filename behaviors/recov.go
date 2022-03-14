@@ -29,7 +29,10 @@ func (eb *Recov) Step(e *state.Entity, s *state.State) {
 
 		// TODO: Trigger antirecovery.
 
-		s.AddDecoration(&state.Decoration{
+		s.AttachSound(&state.Sound{
+			Type: bundle.SoundTypeRecov,
+		})
+		s.AttachDecoration(&state.Decoration{
 			Type:      bundle.DecorationTypeRecov,
 			TilePos:   e.TilePos,
 			Offset:    image.Point{0, 0},

@@ -29,8 +29,12 @@ func resolveOne(e *state.Entity, s *state.State) {
 	// TODO: Process poison damage.
 
 	// Process hit damage.
+	// TODO: Should this be in ApplyHit?
 	if e.HitResolution.Damage > 0 {
 		e.PerTickState.WasHit = true
+		s.AttachSound(&state.Sound{
+			Type: bundle.SoundTypeOuch,
+		})
 	}
 
 	mustLeave1HP := e.HP > 1 && e.Traits.FatalHitLeaves1HP
@@ -192,6 +196,15 @@ func Step(s *state.State, b *bundle.Bundle) {
 
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
+	}
+
+	for _, snd := range s.Sounds {
+		bbuf := b.Sounds[snd.Type]
+		if state.TicksToSampleOffset(bbuf.Format().SampleRate, snd.ElapsedTime) >= bbuf.Len() {
+			delete(s.Sounds, snd.ID())
+			continue
+		}
+		snd.Step()
 	}
 
 	for _, d := range s.Decorations {

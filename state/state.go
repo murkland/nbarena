@@ -25,6 +25,9 @@ type State struct {
 
 	Decorations      map[DecorationID]*Decoration
 	nextDecorationID DecorationID
+
+	Sounds      map[SoundID]*Sound
+	nextSoundID SoundID
 }
 
 func New(randSource *syncrand.Source) *State {
@@ -39,6 +42,9 @@ func New(randSource *syncrand.Source) *State {
 
 		Decorations:      map[DecorationID]*Decoration{},
 		nextDecorationID: 1,
+
+		Sounds:      map[SoundID]*Sound{},
+		nextSoundID: 1,
 	}
 }
 
@@ -52,19 +58,18 @@ func (s *State) AttachEntity(e *Entity) {
 	s.nextEntityID++
 }
 
-func (s *State) RemoveEntity(id EntityID) {
-	delete(s.Entities, id)
-}
-
-func (s *State) AddDecoration(d *Decoration) {
+func (s *State) AttachDecoration(d *Decoration) {
 	d.id = s.nextDecorationID
 	s.Decorations[d.id] = d
 	s.nextDecorationID++
 }
 
-func (s *State) RemoveDecoration(id DecorationID) {
-	delete(s.Decorations, id)
+func (s *State) AttachSound(snd *Sound) {
+	snd.id = s.nextSoundID
+	s.Sounds[snd.id] = snd
+	s.nextSoundID++
 }
+
 func (s *State) Clone() *State {
 	return &State{
 		s.ElapsedTime,
@@ -73,6 +78,7 @@ func (s *State) Clone() *State {
 		s.IsInTimeStop,
 		clone.Map(s.Entities), s.nextEntityID,
 		clone.Map(s.Decorations), s.nextDecorationID,
+		clone.Map(s.Sounds), s.nextSoundID,
 	}
 }
 

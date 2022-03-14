@@ -97,11 +97,14 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []state.
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
 	if e.BehaviorState.ElapsedTime == 9 {
-		s.AddDecoration(&state.Decoration{
+		s.AttachDecoration(&state.Decoration{
 			Type:      swordSlashDecorationType(eb.Style, eb.Range),
 			TilePos:   e.TilePos,
 			Offset:    image.Point{state.TileRenderedWidth, -16},
 			IsFlipped: e.IsFlipped,
+		})
+		s.AttachSound(&state.Sound{
+			Type: bundle.SoundTypeSwordSlash,
 		})
 
 		for _, pos := range swordTargetEntities(s, e, eb.Range) {

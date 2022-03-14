@@ -128,14 +128,14 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 		xOff := rand.Intn(state.TileRenderedWidth / 4)
 		yOff := -rand.Intn(state.TileRenderedHeight)
 
-		s.AddDecoration(&state.Decoration{
+		s.AttachDecoration(&state.Decoration{
 			Type:      bundle.DecorationTypeBusterExplosion,
 			TilePos:   e.TilePos,
 			Offset:    image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
 			IsFlipped: e.IsFlipped,
 		})
 
-		s.AddDecoration(&state.Decoration{
+		s.AttachDecoration(&state.Decoration{
 			ElapsedTime: -1,
 			Type:        bundle.DecorationTypeBusterExplosion,
 			TilePos:     e.TilePos,
@@ -143,7 +143,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 			IsFlipped:   e.IsFlipped,
 		})
 
-		s.AddDecoration(&state.Decoration{
+		s.AttachDecoration(&state.Decoration{
 			Type:      eb.ExplosionDecorationType,
 			TilePos:   e.TilePos,
 			Offset:    image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},

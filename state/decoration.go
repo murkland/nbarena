@@ -12,7 +12,6 @@ type DecorationID int
 type Decoration struct {
 	id DecorationID
 
-	Delay       Ticks
 	ElapsedTime Ticks
 
 	RunsInTimestop bool
@@ -37,7 +36,7 @@ func (d *Decoration) Flip() {
 func (d *Decoration) Clone() *Decoration {
 	return &Decoration{
 		d.id,
-		d.Delay, d.ElapsedTime,
+		d.ElapsedTime,
 		d.RunsInTimestop,
 		d.IsFlipped,
 		d.Type,

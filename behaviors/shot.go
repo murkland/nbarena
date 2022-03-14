@@ -53,7 +53,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 			xOff := rand.Intn(state.TileRenderedWidth / 4)
 			yOff := -rand.Intn(state.TileRenderedHeight)
 
-			s.AddDecoration(&state.Decoration{
+			s.AttachDecoration(&state.Decoration{
 				Type:      eb.ExplosionDecorationType,
 				TilePos:   e.TilePos,
 				Offset:    image.Point{xOff, yOff},
