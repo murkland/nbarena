@@ -40,7 +40,7 @@ func (eb *Recov) Step(e *state.Entity, s *state.State) {
 		})
 
 		e.ChipUseLockoutTimeLeft = 30
-		e.NextBehavior = &Idle{}
+		e.SetBehaviorImmediate(&Idle{}, s)
 	}
 }
 
@@ -48,5 +48,5 @@ func (eb *Recov) Cleanup(e *state.Entity, s *state.State) {
 }
 
 func (eb *Recov) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime()))
+	return nil
 }
