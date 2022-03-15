@@ -202,7 +202,7 @@ func (e *Entity) UseChip(s *State) bool {
 		})
 	}
 
-	e.NextBehavior = chip.MakeBehavior(dmg)
+	chip.OnUse(s, e, dmg)
 	e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
 	return true
 }
