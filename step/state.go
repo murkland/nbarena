@@ -105,7 +105,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 			if e.Flashing.TimeLeft > 0 {
 				e.Flashing.TimeLeft--
 			} else {
-				e.RemoveFlashing()
+				e.RemoveFlashing(s)
 			}
 
 			// Process paralyzed.

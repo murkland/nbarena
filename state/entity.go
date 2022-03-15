@@ -421,7 +421,7 @@ func (e *Entity) ApplyHit(h2 Hit) {
 	}
 }
 
-func (e *Entity) RemoveFlashing() {
+func (e *Entity) RemoveFlashing(s *State) {
 	if e.Flashing.IsInvis {
 		// TODO: Play un-invis sound effect.
 	}
