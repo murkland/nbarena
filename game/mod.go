@@ -409,7 +409,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	sceneNode.Opts.GeoM.Scale(float64(k), float64(k))
 	sceneNode.Children = append(sceneNode.Children, state.Appearance(g.bundle))
 	if state.IsInTimeStop {
-		timestopOverlay := &draw.OptionsNode{}
+		timestopOverlay := &draw.OptionsNode{Layer: 1}
 		overlay := ebiten.NewImage(sceneWidth, sceneHeight)
 		overlay.Fill(color.Black)
 		timestopOverlay.Opts.ColorM.Scale(1.0, 1.0, 1.0, 0.25)
@@ -478,6 +478,13 @@ func (g *Game) uiAppearance() draw.Node {
 		hpPlaqueTextNode.Opts.GeoM.Translate(float64(38), float64(3))
 		hpPlaqueNode.Children = append(hpPlaqueNode.Children, hpPlaqueTextNode)
 		hpPlaqueTextNode.Children = append(hpPlaqueTextNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: strconv.Itoa(self.DisplayHP), Background: gradientImage}}, styledtext.AnchorRight|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderNone, color.RGBA{}))
+	}
+
+	if g.cs.dirtyState.CounterPlaqueTimeLeft > 0 {
+		counterPlaqueNode := &draw.OptionsNode{}
+		counterPlaqueNode.Opts.GeoM.Translate(float64(sceneWidth/2), float64(20))
+		rootNode.Children = append(rootNode.Children, counterPlaqueNode)
+		counterPlaqueNode.Children = append(counterPlaqueNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: "COUNTER HIT!", Background: whiteTextGradient}}, styledtext.AnchorCenter|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderRightBottom, color.RGBA{0, 0, 0, 0xff}))
 	}
 
 	{

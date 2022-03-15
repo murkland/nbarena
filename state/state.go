@@ -28,6 +28,8 @@ type State struct {
 
 	Sounds      map[SoundID]*Sound
 	nextSoundID SoundID
+
+	CounterPlaqueTimeLeft Ticks
 }
 
 func New(randSource *syncrand.Source) *State {
@@ -79,6 +81,7 @@ func (s *State) Clone() *State {
 		clone.Map(s.Entities), s.nextEntityID,
 		clone.Map(s.Decorations), s.nextDecorationID,
 		clone.Map(s.Sounds), s.nextSoundID,
+		s.CounterPlaqueTimeLeft,
 	}
 }
 
@@ -186,7 +189,7 @@ func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
 			continue
 		}
 
-		if h.CanCounter && target.BehaviorState.Behavior.Traits(target).CanBeCountered && target.BehaviorState.ElapsedTime < 15 {
+		if h.CanCounter && target.BehaviorState.Behavior.Traits(target).CanBeCountered /* && target.BehaviorState.ElapsedTime < 15*/ {
 			// From Alyrsc#7506:
 			// I was mostly sure that it's frames 2-16 of an action.
 			// I gathered that by frame stepping P2 while P1 had FullSynchro. The timing of the blue flashes was somewhat inconsistent, possibly because it's based on a global clock or counter, but those were the earliest and latest frames I saw.
@@ -194,6 +197,7 @@ func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
 			s.AttachSound(&Sound{
 				Type: bundle.SoundTypeCounterHit,
 			})
+			s.CounterPlaqueTimeLeft = 50
 			owner.Emotion = EmotionFullSynchro
 			h.FlashTime = 0
 			h.ParalyzeTime = DefaultParalyzeTime

@@ -113,6 +113,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 			h.FlashTime = state.DefaultFlashTime
 			h.Element = state.ElementSword
 			h.SecondaryElementSword = true
+			h.CanCounter = true
 			h.AddDamage(eb.Damage)
 			s.ApplyHit(e, pos, h)
 		}

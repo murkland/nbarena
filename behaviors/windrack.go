@@ -46,6 +46,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			h.Drag = state.DragTypeBig
 			h.SlideDirection = e.Facing()
 			h.Element = state.ElementWind
+			h.CanCounter = true
 			h.AddDamage(eb.Damage)
 			s.ApplyHit(e, pos, h)
 		}

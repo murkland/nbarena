@@ -119,6 +119,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 
 	var h state.Hit
 	h.Flinch = true
+	h.CanCounter = true
 	h.AddDamage(eb.Damage)
 	h.Element = state.ElementNull
 

@@ -194,6 +194,10 @@ func resolveSlide(e *state.Entity, s *state.State) {
 func Step(s *state.State, b *bundle.Bundle) {
 	s.ElapsedTime++
 
+	if s.CounterPlaqueTimeLeft > 0 {
+		s.CounterPlaqueTimeLeft--
+	}
+
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
 	}
