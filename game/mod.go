@@ -19,7 +19,6 @@ import (
 	"github.com/murkland/ctxwebrtc"
 	"github.com/murkland/nbarena/behaviors"
 	"github.com/murkland/nbarena/bundle"
-	"github.com/murkland/nbarena/chips"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/draw/styledtext"
 	"github.com/murkland/nbarena/input"
@@ -30,7 +29,6 @@ import (
 	"github.com/murkland/ringbuf"
 	"github.com/murkland/syncrand"
 	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -178,8 +176,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			MaxHP:     1000,
 			DisplayHP: 1000,
 
-			Chips: slices.Clone(chips.Chips),
-
 			PowerShotChargeTime: state.Ticks(50),
 
 			TilePos:       state.TilePosXY(2, 2),
@@ -200,8 +196,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			HP:        1000,
 			MaxHP:     1000,
 			DisplayHP: 1000,
-
-			Chips: slices.Clone(chips.Chips),
 
 			PowerShotChargeTime: state.Ticks(50),
 
