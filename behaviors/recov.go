@@ -39,6 +39,7 @@ func (eb *Recov) Step(e *state.Entity, s *state.State) {
 			IsFlipped: e.IsFlipped,
 		})
 
+		e.ChipUseLockoutTimeLeft = 30
 		e.NextBehavior = &Idle{}
 	}
 }
