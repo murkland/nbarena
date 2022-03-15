@@ -182,6 +182,7 @@ func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
 		}
 
 		if h.RemovesFlashing {
+			target.Flashing.IsInvis = false
 			target.RemoveFlashing(s)
 		}
 
