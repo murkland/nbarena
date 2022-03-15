@@ -182,10 +182,10 @@ func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
 		}
 
 		if h.RemovesFlashing {
-			target.FlashingTimeLeft = 0
+			target.RemoveFlashing()
 		}
 
-		if target.FlashingTimeLeft > 0 {
+		if target.Flashing.TimeLeft > 0 {
 			continue
 		}
 

@@ -83,6 +83,11 @@ type HitResolution struct {
 	SlideDirection Direction
 }
 
+type Flashing struct {
+	TimeLeft Ticks
+	IsInvis  bool
+}
+
 type Entity struct {
 	id EntityID
 
@@ -121,7 +126,7 @@ type Entity struct {
 	ConfusedTimeLeft    Ticks
 	BlindedTimeLeft     Ticks
 	ImmobilizedTimeLeft Ticks
-	FlashingTimeLeft    Ticks
+	Flashing            Flashing
 	InvincibleTimeLeft  Ticks
 
 	Emotion Emotion
@@ -164,7 +169,7 @@ func (e *Entity) Clone() *Entity {
 		e.HP, e.MaxHP, e.DisplayHP,
 		e.Traits,
 		e.PowerShotChargeTime,
-		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.FlashingTimeLeft, e.InvincibleTimeLeft,
+		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.Flashing, e.InvincibleTimeLeft,
 		e.Emotion,
 		e.HitResolution, e.PerTickState,
 		slices.Clone(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
@@ -298,7 +303,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
 
-	if e.FlashingTimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
+	if e.Flashing.TimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	if e.PerTickState.WasHit {
@@ -414,6 +419,13 @@ func (e *Entity) ApplyHit(h2 Hit) {
 	if h2.SlideDirection != DirectionNone {
 		e.HitResolution.SlideDirection = h2.SlideDirection
 	}
+}
+
+func (e *Entity) RemoveFlashing() {
+	if e.Flashing.IsInvis {
+		// TODO: Play un-invis sound effect.
+	}
+	e.Flashing = Flashing{}
 }
 
 func (e *Entity) Step(s *State) {

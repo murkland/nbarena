@@ -99,11 +99,13 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 			// Process flashing.
 			if e.HitResolution.FlashTime > 0 {
-				e.FlashingTimeLeft = e.HitResolution.FlashTime
+				e.Flashing = state.Flashing{TimeLeft: e.HitResolution.FlashTime}
 				e.HitResolution.FlashTime = 0
 			}
-			if e.FlashingTimeLeft > 0 {
-				e.FlashingTimeLeft--
+			if e.Flashing.TimeLeft > 0 {
+				e.Flashing.TimeLeft--
+			} else {
+				e.RemoveFlashing()
 			}
 
 			// Process paralyzed.
