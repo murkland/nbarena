@@ -309,6 +309,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		fullSynchroNode := &draw.OptionsNode{Layer: 8}
 		fullSynchroNode.Children = append(fullSynchroNode.Children, draw.ImageWithAnimation(b.FullSynchroSprites.Image, b.FullSynchroSprites.Animations[0], int(e.elapsedTime)))
 		rootCharacterNode.Children = append(rootCharacterNode.Children, fullSynchroNode)
+	} else if e.Emotion == EmotionAngry {
+		characterNode.Opts.ColorM.Translate(float64(0x80)/float64(0xff), float64(0)/float64(0xff), float64(0)/float64(0xff), 0.0)
 	}
 
 	if *debugDrawEntityMarker {
