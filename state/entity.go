@@ -261,6 +261,7 @@ func (e *Entity) FinishMove(s *State) {
 func (e *Entity) SetBehaviorImmediate(behavior EntityBehavior, s *State) {
 	e.BehaviorState.Behavior.Cleanup(e, s)
 	e.BehaviorState = EntityBehaviorState{Behavior: behavior}
+	e.NextBehavior = nil
 	e.BehaviorState.Behavior.Step(e, s)
 }
 
