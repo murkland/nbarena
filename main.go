@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
 	"log"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/murkland/clone"
@@ -59,6 +61,9 @@ func main() {
 
 	b, err := bundle.Load(ctx, loaderCallback)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			log.Fatalf("you are missing assets from BN6. please see README.md in the assets directory for instructions on how to dump assets from a ROM of BN6.")
+		}
 		log.Fatalf("failed to load bundle: %s", err)
 	}
 
