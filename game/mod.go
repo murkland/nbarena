@@ -499,7 +499,9 @@ func (g *Game) uiAppearance() draw.Node {
 
 	// TODO: Render chip. Must be not in chip use lockout.
 	self := g.cs.dirtyState.Entities[g.cs.SelfEntityID()]
-	if self.ChipUseLockoutTimeLeft == 0 && len(self.Chips) > 0 {
+	if self.ChipUseLockoutTimeLeft == 0 && len(self.Chips) > 0 &&
+		(state.BehaviorIs[*behaviors.Idle](self.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Teleport](self.BehaviorState.Behavior)) &&
+		(self.NextBehavior == nil || state.BehaviorIs[*behaviors.Idle](self.NextBehavior) || state.BehaviorIs[*behaviors.Teleport](self.NextBehavior)) {
 		chip := self.Chips[len(self.Chips)-1]
 
 		chipTextNode := &draw.OptionsNode{}

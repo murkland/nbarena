@@ -204,6 +204,7 @@ func (e *Entity) UseChip(s *State) bool {
 
 	e.NextBehavior = chip.MakeBehavior(dmg)
 	e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
+	e.ChipUseLockoutTimeLeft = 30
 	return true
 }
 
