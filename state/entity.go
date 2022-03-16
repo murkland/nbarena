@@ -93,8 +93,7 @@ type HitResolution struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	MustParalyzeImmediately bool
-	ForcedMovement          ForcedMovement
+	ForcedMovement ForcedMovement
 }
 
 type Flashing struct {
@@ -425,9 +424,6 @@ func (e *Entity) ApplyHit(h Hit) {
 	}
 	if h.Flinch {
 		e.HitResolution.Flinch = true
-	}
-	if h.MustParalyzeImmediately {
-		e.HitResolution.MustParalyzeImmediately = true
 	}
 	if h.ForcedMovement.Type != ForcedMovementTypeNone && (e.HitResolution.ForcedMovement.Type == ForcedMovementTypeNone || h.ForcedMovement.Type.IsDrag()) {
 		e.HitResolution.ForcedMovement = h.ForcedMovement

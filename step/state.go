@@ -11,12 +11,6 @@ import (
 )
 
 func resolveOne(e *state.Entity, s *state.State) {
-	if e.HitResolution.MustParalyzeImmediately {
-		e.FinishMove(s)
-		e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
-	}
-	e.HitResolution.MustParalyzeImmediately = false
-
 	if e.Traits.CannotFlinch || e.Emotion == state.EmotionAngry {
 		// TODO: Double check if this
 		e.HitResolution.Flinch = false
@@ -72,8 +66,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 		}
 
 		if e.HitResolution.ForcedMovement.Type.IsDrag() || e.DragLockoutTimeLeft > 0 {
-			e.FinishMove(s)
-
 			if e.HitResolution.FlashTime != 0 && state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) {
 				e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 			}
@@ -107,7 +99,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 					}
 				}
 				if e.HitResolution.Flinch {
-					e.FinishMove(s)
+					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
+						e.FinishMove(s)
+					}
 					e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
 				}
 				e.HitResolution.Flinch = false
@@ -125,7 +119,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process paralyzed.
 				if e.HitResolution.ParalyzeTime > 0 {
-					e.FinishMove(s)
+					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
+						e.FinishMove(s)
+					}
 					e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
 					e.HitResolution.ConfuseTime = 0
 					e.HitResolution.ParalyzeTime = 0
@@ -133,7 +129,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process frozen.
 				if e.HitResolution.FreezeTime > 0 {
-					e.FinishMove(s)
+					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
+						e.FinishMove(s)
+					}
 					e.SetBehaviorImmediate(&behaviors.Frozen{Duration: e.HitResolution.FreezeTime}, s)
 					e.HitResolution.BubbleTime = 0
 					e.HitResolution.ConfuseTime = 0
@@ -142,7 +140,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process bubbled.
 				if e.HitResolution.BubbleTime > 0 {
-					e.FinishMove(s)
+					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
+						e.FinishMove(s)
+					}
 					e.SetBehaviorImmediate(&behaviors.Bubbled{Duration: e.HitResolution.BubbleTime}, s)
 					e.ConfusedTimeLeft = 0
 					e.HitResolution.ConfuseTime = 0
@@ -154,7 +154,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 					e.ConfusedTimeLeft = e.HitResolution.ConfuseTime
 					// TODO: Double check if this is correct.
 					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-						e.FinishMove(s)
+						if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
+							e.FinishMove(s)
+						}
 						e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 					}
 					e.HitResolution.FreezeTime = 0
