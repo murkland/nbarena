@@ -19,6 +19,7 @@ func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
 }
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
+	// TODO: Verify when the slide lockout ends.
 	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
 		e.UseChip(s)
 		return
@@ -52,6 +53,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	x, y := e.TilePos.XY()
 	dx, dy := dir.XY()
 
+	// TODO: Verify when the slide lockout ends.
 	if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone && e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 		e.NextBehavior = &Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}
 	}
