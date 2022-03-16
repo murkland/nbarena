@@ -177,7 +177,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			MaxHP:     1000,
 			DisplayHP: 1000,
 
-			Chips: []*state.Chip{chips.WindRack},
+			Chips: []*state.Chip{chips.AreaGrab},
 
 			PowerShotChargeTime: state.Ticks(50),
 
@@ -200,7 +200,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			MaxHP:     1000,
 			DisplayHP: 1000,
 
-			Chips: []*state.Chip{chips.WindRack},
+			Chips: []*state.Chip{chips.AreaGrab},
 
 			PowerShotChargeTime: state.Ticks(50),
 

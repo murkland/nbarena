@@ -198,6 +198,8 @@ const (
 	SoundTypeCounterHit
 	SoundTypeDoubleDamageConsumed
 	SoundTypeRecov
+	SoundTypeAreaGrabStart
+	SoundTypeAreaGrabEnd
 )
 
 type BGM struct {
@@ -468,6 +470,12 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	var recovSound *beep.Buffer
 	loader.Add(ctx, l, "assets/sounds/138.ogg", &recovSound, loadSound)
 
+	var areaGrabStartSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/161.ogg", &areaGrabStartSound, loadSound)
+
+	var areaGrabEndSound *beep.Buffer
+	loader.Add(ctx, l, "assets/sounds/162.ogg", &areaGrabEndSound, loadSound)
+
 	// 110: shield?
 	// 120: battle start
 	// 121: enter custom
@@ -518,6 +526,8 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 		SoundTypeCounterHit:           counterHitSound,
 		SoundTypeDoubleDamageConsumed: doubleDamageConsumedSound,
 		SoundTypeRecov:                recovSound,
+		SoundTypeAreaGrabStart:        areaGrabStartSound,
+		SoundTypeAreaGrabEnd:          areaGrabEndSound,
 	}
 
 	return b, nil

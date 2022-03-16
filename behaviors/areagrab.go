@@ -110,7 +110,10 @@ func (eb *areaGrabBall) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node 
 }
 
 func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 31 {
+	if e.BehaviorState.ElapsedTime == 0 {
+		s.AttachSound(&state.Sound{Type: bundle.SoundTypeAreaGrabStart})
+	} else if e.BehaviorState.ElapsedTime == 31 {
+		s.AttachSound(&state.Sound{Type: bundle.SoundTypeAreaGrabEnd})
 		x, _ := e.TilePos.XY()
 		if x == 1 || x == state.TileCols-2 {
 			return
