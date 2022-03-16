@@ -78,7 +78,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 			e.HitResolution.Flinch = false
 
-			e.ForcedMovementState = state.ForcedMovementState{e.HitResolution.ForcedMovement, 0}
+			e.ForcedMovementState = state.ForcedMovementState{ForcedMovement: e.HitResolution.ForcedMovement}
 			e.HitResolution.ForcedMovement = state.ForcedMovement{}
 			resolveSlideOrDrag(e, s)
 		} else {
