@@ -14,10 +14,6 @@ func (eb *Idle) Clone() state.EntityBehavior {
 	return &Idle{eb.ChargingElapsedTime}
 }
 
-func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
-}
-
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
 		e.UseChip(s)

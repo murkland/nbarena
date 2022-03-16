@@ -13,10 +13,6 @@ func (eb *AreaGrab) Clone() state.EntityBehavior {
 	return &AreaGrab{}
 }
 
-func (eb *AreaGrab) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
-}
-
 func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 0 {
 		s.IsInTimeStop = true
@@ -81,10 +77,6 @@ func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 
 type areaGrabBall struct {
 	Owner state.EntityID
-}
-
-func (eb *areaGrabBall) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
 }
 
 func (eb *areaGrabBall) Clone() state.EntityBehavior {

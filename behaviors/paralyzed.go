@@ -14,10 +14,6 @@ func (eb *Paralyzed) Clone() state.EntityBehavior {
 	return &Paralyzed{eb.Duration}
 }
 
-func (eb *Paralyzed) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
-}
-
 func (eb *Paralyzed) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
 		e.NextBehavior = &Idle{}

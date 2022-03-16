@@ -51,10 +51,6 @@ type ForcedMovement struct {
 	ElapsedTime Ticks
 }
 
-type EntityBehaviorTraits struct {
-	CanBeCountered bool
-}
-
 type EntityBehaviorState struct {
 	Behavior    EntityBehavior
 	ElapsedTime Ticks
@@ -142,6 +138,8 @@ type Entity struct {
 	Flashing            Flashing
 	InvincibleTimeLeft  Ticks
 
+	CounterableTimeLeft Ticks
+
 	Emotion Emotion
 
 	HitResolution HitResolution
@@ -185,6 +183,7 @@ func (e *Entity) Clone() *Entity {
 		e.Traits,
 		e.PowerShotChargeTime,
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.Flashing, e.InvincibleTimeLeft,
+		e.CounterableTimeLeft,
 		e.Emotion,
 		e.HitResolution, e.PerTickState,
 		slices.Clone(e.Chips), e.ChipUseQueued,
@@ -446,6 +445,10 @@ func (e *Entity) Step(s *State) {
 		e.ChipUseLockoutTimeLeft--
 	}
 
+	if e.CounterableTimeLeft > 0 {
+		e.CounterableTimeLeft--
+	}
+
 	if e.ChipPlaque.Chip != nil {
 		e.ChipPlaque.ElapsedTime++
 		if e.ChipPlaque.ElapsedTime >= 60 {
@@ -468,7 +471,6 @@ func (e *Entity) Step(s *State) {
 type EntityBehavior interface {
 	clone.Cloner[EntityBehavior]
 	Appearance(e *Entity, b *bundle.Bundle) draw.Node
-	Traits(e *Entity) EntityBehaviorTraits
 	Step(e *Entity, s *State)
 	Cleanup(e *Entity, s *State)
 }
