@@ -52,7 +52,7 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	x, y := e.TilePos.XY()
 	dx, dy := dir.XY()
 
-	if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
+	if e.ForcedMovement.Type == state.ForcedMovementTypeNone && e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 		e.NextBehavior = &Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}
 	}
 }
