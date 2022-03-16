@@ -6,7 +6,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type WindRack struct {
@@ -35,7 +34,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 		})
 	} else if e.BehaviorState.ElapsedTime == 9 {
 		x, y := e.TilePos.XY()
-		dx := query.DXForward(e.IsFlipped)
+		dx, _ := e.Facing().XY()
 
 		for _, pos := range []state.TilePos{
 			state.TilePosXY(x+dx, y),
@@ -68,7 +67,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &Gust{e.ID()},
+					Behavior: &Gust{e.ID(), GustStyleNone},
 				},
 			})
 		}

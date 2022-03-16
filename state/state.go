@@ -52,12 +52,9 @@ func New(randSource *syncrand.Source) *State {
 
 func (s *State) AttachEntity(e *Entity) {
 	e.id = s.nextEntityID
-	if s.IsInTimeStop {
-		e.RunsInTimestop = true
-	}
 	s.Entities[e.id] = e
-	e.BehaviorState.Behavior.Step(e, s)
 	s.nextEntityID++
+	e.BehaviorState.Behavior.Step(e, s)
 }
 
 func (s *State) AttachDecoration(d *Decoration) {

@@ -7,7 +7,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type Vulcan struct {
@@ -38,7 +37,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 
 	if (e.BehaviorState.ElapsedTime-2)%11 == 0 {
 		x, y := e.TilePos.XY()
-		dx := query.DXForward(e.IsFlipped)
+		dx, _ := e.Facing().XY()
 		s.AttachEntity(&state.Entity{
 			TilePos: state.TilePosXY(x+dx, y),
 
@@ -156,8 +155,8 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 	}
 
 	x, y := e.TilePos.XY()
-	x += query.DXForward(e.IsFlipped)
-	if !e.MoveDirectly(state.TilePosXY(x, y)) {
+	dx, _ := e.Facing().XY()
+	if !e.MoveDirectly(state.TilePosXY(x+dx, y)) {
 		e.IsPendingDestruction = true
 		return
 	}

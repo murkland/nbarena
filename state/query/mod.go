@@ -4,13 +4,6 @@ import "github.com/murkland/nbarena/state"
 
 type DistanceMetric func(src state.TilePos, dest state.TilePos) int
 
-func DXForward(isFlipped bool) int {
-	if isFlipped {
-		return -1
-	}
-	return 1
-}
-
 func IsInFrontOf(x int, targetX int, isFlipped bool) bool {
 	if isFlipped {
 		return targetX < x

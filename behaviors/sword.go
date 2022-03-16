@@ -6,7 +6,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type SwordRange int
@@ -78,7 +77,7 @@ func (eb *Sword) Clone() state.EntityBehavior {
 
 func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []state.TilePos {
 	x, y := e.TilePos.XY()
-	dx := query.DXForward(e.IsFlipped)
+	dx, _ := e.Facing().XY()
 	var positions []state.TilePos
 	positions = append(positions, state.TilePosXY(x+dx, y))
 

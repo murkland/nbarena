@@ -140,6 +140,21 @@ type CannonSprites struct {
 	Animation *pngsheet.Animation
 }
 
+type GustSprites struct {
+	WindImage *ebiten.Image
+	DustImage *ebiten.Image
+	FanImage  *ebiten.Image
+
+	Animation *pngsheet.Animation
+}
+
+type WindFanSprites struct {
+	WindImage *ebiten.Image
+	FanImage  *ebiten.Image
+
+	Animation *pngsheet.Animation
+}
+
 type SwordSprites struct {
 	Image *ebiten.Image
 
@@ -220,6 +235,8 @@ type Bundle struct {
 	AirShooterSprites  *Sprites
 	BusterSprites      *BusterSprites
 	MuzzleFlashSprites *Sprites
+	GustSprites        *GustSprites
+	WindFanSprites     *WindFanSprites
 	AreaGrabSprites    *Sprites
 	VulcanSprites      *Sprites
 	WindRackSprites    *Sprites
@@ -344,8 +361,46 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	loader.Add(ctx, l, "assets/sprites/0093.png", &b.AirShooterSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0098.png", &b.VulcanSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0108.png", &b.WindRackSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0115.png", &b.GustSprites, makeSpriteLoader(func(sheet *Sheet) *GustSprites {
+		img := sheet.Image.(*image.Paletted)
+		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
+		img.Palette = palette[0 : 0+16]
+
+		windImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[16 : 16+16]
+		dustImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[32 : 32+16]
+		fanImage := ebiten.NewImageFromImage(img)
+
+		return &GustSprites{
+			WindImage: windImage,
+			DustImage: dustImage,
+			FanImage:  fanImage,
+
+			Animation: sheet.Info.Animations[0],
+		}
+	}))
 	loader.Add(ctx, l, "assets/sprites/0288.png", &b.FullSynchroSprites, makeSpriteLoader(sheetToSprites))
 	loader.Add(ctx, l, "assets/sprites/0294.png", &b.IcedSprites, makeSpriteLoader(sheetToSprites))
+	loader.Add(ctx, l, "assets/sprites/0766.png", &b.WindFanSprites, makeSpriteLoader(func(sheet *Sheet) *WindFanSprites {
+		img := sheet.Image.(*image.Paletted)
+		palette := append(img.Palette, sheet.Info.SuggestedPalettes["extra"]...)
+		img.Palette = palette[0 : 0+16]
+
+		windImage := ebiten.NewImageFromImage(img)
+
+		img.Palette = palette[16 : 16+16]
+		fanImage := ebiten.NewImageFromImage(img)
+
+		return &WindFanSprites{
+			WindImage: windImage,
+			FanImage:  fanImage,
+
+			Animation: sheet.Info.Animations[0],
+		}
+	}))
 
 	type SlashDecorationSprites struct {
 		SwordImage *ebiten.Image

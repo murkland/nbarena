@@ -4,7 +4,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type AirShot struct {
@@ -26,7 +25,7 @@ func (eb *AirShot) Clone() state.EntityBehavior {
 func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 6 {
 		x, y := e.TilePos.XY()
-		dx := query.DXForward(e.IsFlipped)
+		dx, _ := e.Facing().XY()
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
 			Hit: state.Hit{

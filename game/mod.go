@@ -180,7 +180,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			MaxHP:     1000,
 			DisplayHP: 1000,
 
-			Chips: []*state.Chip{chips.WindRack},
+			Chips: []*state.Chip{chips.Fan},
 
 			PowerShotChargeTime: state.Ticks(50),
 
@@ -203,7 +203,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			MaxHP:     1000,
 			DisplayHP: 1000,
 
-			Chips: []*state.Chip{chips.WindRack},
+			Chips: []*state.Chip{chips.Fan},
 
 			PowerShotChargeTime: state.Ticks(50),
 
@@ -485,7 +485,7 @@ func (g *Game) uiAppearance() draw.Node {
 		counterPlaqueNode := &draw.OptionsNode{}
 		counterPlaqueNode.Opts.GeoM.Translate(float64(sceneWidth/2), float64(20))
 		rootNode.Children = append(rootNode.Children, counterPlaqueNode)
-		counterPlaqueNode.Children = append(counterPlaqueNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: "COUNTER HIT!", Background: whiteTextGradient}}, styledtext.AnchorCenter|styledtext.AnchorTop, g.bundle.TallFont, styledtext.BorderRightBottom, color.RGBA{0, 0, 0, 0xff}))
+		counterPlaqueNode.Children = append(counterPlaqueNode.Children, styledtext.MakeNode([]styledtext.Span{{Text: "COUNTER HIT!", Background: whiteTextGradient}}, styledtext.AnchorCenter|styledtext.AnchorMiddle, g.bundle.TallFont, styledtext.BorderRightBottom, color.RGBA{0, 0, 0, 0xff}))
 	}
 
 	{
@@ -494,7 +494,7 @@ func (g *Game) uiAppearance() draw.Node {
 			chipPlaqueNode := &draw.OptionsNode{}
 			rootNode.Children = append(rootNode.Children, chipPlaqueNode)
 			chipPlaqueNode.Opts.GeoM.Translate(float64(sceneWidth-16), 36)
-			chipPlaqueNode.Children = append(chipPlaqueNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, opponent.ChipPlaque.AttackPlus, opponent.ChipPlaque.DoubleDamage, styledtext.AnchorRight|styledtext.AnchorTop))
+			chipPlaqueNode.Children = append(chipPlaqueNode.Children, chipPlaqueApperance(g.bundle, opponent.ChipPlaque.Chip, opponent.ChipPlaque.AttackPlus, opponent.ChipPlaque.DoubleDamage, styledtext.AnchorRight|styledtext.AnchorMiddle))
 		}
 	}
 

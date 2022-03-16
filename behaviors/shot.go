@@ -7,7 +7,6 @@ import (
 	"github.com/murkland/nbarena/bundle"
 	"github.com/murkland/nbarena/draw"
 	"github.com/murkland/nbarena/state"
-	"github.com/murkland/nbarena/state/query"
 )
 
 type Shot struct {
@@ -37,8 +36,8 @@ func (eb *Shot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 func (eb *Shot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime%2 == 1 {
 		x, y := e.TilePos.XY()
-		x += query.DXForward(e.IsFlipped)
-		if !e.MoveDirectly(state.TilePosXY(x, y)) {
+		dx, _ := e.Facing().XY()
+		if !e.MoveDirectly(state.TilePosXY(x+dx, y)) {
 			e.IsPendingDestruction = true
 			return
 		}

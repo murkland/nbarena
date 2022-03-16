@@ -60,7 +60,7 @@ func (eb *Buster) Step(e *state.Entity, s *state.State) {
 		eb.cooldownTime = busterCooldownDurations[eb.Speed][d]
 
 		x, y := e.TilePos.XY()
-		dx := query.DXForward(e.IsFlipped)
+		dx, _ := e.Facing().XY()
 
 		damage := eb.BaseDamage
 		if eb.IsPowerShot {
