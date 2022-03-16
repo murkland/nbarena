@@ -16,7 +16,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.HitResolution.Flinch = false
 	}
 
-	if e.Traits.CannotSlide {
+	if e.Traits.CannotSlide || state.BehaviorIs[*behaviors.Teleport](e.BehaviorState.Behavior) {
 		e.HitResolution.ForcedMovement = state.ForcedMovement{}
 	}
 
