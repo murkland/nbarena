@@ -55,14 +55,13 @@ func (eb *WindFan) Step(e *state.Entity, s *state.State) {
 				CanStepOnHoleLikeTiles: true,
 				IgnoresTileEffects:     true,
 				CannotFlinch:           true,
-				// TODO: Should not ignore ownership.
-				IgnoresTileOwnership: true,
-				CannotSlide:          true,
-				Intangible:           true,
+				IgnoresTileOwnership:   true,
+				CannotSlide:            true,
+				Intangible:             true,
 			},
 
 			BehaviorState: state.EntityBehaviorState{
-				Behavior: &Gust{eb.Owner, gustStyle},
+				Behavior: &Gust{eb.Owner, gustStyle, true},
 			},
 		})
 	}

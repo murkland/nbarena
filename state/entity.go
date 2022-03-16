@@ -233,21 +233,7 @@ func (e *Entity) UseChip(s *State) bool {
 	return true
 }
 
-func (e *Entity) MoveDirectly(tilePos TilePos) bool {
-	if tilePos < 0 {
-		return false
-	}
-
-	x, y := tilePos.XY()
-	if x < 0 || x >= TileCols || y < 0 || y >= TileRows {
-		return false
-	}
-
-	e.TilePos = tilePos
-	return true
-}
-
-func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
+func (e *Entity) CanMoveTo(tilePos TilePos, s *State) bool {
 	if tilePos < 0 {
 		return false
 	}
@@ -260,8 +246,25 @@ func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
 	tile := s.Field.Tiles[tilePos]
 	if tilePos == e.TilePos ||
 		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
-		(tile.Reserver != 0 && tile.Reserver != e.id) ||
+		(!e.Traits.Intangible && tile.Reserver != 0 && tile.Reserver != e.id) ||
 		!tile.CanEnter(e) {
+		return false
+	}
+
+	return true
+}
+
+func (e *Entity) MoveDirectly(tilePos TilePos, s *State) bool {
+	if !e.CanMoveTo(tilePos, s) {
+		return false
+	}
+
+	e.TilePos = tilePos
+	return true
+}
+
+func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
+	if !e.CanMoveTo(tilePos, s) {
 		return false
 	}
 

@@ -16,14 +16,16 @@ const (
 )
 
 type Gust struct {
-	Owner state.EntityID
-	Style GustStyle
+	Owner            state.EntityID
+	Style            GustStyle
+	DestroyOnOwnSide bool
 }
 
 func (eb *Gust) Clone() state.EntityBehavior {
 	return &Gust{
 		eb.Owner,
 		eb.Style,
+		eb.DestroyOnOwnSide,
 	}
 }
 
@@ -56,7 +58,14 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime%4 == 1 {
 		x, y := e.TilePos.XY()
 		dx, _ := e.Facing().XY()
-		if !e.MoveDirectly(state.TilePosXY(x+dx, y)) {
+		tilePos := state.TilePosXY(x+dx, y)
+
+		if !e.MoveDirectly(tilePos, s) {
+			e.IsPendingDestruction = true
+			return
+		}
+
+		if eb.DestroyOnOwnSide && e.IsAlliedWithAnswerer == s.Field.Tiles[tilePos].IsAlliedWithAnswerer {
 			e.IsPendingDestruction = true
 			return
 		}

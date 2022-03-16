@@ -37,7 +37,7 @@ func (eb *Shot) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime%2 == 1 {
 		x, y := e.TilePos.XY()
 		dx, _ := e.Facing().XY()
-		if !e.MoveDirectly(state.TilePosXY(x+dx, y)) {
+		if !e.MoveDirectly(state.TilePosXY(x+dx, y), s) {
 			e.IsPendingDestruction = true
 			return
 		}

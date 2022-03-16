@@ -157,7 +157,7 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 
 	x, y := e.TilePos.XY()
 	dx, _ := e.Facing().XY()
-	if !e.MoveDirectly(state.TilePosXY(x+dx, y)) {
+	if !e.MoveDirectly(state.TilePosXY(x+dx, y), s) {
 		e.IsPendingDestruction = true
 		return
 	}

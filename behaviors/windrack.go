@@ -68,7 +68,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &Gust{e.ID(), GustStyleNone},
+					Behavior: &Gust{e.ID(), GustStyleNone, false},
 				},
 			})
 		}
