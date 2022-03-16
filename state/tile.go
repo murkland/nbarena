@@ -306,6 +306,7 @@ func (tb *IceTileBehavior) Step(t *Tile, s *State) {
 			x, y := e.FutureTilePos.XY()
 
 			tb.direction = DirectionDXDY(x-ex, y-ey)
+			break
 		}
 	}
 
@@ -318,7 +319,7 @@ func (tb *IceTileBehavior) Step(t *Tile, s *State) {
 			return
 		}
 
-		if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone {
+		if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone && tb.direction != DirectionNone {
 			var h Hit
 			h.ForcedMovement = ForcedMovement{Type: ForcedMovementTypeSlide, Direction: tb.direction}
 			e.ApplyHit(h)
