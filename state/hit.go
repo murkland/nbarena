@@ -58,6 +58,7 @@ type Hit struct {
 
 	Element               Element
 	CanCounter            bool
+	RemovesFullSynchro    bool
 	SecondaryElementSword bool
 	GuardPiercing         bool
 	RemovesFlashing       bool

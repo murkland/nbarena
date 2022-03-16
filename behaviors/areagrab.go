@@ -128,6 +128,7 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 			var h state.Hit
 			h.Flinch = true
 			h.AddDamage(state.Damage{Base: 10})
+			h.RemovesFullSynchro = true
 			s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 30+15 {

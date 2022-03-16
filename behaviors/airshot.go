@@ -29,9 +29,10 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
 			Hit: state.Hit{
-				Element:        state.ElementWind,
-				ForcedMovement: state.ForcedMovement{Type: state.ForcedMovementTypeSmallDrag, Direction: e.Facing()},
-				CanCounter:     true,
+				Element:            state.ElementWind,
+				ForcedMovement:     state.ForcedMovement{Type: state.ForcedMovementTypeSmallDrag, Direction: e.Facing()},
+				RemovesFullSynchro: true,
+				CanCounter:         true,
 			},
 			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,
 		}))

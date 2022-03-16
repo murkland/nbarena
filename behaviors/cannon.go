@@ -40,10 +40,11 @@ func (eb *Cannon) Step(e *state.Entity, s *state.State) {
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{
 			Damage: eb.Damage,
 			Hit: state.Hit{
-				Element:    state.ElementNull,
-				Flinch:     true,
-				FlashTime:  state.DefaultFlashTime,
-				CanCounter: true,
+				Element:            state.ElementNull,
+				Flinch:             true,
+				FlashTime:          state.DefaultFlashTime,
+				CanCounter:         true,
+				RemovesFullSynchro: true,
 			},
 			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,
 		}))

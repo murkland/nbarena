@@ -113,6 +113,7 @@ func (eb *Sword) Step(e *state.Entity, s *state.State) {
 			h.Element = state.ElementSword
 			h.SecondaryElementSword = true
 			h.CanCounter = true
+			h.RemovesFullSynchro = true
 			h.AddDamage(eb.Damage)
 			s.ApplyHit(e, pos, h)
 		}

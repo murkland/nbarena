@@ -92,7 +92,8 @@ type HitResolution struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	ForcedMovement ForcedMovement
+	RemovesFullSynchro bool
+	ForcedMovement     ForcedMovement
 }
 
 type Flashing struct {
@@ -434,6 +435,9 @@ func (e *Entity) ApplyHit(h Hit) {
 	}
 	if h.Flinch {
 		e.HitResolution.Flinch = true
+	}
+	if h.RemovesFullSynchro {
+		e.HitResolution.RemovesFullSynchro = true
 	}
 	if h.ForcedMovement.Type != ForcedMovementTypeNone && (e.HitResolution.ForcedMovement.Type == ForcedMovementTypeNone || h.ForcedMovement.Type.IsDrag()) {
 		e.HitResolution.ForcedMovement = h.ForcedMovement

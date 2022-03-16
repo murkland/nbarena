@@ -46,6 +46,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			h.Element = state.ElementWind
 			h.CanCounter = true
 			h.Flinch = true
+			h.RemovesFullSynchro = true
 			h.AddDamage(eb.Damage)
 			s.ApplyHit(e, pos, h)
 		}

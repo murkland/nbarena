@@ -20,6 +20,10 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.HitResolution.ForcedMovement = state.ForcedMovement{}
 	}
 
+	if e.HitResolution.RemovesFullSynchro && e.Emotion == state.EmotionFullSynchro {
+		e.Emotion = state.EmotionNormal
+	}
+
 	// Set anger, if required.
 	if e.HitResolution.Damage >= 300 {
 		e.Emotion = state.EmotionAngry
