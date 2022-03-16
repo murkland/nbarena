@@ -26,6 +26,10 @@ func (eb *Shot) Clone() state.EntityBehavior {
 	}
 }
 
+func (eb *Shot) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Shot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	return nil
 }

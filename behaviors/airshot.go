@@ -11,6 +11,12 @@ type AirShot struct {
 	Damage state.Damage
 }
 
+func (eb *AirShot) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *AirShot) Clone() state.EntityBehavior {
 	return &AirShot{
 		eb.Damage,
@@ -18,9 +24,7 @@ func (eb *AirShot) Clone() state.EntityBehavior {
 }
 
 func (eb *AirShot) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 0 {
-		e.CounterableTimeLeft = 20
-	} else if e.BehaviorState.ElapsedTime == 6 {
+	if e.BehaviorState.ElapsedTime == 6 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{

@@ -13,6 +13,10 @@ func (eb *Flinch) Clone() state.EntityBehavior {
 	return &Flinch{}
 }
 
+func (eb *Flinch) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Flinch) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 24-1 {
 		e.NextBehavior = &Idle{}

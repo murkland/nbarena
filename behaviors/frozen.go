@@ -14,6 +14,10 @@ func (eb *Frozen) Clone() state.EntityBehavior {
 	return &Frozen{eb.Duration}
 }
 
+func (eb *Frozen) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Frozen) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == eb.Duration-1 {
 		e.NextBehavior = &Idle{}

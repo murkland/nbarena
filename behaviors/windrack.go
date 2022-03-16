@@ -19,9 +19,14 @@ func (eb *WindRack) Clone() state.EntityBehavior {
 	}
 }
 
+func (eb *WindRack) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime == 0 {
-		e.CounterableTimeLeft = 30
 		s.AttachDecoration(&state.Decoration{
 			Type:      bundle.DecorationTypeWindSlash,
 			TilePos:   e.TilePos,

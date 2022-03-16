@@ -11,27 +11,26 @@ import (
 )
 
 type Vulcan struct {
-	Shots   int
-	Damage  state.Damage
-	IsSuper bool
+	Shots                   int
+	Damage                  state.Damage
+	ExplosionDecorationType bundle.DecorationType
 }
 
 func (eb *Vulcan) Clone() state.EntityBehavior {
 	return &Vulcan{
 		eb.Shots,
 		eb.Damage,
-		eb.IsSuper,
+		eb.ExplosionDecorationType,
+	}
+}
+
+func (eb *Vulcan) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
 	}
 }
 
 func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 0 {
-		e.CounterableTimeLeft = 10
-		if eb.IsSuper {
-			e.CounterableTimeLeft = 4
-		}
-	}
-
 	if e.BehaviorState.ElapsedTime == state.Ticks(2+11*eb.Shots)-1 {
 		e.NextBehavior = &Idle{}
 		return
@@ -56,7 +55,7 @@ func (eb *Vulcan) Step(e *state.Entity, s *state.State) {
 			},
 
 			BehaviorState: state.EntityBehaviorState{
-				Behavior: &vulcanShot{e.ID(), eb.Damage, eb.IsSuper},
+				Behavior: &vulcanShot{e.ID(), eb.Damage, eb.ExplosionDecorationType},
 			},
 		})
 	}
@@ -92,17 +91,21 @@ func (eb *Vulcan) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 }
 
 type vulcanShot struct {
-	Owner   state.EntityID
-	Damage  state.Damage
-	IsSuper bool
+	Owner                   state.EntityID
+	Damage                  state.Damage
+	ExplosionDecorationType bundle.DecorationType
 }
 
 func (eb *vulcanShot) Clone() state.EntityBehavior {
 	return &vulcanShot{
 		eb.Owner,
 		eb.Damage,
-		eb.IsSuper,
+		eb.ExplosionDecorationType,
 	}
+}
+
+func (eb *vulcanShot) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
 }
 
 func (eb *vulcanShot) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
@@ -141,13 +144,8 @@ func (eb *vulcanShot) Step(e *state.Entity, s *state.State) {
 			IsFlipped:   e.IsFlipped,
 		})
 
-		decorationType := bundle.DecorationTypeVulcanExplosion
-		if eb.IsSuper {
-			decorationType = bundle.DecorationTypeSuperVulcanExplosion
-		}
-
 		s.AttachDecoration(&state.Decoration{
-			Type:      decorationType,
+			Type:      eb.ExplosionDecorationType,
 			TilePos:   e.TilePos,
 			Offset:    image.Point{xOff + rand.Intn(2) - 4, yOff + rand.Intn(2) - 4},
 			IsFlipped: e.IsFlipped,

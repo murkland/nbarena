@@ -21,6 +21,12 @@ type Cannon struct {
 	Damage state.Damage
 }
 
+func (eb *Cannon) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *Cannon) Clone() state.EntityBehavior {
 	return &Cannon{
 		eb.Style,
@@ -29,9 +35,7 @@ func (eb *Cannon) Clone() state.EntityBehavior {
 }
 
 func (eb *Cannon) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 0 {
-		e.CounterableTimeLeft = 30
-	} else if e.BehaviorState.ElapsedTime == 16 {
+	if e.BehaviorState.ElapsedTime == 16 {
 		x, y := e.TilePos.XY()
 		dx := query.DXForward(e.IsFlipped)
 		s.AttachEntity(MakeShotEntity(e, state.TilePosXY(x+dx, y), &Shot{

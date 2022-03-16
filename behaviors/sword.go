@@ -59,6 +59,12 @@ type Sword struct {
 	Damage state.Damage
 }
 
+func (eb *Sword) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{
+		CanBeCountered: true,
+	}
+}
+
 func (eb *Sword) Cleanup(e *state.Entity, s *state.State) {
 }
 
@@ -90,9 +96,7 @@ func swordTargetEntities(s *state.State, e *state.Entity, r SwordRange) []state.
 
 func (eb *Sword) Step(e *state.Entity, s *state.State) {
 	// Only hits while the slash is coming out.
-	if e.BehaviorState.ElapsedTime == 0 {
-		e.CounterableTimeLeft = 30
-	} else if e.BehaviorState.ElapsedTime == 9 {
+	if e.BehaviorState.ElapsedTime == 9 {
 		s.AttachDecoration(&state.Decoration{
 			Type:      swordSlashDecorationType(eb.Style, eb.Range),
 			TilePos:   e.TilePos,

@@ -15,6 +15,10 @@ type Buster struct {
 	cooldownTime state.Ticks
 }
 
+func (eb *Buster) Traits(e *state.Entity) state.EntityBehaviorTraits {
+	return state.EntityBehaviorTraits{}
+}
+
 func (eb *Buster) realElapsedTime(e *state.Entity) state.Ticks {
 	t := e.BehaviorState.ElapsedTime
 	if eb.IsPowerShot {
