@@ -49,14 +49,14 @@ func resolveOne(e *state.Entity, s *state.State) {
 	// TODO: Pop bubble, if required.
 
 	if !s.IsInTimeStop {
-		if e.ForcedMovement.Type != state.ForcedMovementTypeNone {
+		if e.ForcedMovementState.ForcedMovement.Type != state.ForcedMovementTypeNone {
 			// TODO: Is this even in the right place?
-			e.ForcedMovement.ElapsedTime++
-			if e.ForcedMovement.ElapsedTime == 4 {
-				if e.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
-					e.ForcedMovement.ElapsedTime = 0
+			e.ForcedMovementState.ElapsedTime++
+			if e.ForcedMovementState.ElapsedTime == 4 {
+				if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
+					e.ForcedMovementState.ElapsedTime = 0
 				} else {
-					e.ForcedMovement = state.ForcedMovement{}
+					e.ForcedMovementState = state.ForcedMovementState{}
 				}
 			}
 		}
@@ -78,14 +78,14 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 			e.HitResolution.Flinch = false
 
-			e.ForcedMovement = e.HitResolution.ForcedMovement
+			e.ForcedMovementState = state.ForcedMovementState{e.HitResolution.ForcedMovement, 0}
 			e.HitResolution.ForcedMovement = state.ForcedMovement{}
 			resolveSlideOrDrag(e, s)
 		} else {
-			if !e.ForcedMovement.Type.IsDrag() {
+			if !e.ForcedMovementState.ForcedMovement.Type.IsDrag() {
 				if e.HitResolution.ForcedMovement.Type == state.ForcedMovementTypeSlide {
-					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.ForcedMovement = e.HitResolution.ForcedMovement
+					if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone {
+						e.ForcedMovementState.ForcedMovement = e.HitResolution.ForcedMovement
 					}
 					resolveSlideOrDrag(e, s)
 				} else {
@@ -99,9 +99,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 					}
 				}
 				if e.HitResolution.Flinch {
-					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.FinishMove(s)
-					}
 					e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
 				}
 				e.HitResolution.Flinch = false
@@ -119,9 +116,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process paralyzed.
 				if e.HitResolution.ParalyzeTime > 0 {
-					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.FinishMove(s)
-					}
 					e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
 					e.HitResolution.ConfuseTime = 0
 					e.HitResolution.ParalyzeTime = 0
@@ -129,9 +123,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process frozen.
 				if e.HitResolution.FreezeTime > 0 {
-					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.FinishMove(s)
-					}
 					e.SetBehaviorImmediate(&behaviors.Frozen{Duration: e.HitResolution.FreezeTime}, s)
 					e.HitResolution.BubbleTime = 0
 					e.HitResolution.ConfuseTime = 0
@@ -140,9 +131,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 				// Process bubbled.
 				if e.HitResolution.BubbleTime > 0 {
-					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.FinishMove(s)
-					}
 					e.SetBehaviorImmediate(&behaviors.Bubbled{Duration: e.HitResolution.BubbleTime}, s)
 					e.ConfusedTimeLeft = 0
 					e.HitResolution.ConfuseTime = 0
@@ -154,9 +142,6 @@ func resolveOne(e *state.Entity, s *state.State) {
 					e.ConfusedTimeLeft = e.HitResolution.ConfuseTime
 					// TODO: Double check if this is correct.
 					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-						if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
-							e.FinishMove(s)
-						}
 						e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 					}
 					e.HitResolution.FreezeTime = 0
@@ -198,18 +183,18 @@ func resolveOne(e *state.Entity, s *state.State) {
 }
 
 func resolveSlideOrDrag(e *state.Entity, s *state.State) {
-	if e.ForcedMovement.Direction != state.DirectionNone {
-		if e.ForcedMovement.ElapsedTime == 0 {
+	if e.ForcedMovementState.ForcedMovement.Direction != state.DirectionNone {
+		if e.ForcedMovementState.ElapsedTime == 0 {
 			x, y := e.TilePos.XY()
-			dx, dy := e.ForcedMovement.Direction.XY()
+			dx, dy := e.ForcedMovementState.ForcedMovement.Direction.XY()
 
 			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-				if e.ForcedMovement.Type.IsDrag() {
+				if e.ForcedMovementState.ForcedMovement.Type.IsDrag() {
 					e.DragLockoutTimeLeft = 20
 				}
-				e.ForcedMovement = state.ForcedMovement{}
+				e.ForcedMovementState = state.ForcedMovementState{}
 			}
-		} else if e.ForcedMovement.ElapsedTime == 2 {
+		} else if e.ForcedMovementState.ElapsedTime == 2 {
 			e.FinishMove(s)
 		}
 	}
@@ -260,7 +245,7 @@ func Step(s *state.State, b *bundle.Bundle) {
 			continue
 		}
 
-		if !e.ForcedMovement.Type.IsDrag() && (!s.IsInTimeStop || e.RunsInTimestop) {
+		if !e.ForcedMovementState.ForcedMovement.Type.IsDrag() && (!s.IsInTimeStop || e.RunsInTimestop) {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}

@@ -46,9 +46,8 @@ func (t ForcedMovementType) IsDrag() bool {
 }
 
 type ForcedMovement struct {
-	Type        ForcedMovementType
-	Direction   Direction
-	ElapsedTime Ticks
+	Type      ForcedMovementType
+	Direction Direction
 }
 
 type EntityBehaviorTraits struct {
@@ -101,6 +100,11 @@ type Flashing struct {
 	IsInvis  bool
 }
 
+type ForcedMovementState struct {
+	ForcedMovement ForcedMovement
+	ElapsedTime    Ticks
+}
+
 type Entity struct {
 	id EntityID
 
@@ -118,7 +122,7 @@ type Entity struct {
 	TilePos       TilePos
 	FutureTilePos TilePos
 
-	ForcedMovement ForcedMovement
+	ForcedMovementState ForcedMovementState
 
 	IsAlliedWithAnswerer bool
 
@@ -165,7 +169,7 @@ func (e *Entity) Flip() {
 	e.IsFlipped = !e.IsFlipped
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
-	e.ForcedMovement.Direction = e.ForcedMovement.Direction.FlipH()
+	e.ForcedMovementState.ForcedMovement.Direction = e.ForcedMovementState.ForcedMovement.Direction.FlipH()
 }
 
 func (e *Entity) Clone() *Entity {
@@ -176,7 +180,7 @@ func (e *Entity) Clone() *Entity {
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
-		e.ForcedMovement,
+		e.ForcedMovementState,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDead,
@@ -275,6 +279,9 @@ func (e *Entity) FinishMove(s *State) {
 
 // SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.
 func (e *Entity) SetBehaviorImmediate(behavior EntityBehavior, s *State) {
+	if e.ForcedMovementState.ForcedMovement.Type != ForcedMovementTypeSlide || e.ForcedMovementState.ElapsedTime > 0 {
+		e.FinishMove(s)
+	}
 	e.BehaviorState.Behavior.Cleanup(e, s)
 	e.BehaviorState = EntityBehaviorState{Behavior: behavior}
 	e.NextBehavior = nil
@@ -293,8 +300,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.TilePos.XY()
 
-	dx, dy := e.ForcedMovement.Direction.XY()
-	offset := (int(e.ForcedMovement.ElapsedTime)+2+4)%4 - 2
+	dx, dy := e.ForcedMovementState.ForcedMovement.Direction.XY()
+	offset := (int(e.ForcedMovementState.ElapsedTime)+2+4)%4 - 2
 	dx *= offset
 	dy *= offset
 
