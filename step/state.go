@@ -49,6 +49,18 @@ func resolveOne(e *state.Entity, s *state.State) {
 	// TODO: Pop bubble, if required.
 
 	if !s.IsInTimeStop {
+		if e.ForcedMovementState.ForcedMovement.Type != state.ForcedMovementTypeNone {
+			// TODO: Is this even in the right place?
+			e.ForcedMovementState.ElapsedTime++
+			if e.ForcedMovementState.ElapsedTime == 4 {
+				if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
+					e.ForcedMovementState.ElapsedTime = 0
+				} else {
+					e.ForcedMovementState = state.ForcedMovementState{}
+				}
+			}
+		}
+
 		if e.DragLockoutTimeLeft > 0 {
 			e.DragLockoutTimeLeft--
 		}
@@ -199,21 +211,6 @@ func Step(s *state.State, b *bundle.Bundle) {
 
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
-
-		if !s.IsInTimeStop || e.RunsInTimestop {
-			// Clear slide state for all entities.
-			// TODO: Is this even in the right place?
-			if e.ForcedMovementState.ForcedMovement.Type != state.ForcedMovementTypeNone {
-				e.ForcedMovementState.ElapsedTime++
-				if e.ForcedMovementState.ElapsedTime == 4 {
-					if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
-						e.ForcedMovementState.ElapsedTime = 0
-					} else {
-						e.ForcedMovementState = state.ForcedMovementState{}
-					}
-				}
-			}
-		}
 	}
 
 	for _, snd := range s.Sounds {
