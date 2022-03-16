@@ -42,14 +42,6 @@ type Damage struct {
 	AttackPlus   int
 }
 
-type DragType int
-
-const (
-	DragTypeNone  DragType = 0
-	DragTypeSmall DragType = 1
-	DragTypeBig   DragType = 2
-)
-
 type Hit struct {
 	TotalDamage int
 
@@ -62,8 +54,7 @@ type Hit struct {
 	BubbleTime     Ticks
 	Flinch         bool
 
-	Drag           DragType
-	SlideDirection Direction
+	ForcedMovement ForcedMovement
 
 	Element               Element
 	CanCounter            bool

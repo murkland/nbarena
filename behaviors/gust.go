@@ -8,14 +8,12 @@ import (
 )
 
 type Gust struct {
-	Owner     state.EntityID
-	Direction state.Direction
+	Owner state.EntityID
 }
 
 func (eb *Gust) Clone() state.EntityBehavior {
 	return &Gust{
 		eb.Owner,
-		eb.Direction,
 	}
 }
 
@@ -39,7 +37,7 @@ func (eb *Gust) Step(e *state.Entity, s *state.State) {
 
 	var h state.Hit
 	h.Element = state.ElementWind
-	h.SlideDirection = eb.Direction
+	h.ForcedMovement = state.ForcedMovement{Type: state.ForcedMovementTypeSlide, Direction: e.Facing()}
 	s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h)
 }
 

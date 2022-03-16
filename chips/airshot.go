@@ -5,7 +5,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var AirShot = state.Chip{
+var AirShot = &state.Chip{
 	Index:      3,
 	Name:       "AirShot",
 	BaseDamage: 20,

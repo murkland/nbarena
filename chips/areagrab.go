@@ -5,7 +5,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var AreaGrab = state.Chip{
+var AreaGrab = &state.Chip{
 	Index: 162,
 	Name:  "AreaGrab",
 	OnUse: func(s *state.State, e *state.Entity, damage state.Damage) {

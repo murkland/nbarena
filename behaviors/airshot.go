@@ -31,8 +31,7 @@ func (eb *AirShot) Step(e *state.Entity, s *state.State) {
 			Damage: eb.Damage,
 			Hit: state.Hit{
 				Element:        state.ElementWind,
-				Drag:           state.DragTypeSmall,
-				SlideDirection: e.Facing(),
+				ForcedMovement: state.ForcedMovement{Type: state.ForcedMovementTypeSmallDrag, Direction: e.Facing()},
 				CanCounter:     true,
 			},
 			ExplosionDecorationType: bundle.DecorationTypeCannonExplosion,

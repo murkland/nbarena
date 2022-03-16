@@ -6,7 +6,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var Vulcan1 = state.Chip{
+var Vulcan1 = &state.Chip{
 	Index:      4,
 	Name:       "Vulcan1",
 	BaseDamage: 10,
@@ -15,7 +15,7 @@ var Vulcan1 = state.Chip{
 	},
 }
 
-var Vulcan2 = state.Chip{
+var Vulcan2 = &state.Chip{
 	Index:      5,
 	Name:       "Vulcan2",
 	BaseDamage: 15,
@@ -24,7 +24,7 @@ var Vulcan2 = state.Chip{
 	},
 }
 
-var Vulcan3 = state.Chip{
+var Vulcan3 = &state.Chip{
 	Index:      6,
 	Name:       "Vulcan3",
 	BaseDamage: 20,
@@ -33,7 +33,7 @@ var Vulcan3 = state.Chip{
 	},
 }
 
-var SuprVulc = state.Chip{
+var SuprVulc = &state.Chip{
 	Index:      7,
 	Name:       "SuprVulc",
 	BaseDamage: 20,

@@ -5,7 +5,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var Cannon = state.Chip{
+var Cannon = &state.Chip{
 	Index:      0,
 	Name:       "Cannon",
 	BaseDamage: 40,
@@ -14,7 +14,7 @@ var Cannon = state.Chip{
 	},
 }
 
-var HiCannon = state.Chip{
+var HiCannon = &state.Chip{
 	Index:      1,
 	Name:       "HiCannon",
 	BaseDamage: 100,
@@ -23,7 +23,7 @@ var HiCannon = state.Chip{
 	},
 }
 
-var MCannon = state.Chip{
+var MCannon = &state.Chip{
 	Index:      2,
 	Name:       "M-Cannon",
 	BaseDamage: 180,

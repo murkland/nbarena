@@ -5,7 +5,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var WindRack = state.Chip{
+var WindRack = &state.Chip{
 	Index:      79,
 	Name:       "WindRack",
 	BaseDamage: 140,

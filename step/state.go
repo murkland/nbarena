@@ -17,8 +17,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 	}
 
 	if e.Traits.CannotSlide {
-		e.HitResolution.SlideDirection = state.DirectionNone
-		e.HitResolution.Drag = state.DragTypeNone
+		e.HitResolution.ForcedMovement = state.ForcedMovement{}
 	}
 
 	// Set anger, if required.
@@ -49,146 +48,146 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 	// TODO: Pop bubble, if required.
 
-	if e.SlideState.Direction != state.DirectionNone {
-		// TODO: Is this even in the right place?
-		e.SlideState.ElapsedTime++
-	}
+	if !s.IsInTimeStop {
+		if e.ForcedMovement.Type != state.ForcedMovementTypeNone {
+			// TODO: Is this even in the right place?
+			e.ForcedMovement.ElapsedTime++
+		}
 
-	if e.HitResolution.Drag != state.DragTypeNone {
-		var postDragParalyzeTime state.Ticks
-		if e.HitResolution.FlashTime == 0 {
-			// Only add post drag paralysis if we're not going to be flashing afterwards.
-			if paralyzed, ok := e.BehaviorState.Behavior.(*behaviors.Paralyzed); ok {
-				postDragParalyzeTime = paralyzed.Duration - e.BehaviorState.ElapsedTime
+		if e.HitResolution.ForcedMovement.Type.IsDrag() {
+			e.FinishMove(s)
+
+			if e.HitResolution.FlashTime != 0 && state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) {
+				e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 			}
-		}
-		e.FinishMove(s)
-		isBig := false
-		if e.HitResolution.Drag == state.DragTypeBig {
-			isBig = true
-		}
-		e.SlideState = state.SlideState{Direction: e.HitResolution.SlideDirection}
-		e.SetBehaviorImmediate(&behaviors.Dragged{PostDragParalyzeTime: postDragParalyzeTime, IsBig: isBig}, s)
-		e.HitResolution.Drag = state.DragTypeNone
-		e.HitResolution.SlideDirection = state.DirectionNone
-	} else {
-		if !state.BehaviorIs[*behaviors.Dragged](e.BehaviorState.Behavior) && !s.IsInTimeStop {
-			if e.HitResolution.SlideDirection != state.DirectionNone {
-				// HACK: Allow immediate application of slide if the last slide is ending.
-				if e.SlideState.Direction == state.DirectionNone || e.SlideState.ElapsedTime == 4 {
-					e.SlideState = state.SlideState{Direction: e.HitResolution.SlideDirection, ElapsedTime: 0}
-				}
-				resolveSlide(e, s)
-			} else {
-				resolveSlide(e, s)
-			}
-			e.HitResolution.SlideDirection = state.DirectionNone
+			e.ForcedMovement = e.HitResolution.ForcedMovement
+			e.HitResolution.ForcedMovement = state.ForcedMovement{}
 
 			if e.HitResolution.Flinch {
-				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) && e.HitResolution.FlashTime == 0 {
-					e.HitResolution.Flinch = false
+				e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
+			}
+			e.HitResolution.Flinch = false
+			resolveSlide(e, s)
+		} else {
+			if !e.ForcedMovement.Type.IsDrag() {
+				if e.HitResolution.ForcedMovement.Type == state.ForcedMovementTypeSlide {
+					// HACK: Allow immediate application of slide if the last slide is ending.
+					if e.ForcedMovement.Direction == state.DirectionNone || e.ForcedMovement.ElapsedTime == 4 {
+						e.ForcedMovement = e.HitResolution.ForcedMovement
+					}
+					resolveSlide(e, s)
+				} else {
+					resolveSlide(e, s)
 				}
+				e.HitResolution.ForcedMovement = state.ForcedMovement{}
 
 				if e.HitResolution.Flinch {
-					// TODO: This should probably not be here...
+					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) && e.HitResolution.FlashTime == 0 {
+						e.HitResolution.Flinch = false
+					}
+				}
+				if e.HitResolution.Flinch {
 					e.FinishMove(s)
 					e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
 				}
-			}
-			e.HitResolution.Flinch = false
+				e.HitResolution.Flinch = false
 
-			// Process flashing.
-			if e.HitResolution.FlashTime > 0 {
-				e.Flashing = state.Flashing{TimeLeft: e.HitResolution.FlashTime}
-				e.HitResolution.FlashTime = 0
-			}
-			if e.Flashing.TimeLeft > 0 {
-				e.Flashing.TimeLeft--
-			} else {
-				e.RemoveFlashing(s)
-			}
-
-			// Process paralyzed.
-			if e.HitResolution.ParalyzeTime > 0 {
-				e.FinishMove(s)
-				e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
-				e.HitResolution.ConfuseTime = 0
-				e.HitResolution.ParalyzeTime = 0
-			}
-
-			// Process frozen.
-			if e.HitResolution.FreezeTime > 0 {
-				e.FinishMove(s)
-				e.SetBehaviorImmediate(&behaviors.Frozen{Duration: e.HitResolution.FreezeTime}, s)
-				e.HitResolution.BubbleTime = 0
-				e.HitResolution.ConfuseTime = 0
-				e.HitResolution.FreezeTime = 0
-			}
-
-			// Process bubbled.
-			if e.HitResolution.BubbleTime > 0 {
-				e.FinishMove(s)
-				e.SetBehaviorImmediate(&behaviors.Bubbled{Duration: e.HitResolution.BubbleTime}, s)
-				e.ConfusedTimeLeft = 0
-				e.HitResolution.ConfuseTime = 0
-				e.HitResolution.BubbleTime = 0
-			}
-
-			// Process confused.
-			if e.HitResolution.ConfuseTime > 0 {
-				e.ConfusedTimeLeft = e.HitResolution.ConfuseTime
-				// TODO: Double check if this is correct.
-				if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
-					e.SetBehaviorImmediate(&behaviors.Idle{}, s)
+				// Process flashing.
+				if e.HitResolution.FlashTime > 0 {
+					e.Flashing = state.Flashing{TimeLeft: e.HitResolution.FlashTime}
+					e.HitResolution.FlashTime = 0
 				}
-				e.HitResolution.FreezeTime = 0
-				e.HitResolution.BubbleTime = 0
-				e.HitResolution.ParalyzeTime = 0
-				e.HitResolution.ConfuseTime = 0
-			}
-			if e.ConfusedTimeLeft > 0 {
-				e.ConfusedTimeLeft--
-			}
+				if e.Flashing.TimeLeft > 0 {
+					e.Flashing.TimeLeft--
+				} else {
+					e.RemoveFlashing(s)
+				}
 
-			// Process immobilized.
-			if e.HitResolution.ImmobilizeTime > 0 {
-				e.ImmobilizedTimeLeft = e.HitResolution.ImmobilizeTime
-				e.HitResolution.ImmobilizeTime = 0
-			}
-			if e.ImmobilizedTimeLeft > 0 {
-				e.ImmobilizedTimeLeft--
-			}
+				// Process paralyzed.
+				if e.HitResolution.ParalyzeTime > 0 {
+					e.FinishMove(s)
+					e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
+					e.HitResolution.ConfuseTime = 0
+					e.HitResolution.ParalyzeTime = 0
+				}
 
-			// Process blinded.
-			if e.HitResolution.BlindTime > 0 {
-				e.BlindedTimeLeft = e.HitResolution.BlindTime
-				e.HitResolution.BlindTime = 0
-			}
-			if e.BlindedTimeLeft > 0 {
-				e.BlindedTimeLeft--
-			}
+				// Process frozen.
+				if e.HitResolution.FreezeTime > 0 {
+					e.FinishMove(s)
+					e.SetBehaviorImmediate(&behaviors.Frozen{Duration: e.HitResolution.FreezeTime}, s)
+					e.HitResolution.BubbleTime = 0
+					e.HitResolution.ConfuseTime = 0
+					e.HitResolution.FreezeTime = 0
+				}
 
-			// Process invincible.
-			if e.InvincibleTimeLeft > 0 {
-				e.InvincibleTimeLeft--
+				// Process bubbled.
+				if e.HitResolution.BubbleTime > 0 {
+					e.FinishMove(s)
+					e.SetBehaviorImmediate(&behaviors.Bubbled{Duration: e.HitResolution.BubbleTime}, s)
+					e.ConfusedTimeLeft = 0
+					e.HitResolution.ConfuseTime = 0
+					e.HitResolution.BubbleTime = 0
+				}
+
+				// Process confused.
+				if e.HitResolution.ConfuseTime > 0 {
+					e.ConfusedTimeLeft = e.HitResolution.ConfuseTime
+					// TODO: Double check if this is correct.
+					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
+						e.FinishMove(s)
+						e.SetBehaviorImmediate(&behaviors.Idle{}, s)
+					}
+					e.HitResolution.FreezeTime = 0
+					e.HitResolution.BubbleTime = 0
+					e.HitResolution.ParalyzeTime = 0
+					e.HitResolution.ConfuseTime = 0
+				}
+				if e.ConfusedTimeLeft > 0 {
+					e.ConfusedTimeLeft--
+				}
+
+				// Process immobilized.
+				if e.HitResolution.ImmobilizeTime > 0 {
+					e.ImmobilizedTimeLeft = e.HitResolution.ImmobilizeTime
+					e.HitResolution.ImmobilizeTime = 0
+				}
+				if e.ImmobilizedTimeLeft > 0 {
+					e.ImmobilizedTimeLeft--
+				}
+
+				// Process blinded.
+				if e.HitResolution.BlindTime > 0 {
+					e.BlindedTimeLeft = e.HitResolution.BlindTime
+					e.HitResolution.BlindTime = 0
+				}
+				if e.BlindedTimeLeft > 0 {
+					e.BlindedTimeLeft--
+				}
+
+				// Process invincible.
+				if e.InvincibleTimeLeft > 0 {
+					e.InvincibleTimeLeft--
+				}
+			} else {
+				resolveSlide(e, s)
 			}
 		}
 	}
 }
 
 func resolveSlide(e *state.Entity, s *state.State) {
-	if e.SlideState.Direction != state.DirectionNone {
-		if e.SlideState.ElapsedTime == 0 {
+	if e.ForcedMovement.Direction != state.DirectionNone {
+		if e.ForcedMovement.ElapsedTime%4 == 0 {
 			x, y := e.TilePos.XY()
-			dx, dy := e.SlideState.Direction.XY()
+			dx, dy := e.ForcedMovement.Direction.XY()
 
 			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-				e.SlideState = state.SlideState{}
+				e.ForcedMovement = state.ForcedMovement{}
 			}
-		} else if e.SlideState.ElapsedTime == 2 {
+		} else if e.ForcedMovement.ElapsedTime%4 == 2 {
 			e.FinishMove(s)
-		} else if e.SlideState.ElapsedTime == 4 {
-			e.SlideState = state.SlideState{}
+		} else if e.ForcedMovement.ElapsedTime == 4 && e.ForcedMovement.Type != state.ForcedMovementTypeBigDrag {
+			e.ForcedMovement = state.ForcedMovement{}
 		}
 	}
 }
@@ -238,7 +237,7 @@ func Step(s *state.State, b *bundle.Bundle) {
 			continue
 		}
 
-		if !s.IsInTimeStop || e.RunsInTimestop {
+		if !e.ForcedMovement.Type.IsDrag() && (!s.IsInTimeStop || e.RunsInTimestop) {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}

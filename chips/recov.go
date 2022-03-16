@@ -30,56 +30,56 @@ func makeRecovOnUse(hp int) func(s *state.State, e *state.Entity, damage state.D
 	}
 }
 
-var Recov10 = state.Chip{
+var Recov10 = &state.Chip{
 	Index:      153,
 	Name:       "Recov10",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(10),
 }
 
-var Recov30 = state.Chip{
+var Recov30 = &state.Chip{
 	Index:      154,
 	Name:       "Recov30",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(30),
 }
 
-var Recov50 = state.Chip{
+var Recov50 = &state.Chip{
 	Index:      155,
 	Name:       "Recov50",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(50),
 }
 
-var Recov80 = state.Chip{
+var Recov80 = &state.Chip{
 	Index:      156,
 	Name:       "Recov80",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(80),
 }
 
-var Recov120 = state.Chip{
+var Recov120 = &state.Chip{
 	Index:      157,
 	Name:       "Recov120",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(120),
 }
 
-var Recov150 = state.Chip{
+var Recov150 = &state.Chip{
 	Index:      158,
 	Name:       "Recov150",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(150),
 }
 
-var Recov200 = state.Chip{
+var Recov200 = &state.Chip{
 	Index:      159,
 	Name:       "Recov200",
 	BaseDamage: 0,
 	OnUse:      makeRecovOnUse(200),
 }
 
-var Recov300 = state.Chip{
+var Recov300 = &state.Chip{
 	Index:      160,
 	Name:       "Recov300",
 	BaseDamage: 0,

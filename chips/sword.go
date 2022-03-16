@@ -5,7 +5,7 @@ import (
 	"github.com/murkland/nbarena/state"
 )
 
-var Sword = state.Chip{
+var Sword = &state.Chip{
 	Index:      70,
 	Name:       "Sword",
 	BaseDamage: 80,
@@ -14,7 +14,7 @@ var Sword = state.Chip{
 	},
 }
 
-var WideSwrd = state.Chip{
+var WideSwrd = &state.Chip{
 	Index:      71,
 	Name:       "WideSwrd",
 	BaseDamage: 80,
@@ -23,7 +23,7 @@ var WideSwrd = state.Chip{
 	},
 }
 
-var LongSwrd = state.Chip{
+var LongSwrd = &state.Chip{
 	Index:      72,
 	Name:       "LongSwrd",
 	BaseDamage: 100,
@@ -32,7 +32,7 @@ var LongSwrd = state.Chip{
 	},
 }
 
-var WideBlde = state.Chip{
+var WideBlde = &state.Chip{
 	Index:      73,
 	Name:       "WideBlde",
 	BaseDamage: 150,
@@ -41,7 +41,7 @@ var WideBlde = state.Chip{
 	},
 }
 
-var LongBlde = state.Chip{
+var LongBlde = &state.Chip{
 	Index:      74,
 	Name:       "LongBlde",
 	BaseDamage: 150,

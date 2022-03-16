@@ -32,7 +32,21 @@ type EntityPerTickState struct {
 	WasHit bool
 }
 
-type SlideState struct {
+type ForcedMovementType int
+
+const (
+	ForcedMovementTypeNone      ForcedMovementType = 0
+	ForcedMovementTypeSlide     ForcedMovementType = 1
+	ForcedMovementTypeSmallDrag ForcedMovementType = 2
+	ForcedMovementTypeBigDrag   ForcedMovementType = 2
+)
+
+func (t ForcedMovementType) IsDrag() bool {
+	return t == ForcedMovementTypeSmallDrag || t == ForcedMovementTypeBigDrag
+}
+
+type ForcedMovement struct {
+	Type        ForcedMovementType
 	Direction   Direction
 	ElapsedTime Ticks
 }
@@ -79,8 +93,7 @@ type HitResolution struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	Drag           DragType
-	SlideDirection Direction
+	ForcedMovement ForcedMovement
 }
 
 type Flashing struct {
@@ -105,7 +118,7 @@ type Entity struct {
 	TilePos       TilePos
 	FutureTilePos TilePos
 
-	SlideState SlideState
+	ForcedMovement ForcedMovement
 
 	IsAlliedWithAnswerer bool
 
@@ -150,7 +163,7 @@ func (e *Entity) Flip() {
 	e.IsFlipped = !e.IsFlipped
 	e.TilePos = e.TilePos.Flipped()
 	e.FutureTilePos = e.FutureTilePos.Flipped()
-	e.SlideState.Direction = e.SlideState.Direction.FlipH()
+	e.ForcedMovement.Direction = e.ForcedMovement.Direction.FlipH()
 }
 
 func (e *Entity) Clone() *Entity {
@@ -161,7 +174,7 @@ func (e *Entity) Clone() *Entity {
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
 		e.TilePos, e.FutureTilePos,
-		e.SlideState,
+		e.ForcedMovement,
 		e.IsAlliedWithAnswerer,
 		e.IsFlipped,
 		e.IsDead,
@@ -281,8 +294,8 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	x, y := e.TilePos.XY()
 
-	dx, dy := e.SlideState.Direction.XY()
-	offset := (int(e.SlideState.ElapsedTime)+2+4)%4 - 2
+	dx, dy := e.ForcedMovement.Direction.XY()
+	offset := (int(e.ForcedMovement.ElapsedTime)+2+4)%4 - 2
 	dx *= offset
 	dy *= offset
 
@@ -413,11 +426,8 @@ func (e *Entity) ApplyHit(h2 Hit) {
 	if h2.Flinch {
 		e.HitResolution.Flinch = true
 	}
-	if h2.Drag != DragTypeNone {
-		e.HitResolution.Drag = h2.Drag
-	}
-	if h2.SlideDirection != DirectionNone {
-		e.HitResolution.SlideDirection = h2.SlideDirection
+	if h2.ForcedMovement.Type != ForcedMovementTypeNone && (e.HitResolution.ForcedMovement.Type == ForcedMovementTypeNone || h2.ForcedMovement.Type.IsDrag()) {
+		e.HitResolution.ForcedMovement = h2.ForcedMovement
 	}
 }
 

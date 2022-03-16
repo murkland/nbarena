@@ -43,10 +43,10 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 			state.TilePosXY(x+dx, y-1),
 		} {
 			var h state.Hit
-			h.Drag = state.DragTypeBig
-			h.SlideDirection = e.Facing()
+			h.ForcedMovement = state.ForcedMovement{Type: state.ForcedMovementTypeBigDrag, Direction: e.Facing()}
 			h.Element = state.ElementWind
 			h.CanCounter = true
+			h.Flinch = true
 			h.AddDamage(eb.Damage)
 			s.ApplyHit(e, pos, h)
 		}
@@ -68,7 +68,7 @@ func (eb *WindRack) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &Gust{e.ID(), e.Facing()},
+					Behavior: &Gust{e.ID()},
 				},
 			})
 		}
