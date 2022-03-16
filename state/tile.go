@@ -166,8 +166,7 @@ func (tb *BrokenTileBehavior) Clone() TileBehavior {
 }
 
 func (tb *BrokenTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	frame := b.Battletiles.Info.Animations[1*3+(y-1)].Frames[0]
-	return draw.ImageWithFrame(tiles, frame)
+	return draw.ImageWithAnimation(tiles, b.Battletiles.Info.Animations[1*3+(y-1)], int(t.BehaviorState.ElapsedTime))
 }
 
 func (tb *BrokenTileBehavior) CanEnter(t *Tile, e *Entity) bool {
@@ -194,8 +193,7 @@ func (tb *NormalTileBehavior) Clone() TileBehavior {
 }
 
 func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	frame := b.Battletiles.Info.Animations[2*3+(y-1)].Frames[0]
-	return draw.ImageWithFrame(tiles, frame)
+	return draw.ImageWithAnimation(tiles, b.Battletiles.Info.Animations[2*3+(y-1)], int(t.BehaviorState.ElapsedTime))
 }
 
 func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {
@@ -214,8 +212,7 @@ func (tb *CrackedTileBehavior) Clone() TileBehavior {
 }
 
 func (tb *CrackedTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	frame := b.Battletiles.Info.Animations[3*3+(y-1)].Frames[0]
-	return draw.ImageWithFrame(tiles, frame)
+	return draw.ImageWithAnimation(tiles, b.Battletiles.Info.Animations[3*3+(y-1)], int(t.BehaviorState.ElapsedTime))
 }
 
 func (tb *CrackedTileBehavior) CanEnter(t *Tile, e *Entity) bool {
@@ -257,9 +254,7 @@ func (tb *RoadTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *
 	case DirectionRight:
 		offset = 3
 	}
-	// TODO: Animate this.
-	frame := b.Battletiles.Info.Animations[(9+offset)*3+(y-1)].Frames[0]
-	return draw.ImageWithFrame(tiles, frame)
+	return draw.ImageWithAnimation(tiles, b.Battletiles.Info.Animations[(9+offset)*3+(y-1)], int(t.BehaviorState.ElapsedTime))
 }
 
 func (tb *RoadTileBehavior) Flip() {
