@@ -303,7 +303,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
 
-	if e.Flashing.TimeLeft > 0 && (e.elapsedTime/2)%2 == 0 {
+	if e.Flashing.TimeLeft > 0 && (e.Flashing.TimeLeft/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	if e.PerTickState.WasHit {
