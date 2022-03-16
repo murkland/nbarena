@@ -61,7 +61,11 @@ func resolveOne(e *state.Entity, s *state.State) {
 			}
 		}
 
-		if e.HitResolution.ForcedMovement.Type.IsDrag() {
+		if e.DragLockoutTimeLeft > 0 {
+			e.DragLockoutTimeLeft--
+		}
+
+		if e.HitResolution.ForcedMovement.Type.IsDrag() || e.DragLockoutTimeLeft > 0 {
 			e.FinishMove(s)
 
 			if e.HitResolution.FlashTime != 0 && state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) {
@@ -74,16 +78,16 @@ func resolveOne(e *state.Entity, s *state.State) {
 				e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
 			}
 			e.HitResolution.Flinch = false
-			resolveSlide(e, s)
+			resolveSlideOrDrag(e, s)
 		} else {
 			if !e.ForcedMovement.Type.IsDrag() {
 				if e.HitResolution.ForcedMovement.Type == state.ForcedMovementTypeSlide {
 					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
 						e.ForcedMovement = e.HitResolution.ForcedMovement
 					}
-					resolveSlide(e, s)
+					resolveSlideOrDrag(e, s)
 				} else {
-					resolveSlide(e, s)
+					resolveSlideOrDrag(e, s)
 				}
 				e.HitResolution.ForcedMovement = state.ForcedMovement{}
 
@@ -175,19 +179,22 @@ func resolveOne(e *state.Entity, s *state.State) {
 					e.InvincibleTimeLeft--
 				}
 			} else {
-				resolveSlide(e, s)
+				resolveSlideOrDrag(e, s)
 			}
 		}
 	}
 }
 
-func resolveSlide(e *state.Entity, s *state.State) {
+func resolveSlideOrDrag(e *state.Entity, s *state.State) {
 	if e.ForcedMovement.Direction != state.DirectionNone {
 		if e.ForcedMovement.ElapsedTime == 0 {
 			x, y := e.TilePos.XY()
 			dx, dy := e.ForcedMovement.Direction.XY()
 
 			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
+				if e.ForcedMovement.Type.IsDrag() {
+					e.DragLockoutTimeLeft = 20
+				}
 				e.ForcedMovement = state.ForcedMovement{}
 			}
 		} else if e.ForcedMovement.ElapsedTime == 2 {

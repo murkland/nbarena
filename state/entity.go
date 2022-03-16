@@ -147,8 +147,10 @@ type Entity struct {
 	HitResolution HitResolution
 	PerTickState  EntityPerTickState
 
-	Chips                  []*Chip
-	ChipUseQueued          bool
+	Chips         []*Chip
+	ChipUseQueued bool
+
+	DragLockoutTimeLeft    Ticks
 	ChipUseLockoutTimeLeft Ticks
 
 	ChipPlaque ChipPlaque
@@ -185,7 +187,8 @@ func (e *Entity) Clone() *Entity {
 		e.ConfusedTimeLeft, e.BlindedTimeLeft, e.ImmobilizedTimeLeft, e.Flashing, e.InvincibleTimeLeft,
 		e.Emotion,
 		e.HitResolution, e.PerTickState,
-		slices.Clone(e.Chips), e.ChipUseQueued, e.ChipUseLockoutTimeLeft,
+		slices.Clone(e.Chips), e.ChipUseQueued,
+		e.DragLockoutTimeLeft, e.ChipUseLockoutTimeLeft,
 		e.ChipPlaque,
 	}
 }
