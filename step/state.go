@@ -71,13 +71,17 @@ func resolveOne(e *state.Entity, s *state.State) {
 			if e.HitResolution.FlashTime != 0 && state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) {
 				e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 			}
+
+			if state.BehaviorIs[*behaviors.Idle](e.BehaviorState.Behavior) {
+				if e.HitResolution.Flinch {
+					e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
+				}
+			}
+
+			e.HitResolution.Flinch = false
+
 			e.ForcedMovement = e.HitResolution.ForcedMovement
 			e.HitResolution.ForcedMovement = state.ForcedMovement{}
-
-			if e.HitResolution.Flinch {
-				e.SetBehaviorImmediate(&behaviors.Flinch{}, s)
-			}
-			e.HitResolution.Flinch = false
 			resolveSlideOrDrag(e, s)
 		} else {
 			if !e.ForcedMovement.Type.IsDrag() {
