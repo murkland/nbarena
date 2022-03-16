@@ -72,6 +72,21 @@ func (t *Tile) Step() {
 	t.BehaviorState.Behavior.Step(t)
 }
 
+func (t *Tile) OnEnter(e *Entity, s *State) {
+	if t.BehaviorState.Behavior == nil {
+		return
+	}
+
+	t.BehaviorState.Behavior.OnEnter(t, e, s)
+}
+func (t *Tile) OnLeave(e *Entity, s *State) {
+	if t.BehaviorState.Behavior == nil {
+		return
+	}
+
+	t.BehaviorState.Behavior.OnLeave(t, e, s)
+}
+
 func (t *Tile) Appearance(y int, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 	if t.BehaviorState.Behavior == nil {
@@ -114,8 +129,8 @@ type TileBehavior interface {
 	clone.Cloner[TileBehavior]
 	Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node
 	CanEnter(t *Tile, e *Entity) bool
-	OnEnter(t *Tile, e *Entity)
-	OnLeave(t *Tile, e *Entity)
+	OnEnter(t *Tile, e *Entity, s *State)
+	OnLeave(t *Tile, e *Entity, s *State)
 	Step(t *Tile)
 }
 
@@ -133,9 +148,9 @@ func (tb *HoleTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *
 func (tb *HoleTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.Traits.CanStepOnHoleLikeTiles
 }
-func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity) {}
-func (tb *HoleTileBehavior) OnLeave(t *Tile, e *Entity) {}
-func (tb *HoleTileBehavior) Step(t *Tile)               {}
+func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
+func (tb *HoleTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
+func (tb *HoleTileBehavior) Step(t *Tile)                         {}
 
 type BrokenTileBehavior struct {
 	returnToNormalTimeLeft int
@@ -146,14 +161,15 @@ func (tb *BrokenTileBehavior) Clone() TileBehavior {
 }
 
 func (tb *BrokenTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	return nil
+	frame := b.Battletiles.Info.Animations[1*3+(y-1)].Frames[0]
+	return draw.ImageWithFrame(tiles, frame)
 }
 
 func (tb *BrokenTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.Traits.CanStepOnHoleLikeTiles
 }
-func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity) {}
-func (tb *BrokenTileBehavior) OnLeave(t *Tile, e *Entity) {}
+func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
+func (tb *BrokenTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
 
 func (tb *BrokenTileBehavior) Step(t *Tile) {
 	if tb.returnToNormalTimeLeft > 0 {
@@ -179,30 +195,33 @@ func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles
 func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
-func (tb *NormalTileBehavior) OnEnter(t *Tile, e *Entity) {}
-func (tb *NormalTileBehavior) OnLeave(t *Tile, e *Entity) {}
-func (tb *NormalTileBehavior) Step(t *Tile)               {}
+func (tb *NormalTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
+func (tb *NormalTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
+func (tb *NormalTileBehavior) Step(t *Tile)                         {}
 
-type CrackedTile struct {
+type CrackedTileBehavior struct {
 }
 
-func (tb *CrackedTile) Clone() TileBehavior {
-	return &CrackedTile{}
+func (tb *CrackedTileBehavior) Clone() TileBehavior {
+	return &CrackedTileBehavior{}
 }
 
-func (tb *CrackedTile) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
-	return nil
+func (tb *CrackedTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
+	frame := b.Battletiles.Info.Animations[3*3+(y-1)].Frames[0]
+	return draw.ImageWithFrame(tiles, frame)
 }
 
-func (tb *CrackedTile) CanEnter(t *Tile, e *Entity) bool {
+func (tb *CrackedTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
-func (tb *CrackedTile) OnEnter(t *Tile, e *Entity) {
+func (tb *CrackedTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {
 }
-func (tb *CrackedTile) OnLeave(t *Tile, e *Entity) {
+func (tb *CrackedTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {
 	if e.Traits.IgnoresTileEffects {
 		return
 	}
+	// TODO: Play cracking sound.
+	// TODO: Add returnToNormalTimeLeft
 	t.ReplaceBehavior(&BrokenTileBehavior{})
 }
-func (tb *CrackedTile) Step(t *Tile) {}
+func (tb *CrackedTileBehavior) Step(t *Tile) {}
