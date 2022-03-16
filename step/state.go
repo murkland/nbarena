@@ -141,7 +141,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 				if e.HitResolution.ConfuseTime > 0 {
 					e.ConfusedTimeLeft = e.HitResolution.ConfuseTime
 					// TODO: Double check if this is correct.
-					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) || state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
+					if state.BehaviorIs[*behaviors.Paralyzed](e.BehaviorState.Behavior) ||
+						state.BehaviorIs[*behaviors.Frozen](e.BehaviorState.Behavior) ||
+						state.BehaviorIs[*behaviors.Bubbled](e.BehaviorState.Behavior) {
 						e.SetBehaviorImmediate(&behaviors.Idle{}, s)
 					}
 					e.HitResolution.FreezeTime = 0
