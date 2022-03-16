@@ -52,6 +52,11 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 	// TODO: Pop bubble, if required.
 
+	if e.ForcedMovementState.ForcedMovement.Type != state.ForcedMovementTypeNone {
+		// TODO: Is this even in the right place?
+		e.ForcedMovementState.ElapsedTime++
+	}
+
 	if !s.IsInTimeStop {
 		if e.DragLockoutTimeLeft > 0 {
 			e.DragLockoutTimeLeft--
@@ -76,8 +81,9 @@ func resolveOne(e *state.Entity, s *state.State) {
 		} else {
 			if !e.ForcedMovementState.ForcedMovement.Type.IsDrag() {
 				if e.HitResolution.ForcedMovement.Type == state.ForcedMovementTypeSlide {
-					if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone {
-						e.ForcedMovementState.ForcedMovement = e.HitResolution.ForcedMovement
+					// HACK: Allow immediate application of slide if the last slide is ending.
+					if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone || e.ForcedMovementState.ElapsedTime == 4 {
+						e.ForcedMovementState = state.ForcedMovementState{ForcedMovement: e.HitResolution.ForcedMovement}
 					}
 					resolveSlideOrDrag(e, s)
 				} else {
@@ -190,6 +196,8 @@ func resolveSlideOrDrag(e *state.Entity, s *state.State) {
 			}
 		} else if e.ForcedMovementState.ElapsedTime == 2 {
 			e.FinishMove(s)
+		} else if e.ForcedMovementState.ElapsedTime == 4 {
+			e.ForcedMovementState = state.ForcedMovementState{}
 		}
 	}
 }
@@ -203,18 +211,6 @@ func Step(s *state.State, b *bundle.Bundle) {
 
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
-
-		if e.ForcedMovementState.ForcedMovement.Type != state.ForcedMovementTypeNone {
-			// TODO: Is this even in the right place?
-			e.ForcedMovementState.ElapsedTime++
-			if e.ForcedMovementState.ElapsedTime == 4 {
-				if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
-					e.ForcedMovementState.ElapsedTime = 0
-				} else {
-					e.ForcedMovementState = state.ForcedMovementState{}
-				}
-			}
-		}
 	}
 
 	for _, snd := range s.Sounds {
