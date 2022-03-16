@@ -20,7 +20,7 @@ func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	// TODO: Verify when the slide lockout ends.
-	if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
+	if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone && e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
 		e.UseChip(s)
 		return
 	}
