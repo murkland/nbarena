@@ -137,7 +137,6 @@ type Game struct {
 
 	compositor *draw.Compositor
 
-	mixer          *beep.Mixer
 	volume         *effects.Volume
 	soundScheduler sound.Scheduler
 
@@ -168,6 +167,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 	ebiten.SetWindowSize(sceneWidth*defaultScale, sceneHeight*defaultScale)
 
 	mixer.Add(b.BattleBGM.Streamer())
+
+	sfxMixer := &beep.Mixer{}
+	mixer.Add(&effects.Gain{Streamer: sfxMixer, Gain: -0.1})
+	soundScheduler := sound.NewScheduler(sampleRate, sfxMixer)
 
 	s := state.New(rng)
 	var offererEntityID state.EntityID
@@ -223,8 +226,7 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		bundle:         b,
 		dc:             dc,
 		volume:         volume,
-		mixer:          mixer,
-		soundScheduler: sound.NewScheduler(sampleRate, mixer),
+		soundScheduler: soundScheduler,
 		cs: &clientState{
 			OffererEntityID:  offererEntityID,
 			AnswererEntityID: answererEntityID,
