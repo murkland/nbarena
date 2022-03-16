@@ -52,6 +52,13 @@ func resolveOne(e *state.Entity, s *state.State) {
 		if e.ForcedMovement.Type != state.ForcedMovementTypeNone {
 			// TODO: Is this even in the right place?
 			e.ForcedMovement.ElapsedTime++
+			if e.ForcedMovement.ElapsedTime == 4 {
+				if e.ForcedMovement.Type == state.ForcedMovementTypeBigDrag {
+					e.ForcedMovement.ElapsedTime = 0
+				} else {
+					e.ForcedMovement = state.ForcedMovement{}
+				}
+			}
 		}
 
 		if e.HitResolution.ForcedMovement.Type.IsDrag() {
@@ -71,8 +78,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 		} else {
 			if !e.ForcedMovement.Type.IsDrag() {
 				if e.HitResolution.ForcedMovement.Type == state.ForcedMovementTypeSlide {
-					// HACK: Allow immediate application of slide if the last slide is ending.
-					if e.ForcedMovement.Direction == state.DirectionNone || e.ForcedMovement.ElapsedTime == 4 {
+					if e.ForcedMovement.Type == state.ForcedMovementTypeNone {
 						e.ForcedMovement = e.HitResolution.ForcedMovement
 					}
 					resolveSlide(e, s)
@@ -177,17 +183,15 @@ func resolveOne(e *state.Entity, s *state.State) {
 
 func resolveSlide(e *state.Entity, s *state.State) {
 	if e.ForcedMovement.Direction != state.DirectionNone {
-		if e.ForcedMovement.ElapsedTime%4 == 0 {
+		if e.ForcedMovement.ElapsedTime == 0 {
 			x, y := e.TilePos.XY()
 			dx, dy := e.ForcedMovement.Direction.XY()
 
 			if !e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
 				e.ForcedMovement = state.ForcedMovement{}
 			}
-		} else if e.ForcedMovement.ElapsedTime%4 == 2 {
+		} else if e.ForcedMovement.ElapsedTime == 2 {
 			e.FinishMove(s)
-		} else if e.ForcedMovement.ElapsedTime == 4 && e.ForcedMovement.Type != state.ForcedMovementTypeBigDrag {
-			e.ForcedMovement = state.ForcedMovement{}
 		}
 	}
 }
