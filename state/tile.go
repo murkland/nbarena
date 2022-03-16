@@ -19,6 +19,8 @@ func (s TileBehaviorState) Clone() TileBehaviorState {
 type Tile struct {
 	BehaviorState TileBehaviorState
 
+	TilePos TilePos
+
 	IsFlipped     bool
 	IsHighlighted bool
 
@@ -30,6 +32,7 @@ type Tile struct {
 func (t *Tile) Clone() *Tile {
 	return &Tile{
 		t.BehaviorState.Clone(),
+		t.TilePos,
 		t.IsFlipped, t.IsHighlighted,
 		t.Reserver,
 		t.IsAlliedWithAnswerer,
@@ -52,10 +55,10 @@ func (t *Tile) CanEnter(e *Entity) bool {
 	return t.BehaviorState.Behavior.CanEnter(t, e)
 }
 
-func (t *Tile) ReplaceBehavior(b TileBehavior) {
+func (t *Tile) ReplaceBehavior(b TileBehavior, s *State) {
 	t.BehaviorState.ElapsedTime = 0
 	t.BehaviorState.Behavior = b
-	t.BehaviorState.Behavior.Step(t)
+	t.BehaviorState.Behavior.Step(t, s)
 }
 
 func (t *Tile) ElapsedTime() Ticks {
@@ -66,22 +69,15 @@ func (t *Tile) ElapsedTime() Ticks {
 	return t.BehaviorState.ElapsedTime
 }
 
-func (t *Tile) Step() {
+func (t *Tile) Step(s *State) {
 	if t.BehaviorState.Behavior == nil {
 		return
 	}
 
 	t.BehaviorState.ElapsedTime++
-	t.BehaviorState.Behavior.Step(t)
+	t.BehaviorState.Behavior.Step(t, s)
 }
 
-func (t *Tile) OnEnter(e *Entity, s *State) {
-	if t.BehaviorState.Behavior == nil {
-		return
-	}
-
-	t.BehaviorState.Behavior.OnEnter(t, e, s)
-}
 func (t *Tile) OnLeave(e *Entity, s *State) {
 	if t.BehaviorState.Behavior == nil {
 		return
@@ -132,10 +128,9 @@ type TileBehavior interface {
 	clone.Cloner[TileBehavior]
 	Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node
 	CanEnter(t *Tile, e *Entity) bool
-	OnEnter(t *Tile, e *Entity, s *State)
 	OnLeave(t *Tile, e *Entity, s *State)
 	Flip()
-	Step(t *Tile)
+	Step(t *Tile, s *State)
 }
 
 type HoleTileBehavior struct {
@@ -152,10 +147,9 @@ func (tb *HoleTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *
 func (tb *HoleTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.Traits.CanStepOnHoleLikeTiles
 }
-func (tb *HoleTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
 func (tb *HoleTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
 func (tb *HoleTileBehavior) Flip()                                {}
-func (tb *HoleTileBehavior) Step(t *Tile)                         {}
+func (tb *HoleTileBehavior) Step(t *Tile, s *State)               {}
 
 type BrokenTileBehavior struct {
 	returnToNormalTimeLeft int
@@ -172,15 +166,14 @@ func (tb *BrokenTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles
 func (tb *BrokenTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return e.Traits.CanStepOnHoleLikeTiles
 }
-func (tb *BrokenTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
 func (tb *BrokenTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
 func (tb *BrokenTileBehavior) Flip()                                {}
 
-func (tb *BrokenTileBehavior) Step(t *Tile) {
+func (tb *BrokenTileBehavior) Step(t *Tile, s *State) {
 	if tb.returnToNormalTimeLeft > 0 {
 		tb.returnToNormalTimeLeft--
 		if tb.returnToNormalTimeLeft <= 0 {
-			t.ReplaceBehavior(&NormalTileBehavior{})
+			t.ReplaceBehavior(&NormalTileBehavior{}, s)
 		}
 	}
 }
@@ -199,10 +192,9 @@ func (tb *NormalTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles
 func (tb *NormalTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
-func (tb *NormalTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {}
 func (tb *NormalTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {}
 func (tb *NormalTileBehavior) Flip()                                {}
-func (tb *NormalTileBehavior) Step(t *Tile)                         {}
+func (tb *NormalTileBehavior) Step(t *Tile, s *State)               {}
 
 type CrackedTileBehavior struct {
 }
@@ -218,8 +210,6 @@ func (tb *CrackedTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tile
 func (tb *CrackedTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
-func (tb *CrackedTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {
-}
 
 func (tb *CrackedTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {
 	if e.Traits.IgnoresTileEffects {
@@ -227,12 +217,12 @@ func (tb *CrackedTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {
 	}
 	// TODO: Play cracking sound.
 	// TODO: Add returnToNormalTimeLeft
-	t.ReplaceBehavior(&BrokenTileBehavior{})
+	t.ReplaceBehavior(&BrokenTileBehavior{}, s)
 }
 
 func (tb *CrackedTileBehavior) Flip() {}
 
-func (tb *CrackedTileBehavior) Step(t *Tile) {}
+func (tb *CrackedTileBehavior) Step(t *Tile, s *State) {}
 
 type RoadTileBehavior struct {
 	Direction Direction
@@ -264,14 +254,23 @@ func (tb *RoadTileBehavior) Flip() {
 func (tb *RoadTileBehavior) CanEnter(t *Tile, e *Entity) bool {
 	return true
 }
-func (tb *RoadTileBehavior) OnEnter(t *Tile, e *Entity, s *State) {
-	if e.Traits.IgnoresTileEffects {
-		return
-	}
-	if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone {
-		// TODO: Play conveyor noise.
-	}
-}
 func (tb *RoadTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {
 }
-func (tb *RoadTileBehavior) Step(t *Tile) {}
+func (tb *RoadTileBehavior) Step(t *Tile, s *State) {
+	for _, e := range s.Entities {
+		if e.TilePos != t.TilePos {
+			continue
+		}
+
+		if e.Traits.IgnoresTileEffects {
+			return
+		}
+
+		if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone {
+			var h Hit
+			h.ForcedMovement = ForcedMovement{Type: ForcedMovementTypeSlide, Direction: tb.Direction}
+			e.ApplyHit(h)
+			// TODO: Play conveyor noise.
+		}
+	}
+}

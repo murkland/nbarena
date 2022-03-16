@@ -28,12 +28,13 @@ func newField() *Field {
 	tiles := make([]*Tile, TileCols*TileRows)
 	for j := 0; j < TileRows; j++ {
 		for i := 0; i < TileCols; i++ {
-			t := &Tile{}
+			tilePos := TilePosXY(i, j)
+			t := &Tile{TilePos: tilePos}
 			if i >= 1 && i < TileCols-1 && j >= 1 && j < TileRows-1 {
-				t.ReplaceBehavior(&NormalTileBehavior{})
+				t.BehaviorState = TileBehaviorState{Behavior: &NormalTileBehavior{}}
 			}
 			t.IsAlliedWithAnswerer = i >= TileCols/2
-			tiles[j*TileCols+i] = t
+			tiles[tilePos] = t
 		}
 	}
 
@@ -125,7 +126,7 @@ func (f *Field) Step(s *State) {
 	}
 
 	for _, t := range f.Tiles {
-		t.Step()
+		t.Step(s)
 	}
 }
 

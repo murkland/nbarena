@@ -281,7 +281,6 @@ func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
 func (e *Entity) FinishMove(s *State) {
 	s.Field.Tiles[e.TilePos].OnLeave(e, s)
 	e.TilePos = e.FutureTilePos
-	s.Field.Tiles[e.TilePos].OnEnter(e, s)
 }
 
 // SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.

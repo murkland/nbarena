@@ -26,7 +26,7 @@ func (eb *WindFan) Step(e *state.Entity, s *state.State) {
 	if e.BehaviorState.ElapsedTime%13 == 0 {
 		// TODO: Should spawn gusts on edge of opponent area.
 		y := 2 - ((int(e.BehaviorState.ElapsedTime) / 13) % 3) + 1
-		x := 1
+		x := 4
 		if eb.IsFan {
 			x = state.TileCols - 2
 		}
