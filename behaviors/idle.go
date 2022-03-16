@@ -20,9 +20,29 @@ func (eb *Idle) Traits(e *state.Entity) state.EntityBehaviorTraits {
 
 func (eb *Idle) Step(e *state.Entity, s *state.State) {
 	// TODO: Verify when the slide lockout ends.
-	if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone && e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
-		e.UseChip(s)
-		return
+	if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone {
+		if e.Intent.UseChip && e.LastIntent.UseChip != e.Intent.UseChip && e.ChipUseLockoutTimeLeft == 0 {
+			e.UseChip(s)
+			return
+		}
+
+		dir := e.Intent.Direction
+		if e.ConfusedTimeLeft > 0 {
+			dir = dir.FlipH().FlipV()
+		}
+
+		x, y := e.TilePos.XY()
+		dx, dy := dir.XY()
+
+		if e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
+			e.NextBehavior = &Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}
+		}
+
+		if eb.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
+			// Release buster shot.
+			e.NextBehavior = &Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}
+			eb.ChargingElapsedTime = 0
+		}
 	}
 
 	if e.Intent.ChargeBasicWeapon {
@@ -37,25 +57,6 @@ func (eb *Idle) Step(e *state.Entity, s *state.State) {
 				Type: bundle.SoundTypeCharged,
 			})
 		}
-	}
-
-	if eb.ChargingElapsedTime > 0 && !e.Intent.ChargeBasicWeapon {
-		// Release buster shot.
-		e.NextBehavior = &Buster{BaseDamage: 1, IsPowerShot: eb.ChargingElapsedTime >= e.PowerShotChargeTime}
-		eb.ChargingElapsedTime = 0
-	}
-
-	dir := e.Intent.Direction
-	if e.ConfusedTimeLeft > 0 {
-		dir = dir.FlipH().FlipV()
-	}
-
-	x, y := e.TilePos.XY()
-	dx, dy := dir.XY()
-
-	// TODO: Verify when the slide lockout ends.
-	if e.ForcedMovementState.ForcedMovement.Type == state.ForcedMovementTypeNone && e.StartMove(state.TilePosXY(x+dx, y+dy), s) {
-		e.NextBehavior = &Teleport{ChargingElapsedTime: eb.ChargingElapsedTime}
 	}
 }
 
