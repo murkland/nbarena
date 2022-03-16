@@ -11,6 +11,12 @@ import (
 )
 
 func resolveOne(e *state.Entity, s *state.State) {
+	if e.HitResolution.MustParalyzeImmediately {
+		e.FinishMove(s)
+		e.SetBehaviorImmediate(&behaviors.Paralyzed{Duration: e.HitResolution.ParalyzeTime}, s)
+	}
+	e.HitResolution.MustParalyzeImmediately = false
+
 	if e.Traits.CannotFlinch || e.Emotion == state.EmotionAngry {
 		// TODO: Double check if this
 		e.HitResolution.Flinch = false

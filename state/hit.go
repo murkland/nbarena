@@ -56,11 +56,12 @@ type Hit struct {
 
 	ForcedMovement ForcedMovement
 
-	Element               Element
-	CanCounter            bool
-	SecondaryElementSword bool
-	GuardPiercing         bool
-	RemovesFlashing       bool
+	Element                 Element
+	MustParalyzeImmediately bool
+	CanCounter              bool
+	SecondaryElementSword   bool
+	GuardPiercing           bool
+	RemovesFlashing         bool
 }
 
 func (h *Hit) AddDamage(d Damage) {
@@ -70,7 +71,10 @@ func (h *Hit) AddDamage(d Damage) {
 	}
 	h.TotalDamage += v
 	if d.ParalyzeTime > 0 {
-		h.ParalyzeTime = d.ParalyzeTime
+		if d.ParalyzeTime > h.ParalyzeTime {
+			h.ParalyzeTime = d.ParalyzeTime
+		}
+		h.MustParalyzeImmediately = true
 	}
 	if d.Flinch {
 		h.Flinch = true

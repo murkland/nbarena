@@ -105,7 +105,7 @@ func (eb *Buster) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	realElapsedTime := eb.realElapsedTime(e)
 
 	if realElapsedTime < 0 {
-		return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime()))
+		return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime))
 	}
 
 	rootNode := &draw.OptionsNode{}

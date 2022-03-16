@@ -93,7 +93,8 @@ type HitResolution struct {
 	FreezeTime     Ticks
 	BubbleTime     Ticks
 
-	ForcedMovement ForcedMovement
+	MustParalyzeImmediately bool
+	ForcedMovement          ForcedMovement
 }
 
 type Flashing struct {
@@ -104,7 +105,7 @@ type Flashing struct {
 type Entity struct {
 	id EntityID
 
-	elapsedTime Ticks
+	ElapsedTime Ticks
 
 	RunsInTimestop bool
 
@@ -171,7 +172,7 @@ func (e *Entity) Flip() {
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
-		e.elapsedTime,
+		e.ElapsedTime,
 		e.RunsInTimestop,
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
@@ -226,10 +227,6 @@ func (e *Entity) UseChip(s *State) bool {
 	chip.OnUse(s, e, dmg)
 	e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
 	return true
-}
-
-func (e *Entity) ElapsedTime() Ticks {
-	return e.elapsedTime
 }
 
 func (e *Entity) MoveDirectly(tilePos TilePos) bool {
@@ -319,7 +316,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 
 	characterNode.Children = append(characterNode.Children, e.BehaviorState.Behavior.Appearance(e, b))
 
-	if e.Flashing.TimeLeft > 0 && (e.Flashing.TimeLeft/2)%2 == 0 {
+	if e.Flashing.TimeLeft > 0 && (e.ElapsedTime/2)%2 == 0 {
 		characterNode.Opts.ColorM.Translate(0.0, 0.0, 0.0, -1.0)
 	}
 	if e.PerTickState.WasHit {
@@ -329,7 +326,7 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 		characterNode.Opts.ColorM.Translate(float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), float64(0x29)/float64(0xff), 0.0)
 
 		fullSynchroNode := &draw.OptionsNode{Layer: 8}
-		fullSynchroNode.Children = append(fullSynchroNode.Children, draw.ImageWithAnimation(b.FullSynchroSprites.Image, b.FullSynchroSprites.Animations[0], int(e.elapsedTime)))
+		fullSynchroNode.Children = append(fullSynchroNode.Children, draw.ImageWithAnimation(b.FullSynchroSprites.Image, b.FullSynchroSprites.Animations[0], int(e.ElapsedTime)))
 		rootCharacterNode.Children = append(rootCharacterNode.Children, fullSynchroNode)
 	} else if e.Emotion == EmotionAngry {
 		characterNode.Opts.ColorM.Translate(float64(0x80)/float64(0xff), float64(0)/float64(0xff), float64(0)/float64(0xff), 0.0)
@@ -397,40 +394,43 @@ func (e *Entity) Appearance(b *bundle.Bundle) draw.Node {
 	return rootNode
 }
 
-func (e *Entity) ApplyHit(h2 Hit) {
-	if h2.Element.IsSuperEffectiveAgainst(e.Element) {
-		h2.TotalDamage *= 2
+func (e *Entity) ApplyHit(h Hit) {
+	if h.Element.IsSuperEffectiveAgainst(e.Element) {
+		h.TotalDamage *= 2
 	}
 
-	e.HitResolution.Damage += h2.TotalDamage
+	e.HitResolution.Damage += h.TotalDamage
 
 	// TODO: Verify this is correct behavior.
-	if h2.ParalyzeTime > e.HitResolution.ParalyzeTime {
-		e.HitResolution.ParalyzeTime = h2.ParalyzeTime
+	if h.ParalyzeTime > e.HitResolution.ParalyzeTime {
+		e.HitResolution.ParalyzeTime = h.ParalyzeTime
 	}
-	if h2.ConfuseTime > e.HitResolution.ConfuseTime {
-		e.HitResolution.ConfuseTime = h2.ConfuseTime
+	if h.ConfuseTime > e.HitResolution.ConfuseTime {
+		e.HitResolution.ConfuseTime = h.ConfuseTime
 	}
-	if h2.BlindTime > e.HitResolution.BlindTime {
-		e.HitResolution.BlindTime = h2.BlindTime
+	if h.BlindTime > e.HitResolution.BlindTime {
+		e.HitResolution.BlindTime = h.BlindTime
 	}
-	if h2.ImmobilizeTime > e.HitResolution.ImmobilizeTime {
-		e.HitResolution.ImmobilizeTime = h2.ImmobilizeTime
+	if h.ImmobilizeTime > e.HitResolution.ImmobilizeTime {
+		e.HitResolution.ImmobilizeTime = h.ImmobilizeTime
 	}
-	if h2.FreezeTime > e.HitResolution.FreezeTime {
-		e.HitResolution.FreezeTime = h2.FreezeTime
+	if h.FreezeTime > e.HitResolution.FreezeTime {
+		e.HitResolution.FreezeTime = h.FreezeTime
 	}
-	if h2.BubbleTime > e.HitResolution.BubbleTime {
-		e.HitResolution.BubbleTime = h2.BubbleTime
+	if h.BubbleTime > e.HitResolution.BubbleTime {
+		e.HitResolution.BubbleTime = h.BubbleTime
 	}
-	if h2.FlashTime > e.HitResolution.FlashTime {
-		e.HitResolution.FlashTime = h2.FlashTime
+	if h.FlashTime > e.HitResolution.FlashTime {
+		e.HitResolution.FlashTime = h.FlashTime
 	}
-	if h2.Flinch {
+	if h.Flinch {
 		e.HitResolution.Flinch = true
 	}
-	if h2.ForcedMovement.Type != ForcedMovementTypeNone && (e.HitResolution.ForcedMovement.Type == ForcedMovementTypeNone || h2.ForcedMovement.Type.IsDrag()) {
-		e.HitResolution.ForcedMovement = h2.ForcedMovement
+	if h.MustParalyzeImmediately {
+		e.HitResolution.MustParalyzeImmediately = true
+	}
+	if h.ForcedMovement.Type != ForcedMovementTypeNone && (e.HitResolution.ForcedMovement.Type == ForcedMovementTypeNone || h.ForcedMovement.Type.IsDrag()) {
+		e.HitResolution.ForcedMovement = h.ForcedMovement
 	}
 }
 
@@ -453,7 +453,7 @@ func (e *Entity) Step(s *State) {
 		}
 	}
 
-	e.elapsedTime++
+	e.ElapsedTime++
 	// Tick timers.
 	// TODO: Verify this behavior is correct.
 	e.BehaviorState.ElapsedTime++

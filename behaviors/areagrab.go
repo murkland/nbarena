@@ -76,7 +76,7 @@ func (eb *AreaGrab) Cleanup(e *state.Entity, s *state.State) {
 }
 
 func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime()))
+	return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime))
 }
 
 type areaGrabBall struct {

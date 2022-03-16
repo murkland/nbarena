@@ -63,7 +63,7 @@ func (eb *Idle) Cleanup(e *state.Entity, s *state.State) {
 func (eb *Idle) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
 	rootNode := &draw.OptionsNode{}
 
-	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime())))
+	rootNode.Children = append(rootNode.Children, draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime)))
 
 	if eb.ChargingElapsedTime >= 10 {
 		chargingNode := &draw.OptionsNode{}
