@@ -274,3 +274,55 @@ func (tb *RoadTileBehavior) Step(t *Tile, s *State) {
 		}
 	}
 }
+
+type IceTileBehavior struct {
+	direction Direction
+}
+
+func (tb *IceTileBehavior) Clone() TileBehavior {
+	return &IceTileBehavior{tb.direction}
+}
+
+func (tb *IceTileBehavior) Appearance(t *Tile, y int, b *bundle.Bundle, tiles *ebiten.Image) draw.Node {
+	return draw.ImageWithAnimation(tiles, b.Battletiles.Info.Animations[7*3+(y-1)], int(t.BehaviorState.ElapsedTime))
+}
+
+func (tb *IceTileBehavior) Flip() {
+}
+
+func (tb *IceTileBehavior) CanEnter(t *Tile, e *Entity) bool {
+	return true
+}
+func (tb *IceTileBehavior) OnLeave(t *Tile, e *Entity, s *State) {
+}
+func (tb *IceTileBehavior) Step(t *Tile, s *State) {
+	if tb.direction == DirectionNone {
+		for _, e := range s.Entities {
+			if e.FutureTilePos != t.TilePos || e.TilePos == e.FutureTilePos {
+				continue
+			}
+
+			ex, ey := e.TilePos.XY()
+			x, y := e.FutureTilePos.XY()
+
+			tb.direction = DirectionDXDY(x-ex, y-ey)
+		}
+	}
+
+	for _, e := range s.Entities {
+		if e.TilePos != t.TilePos {
+			continue
+		}
+
+		if e.Traits.IgnoresTileEffects {
+			return
+		}
+
+		if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone {
+			var h Hit
+			h.ForcedMovement = ForcedMovement{Type: ForcedMovementTypeSlide, Direction: tb.direction}
+			e.ApplyHit(h)
+			tb.direction = DirectionNone
+		}
+	}
+}

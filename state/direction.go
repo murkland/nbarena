@@ -49,3 +49,18 @@ func (d Direction) FlipV() Direction {
 	}
 	return d2
 }
+
+func DirectionDXDY(dx int, dy int) Direction {
+	var d Direction
+	if dx < 0 {
+		d |= DirectionLeft
+	} else if dx > 0 {
+		d |= DirectionRight
+	}
+	if dy < 0 {
+		d |= DirectionUp
+	} else if dy > 0 {
+		d |= DirectionDown
+	}
+	return d
+}
