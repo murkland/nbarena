@@ -241,7 +241,7 @@ func (e *Entity) UseChip(s *State) bool {
 
 func isOccupiedForMove(s *State, tilePos TilePos) bool {
 	for _, e := range s.Entities {
-		if e.TilePos != tilePos {
+		if e.TilePos != tilePos && e.FutureTilePos != tilePos {
 			continue
 		}
 
