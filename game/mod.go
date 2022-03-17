@@ -415,7 +415,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	sceneNode := &draw.OptionsNode{}
 	sceneNode.Opts.GeoM.Scale(float64(k), float64(k))
 	sceneNode.Children = append(sceneNode.Children, state.Appearance(g.bundle))
-	if state.IsInTimeStop {
+	if state.Timestop != nil {
 		timestopOverlay := &draw.OptionsNode{Layer: 1}
 		overlay := ebiten.NewImage(sceneWidth, sceneHeight)
 		overlay.Fill(color.Black)

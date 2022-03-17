@@ -70,7 +70,7 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.ForcedMovementState.ElapsedTime++
 	}
 
-	if !s.IsInTimeStop {
+	if s.Timestop == nil {
 		if e.DragLockoutTimeLeft > 0 {
 			e.DragLockoutTimeLeft--
 		}
@@ -241,12 +241,12 @@ func Step(s *state.State, b *bundle.Bundle) {
 			continue
 		}
 
-		if !s.IsInTimeStop || d.RunsInTimestop {
+		if s.Timestop == nil || d.RunsInTimestop {
 			d.Step()
 		}
 	}
 
-	if !s.IsInTimeStop {
+	if s.Timestop == nil {
 		s.Field.Step(s)
 	}
 
@@ -264,7 +264,7 @@ func Step(s *state.State, b *bundle.Bundle) {
 			continue
 		}
 
-		if !e.ForcedMovementState.ForcedMovement.Type.IsDrag() && (!s.IsInTimeStop || e.RunsInTimestop) {
+		if !e.ForcedMovementState.ForcedMovement.Type.IsDrag() && (s.Timestop == nil || e.RunsInTimestop) {
 			e.Step(s)
 			e.LastIntent = e.Intent
 		}

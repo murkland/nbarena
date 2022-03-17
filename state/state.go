@@ -18,8 +18,6 @@ type State struct {
 
 	Field *Field
 
-	IsInTimeStop bool
-
 	Entities     map[EntityID]*Entity
 	nextEntityID EntityID
 
@@ -28,6 +26,8 @@ type State struct {
 
 	Sounds      map[SoundID]*Sound
 	nextSoundID SoundID
+
+	Timestop *Timestop
 
 	CounterPlaqueTimeLeft Ticks
 }
@@ -74,10 +74,10 @@ func (s *State) Clone() *State {
 		s.ElapsedTime,
 		s.RandSource.Clone(),
 		s.Field.Clone(),
-		s.IsInTimeStop,
 		clone.Map(s.Entities), s.nextEntityID,
 		clone.Map(s.Decorations), s.nextDecorationID,
 		clone.Map(s.Sounds), s.nextSoundID,
+		clone.ValuePointer(s.Timestop),
 		s.CounterPlaqueTimeLeft,
 	}
 }
