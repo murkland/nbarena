@@ -190,6 +190,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 			BehaviorState: state.EntityBehaviorState{
 				Behavior: &behaviors.Idle{},
 			},
+
+			Traits: state.EntityTraits{
+				ExtendsTileOwnership: true,
+			},
 		}
 		s.AttachEntity(e)
 		offererEntityID = e.ID()
@@ -214,6 +218,10 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 
 			BehaviorState: state.EntityBehaviorState{
 				Behavior: &behaviors.Idle{},
+			},
+
+			Traits: state.EntityTraits{
+				ExtendsTileOwnership: true,
 			},
 		}
 		s.AttachEntity(e)

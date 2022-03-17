@@ -67,9 +67,13 @@ func (f *Field) Flip() {
 	}
 }
 
-func isOccupied(s *State, tilePos TilePos, isAlliedWithAnswerer bool) bool {
+func isOccupiedForTileOwnerReturn(s *State, tilePos TilePos, isAlliedWithAnswerer bool) bool {
 	for _, e := range s.Entities {
-		if e.IsAlliedWithAnswerer != isAlliedWithAnswerer {
+		if e.TilePos != tilePos {
+			continue
+		}
+
+		if e.Traits.ExtendsTileOwnership && e.IsAlliedWithAnswerer != isAlliedWithAnswerer {
 			return true
 		}
 	}
@@ -89,7 +93,7 @@ func (f *Field) Step(s *State) {
 			pos := TilePosXY(i, j)
 			x, _ := pos.XY()
 			ci := f.ColumnInfo[x]
-			columnOccupied[x] = isOccupied(s, pos, ci.IsAlliedWithAnswerer)
+			columnOccupied[x] = isOccupiedForTileOwnerReturn(s, pos, ci.IsAlliedWithAnswerer)
 		}
 	}
 

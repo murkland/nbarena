@@ -28,6 +28,7 @@ type EntityTraits struct {
 	IgnoresTileOwnership   bool
 	CannotSlide            bool
 	Intangible             bool
+	ExtendsTileOwnership   bool
 }
 
 type EntityPerTickState struct {
@@ -236,6 +237,19 @@ func (e *Entity) UseChip(s *State) bool {
 	return true
 }
 
+func isOccupiedForMove(s *State, tilePos TilePos) bool {
+	for _, e := range s.Entities {
+		if e.TilePos != tilePos {
+			continue
+		}
+
+		if !e.Traits.Intangible {
+			return true
+		}
+	}
+	return false
+}
+
 func (e *Entity) CanMoveTo(tilePos TilePos, s *State) bool {
 	if tilePos < 0 {
 		return false
@@ -249,7 +263,7 @@ func (e *Entity) CanMoveTo(tilePos TilePos, s *State) bool {
 	tile := s.Field.Tiles[tilePos]
 	if tilePos == e.TilePos ||
 		(!e.Traits.IgnoresTileOwnership && e.IsAlliedWithAnswerer != tile.IsAlliedWithAnswerer) ||
-		(!e.Traits.Intangible && tile.Reserver != 0 && tile.Reserver != e.id) ||
+		(!e.Traits.Intangible && isOccupiedForMove(s, tilePos)) ||
 		!tile.CanEnter(e) {
 		return false
 	}
