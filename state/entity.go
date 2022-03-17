@@ -233,7 +233,9 @@ func (e *Entity) UseChip(s *State) bool {
 	}
 
 	chip.OnUse(s, e, dmg)
-	e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
+	if s.Timestop == nil {
+		e.ChipPlaque = ChipPlaque{Chip: chip, DoubleDamage: dmg.DoubleDamage}
+	}
 	return true
 }
 

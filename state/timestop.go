@@ -7,6 +7,8 @@ import "github.com/murkland/clone"
 type Timestop struct {
 	Parent *Timestop
 
+	Owner EntityID
+
 	Behavior            TimestopBehavior
 	BehaviorElapsedTime Ticks
 
@@ -21,6 +23,7 @@ func (t *Timestop) Step(s *State) {
 func (t *Timestop) Clone() *Timestop {
 	return &Timestop{
 		clone.ValuePointer(t.Parent),
+		t.Owner,
 		t.Behavior.Clone(),
 		t.BehaviorElapsedTime,
 		t.IsPendingDestruction,

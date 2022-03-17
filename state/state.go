@@ -204,9 +204,10 @@ func (s *State) ApplyHit(owner *Entity, pos TilePos, h Hit) bool {
 	return false
 }
 
-func (s *State) StartTimestop(timestopBehavior TimestopBehavior) {
+func (s *State) StartTimestop(e *Entity, timestopBehavior TimestopBehavior) {
 	// TODO: Cutins
 	s.Timestop = &Timestop{
+		Owner:    e.ID(),
 		Behavior: timestopBehavior,
 	}
 	s.Timestop.Behavior.Step(s.Timestop, s)
