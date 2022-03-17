@@ -161,6 +161,7 @@ type Entity struct {
 
 	DragLockoutTimeLeft    Ticks
 	ChipUseLockoutTimeLeft Ticks
+	RoadLockoutTimeLeft    Ticks
 
 	ChipPlaque ChipPlaque
 }
@@ -197,7 +198,7 @@ func (e *Entity) Clone() *Entity {
 		e.Emotion,
 		e.HitResolution, e.PerTickState,
 		slices.Clone(e.Chips), e.ChipUseQueued,
-		e.DragLockoutTimeLeft, e.ChipUseLockoutTimeLeft,
+		e.DragLockoutTimeLeft, e.ChipUseLockoutTimeLeft, e.RoadLockoutTimeLeft,
 		e.ChipPlaque,
 	}
 }

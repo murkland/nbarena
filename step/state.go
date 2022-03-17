@@ -210,6 +210,9 @@ func resolveSlideOrDrag(e *state.Entity, s *state.State) {
 		} else if e.ForcedMovementState.ElapsedTime == 2 {
 			e.FinishMove(s)
 		} else if e.ForcedMovementState.ElapsedTime == 4 {
+			if _, ok := s.Field.Tiles[e.TilePos].BehaviorState.Behavior.(*state.RoadTileBehavior); ok {
+				e.RoadLockoutTimeLeft = 5
+			}
 			e.ForcedMovementState = state.ForcedMovementState{}
 		}
 	}
@@ -228,6 +231,10 @@ func Step(s *state.State, b *bundle.Bundle) {
 
 	for _, e := range s.Entities {
 		e.PerTickState = state.EntityPerTickState{}
+
+		if e.RoadLockoutTimeLeft > 0 {
+			e.RoadLockoutTimeLeft--
+		}
 	}
 
 	for _, snd := range s.Sounds {

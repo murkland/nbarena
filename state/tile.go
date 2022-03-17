@@ -266,6 +266,10 @@ func (tb *RoadTileBehavior) Step(t *Tile, s *State) {
 			return
 		}
 
+		if e.RoadLockoutTimeLeft > 0 {
+			return
+		}
+
 		if e.ForcedMovementState.ForcedMovement.Type == ForcedMovementTypeNone {
 			var h Hit
 			h.ForcedMovement = ForcedMovement{Type: ForcedMovementTypeSlide, Direction: tb.Direction}
