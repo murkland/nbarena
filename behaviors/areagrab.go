@@ -121,15 +121,13 @@ func (eb *areaGrabBall) Step(e *state.Entity, s *state.State) {
 
 		tile := s.Field.Tiles[e.TilePos]
 
-		if tile.Reserver == 0 {
+		var h state.Hit
+		h.Flinch = true
+		h.AddDamage(state.Damage{Base: 10})
+		h.RemovesFullSynchro = true
+		if !s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h) {
 			tile.IsAlliedWithAnswerer = e.IsAlliedWithAnswerer
 			s.Field.ColumnInfo[x].AllySwapTimeLeft = 1800
-		} else {
-			var h state.Hit
-			h.Flinch = true
-			h.AddDamage(state.Damage{Base: 10})
-			h.RemovesFullSynchro = true
-			s.ApplyHit(s.Entities[eb.Owner], e.TilePos, h)
 		}
 	} else if e.BehaviorState.ElapsedTime == 30+15 {
 		e.IsPendingDestruction = true

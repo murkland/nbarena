@@ -67,6 +67,15 @@ func (f *Field) Flip() {
 	}
 }
 
+func isOccupied(s *State, tilePos TilePos, isAlliedWithAnswerer bool) bool {
+	for _, e := range s.Entities {
+		if e.IsAlliedWithAnswerer != isAlliedWithAnswerer {
+			return true
+		}
+	}
+	return false
+}
+
 func (f *Field) Step(s *State) {
 	for _, ci := range f.ColumnInfo {
 		if ci.AllySwapTimeLeft > 0 {
@@ -75,11 +84,12 @@ func (f *Field) Step(s *State) {
 	}
 
 	columnOccupied := make([]bool, len(f.ColumnInfo))
-	for i, tile := range f.Tiles {
-		x, _ := TilePos(i).XY()
-		ci := f.ColumnInfo[x]
-		if tile.Reserver != 0 && s.Entities[tile.Reserver].IsAlliedWithAnswerer != ci.IsAlliedWithAnswerer {
-			columnOccupied[x] = true
+	for j := 0; j < TileRows; j++ {
+		for i := 0; i < TileCols/2; i++ {
+			pos := TilePosXY(i, j)
+			x, _ := pos.XY()
+			ci := f.ColumnInfo[x]
+			columnOccupied[x] = isOccupied(s, pos, ci.IsAlliedWithAnswerer)
 		}
 	}
 

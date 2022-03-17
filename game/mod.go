@@ -193,7 +193,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		}
 		s.AttachEntity(e)
 		offererEntityID = e.ID()
-		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 
 	var answererEntityID state.EntityID
@@ -219,7 +218,6 @@ func New(b *bundle.Bundle, dc *ctxwebrtc.DataChannel, rng *syncrand.Source, isAn
 		}
 		s.AttachEntity(e)
 		answererEntityID = e.ID()
-		s.Field.Tiles[e.TilePos].Reserver = e.ID()
 	}
 
 	g := &Game{

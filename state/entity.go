@@ -272,10 +272,7 @@ func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
 	}
 
 	s.Field.Tiles[e.TilePos].Reserver = 0
-
-	// TODO: Figure out when to trigger onleave/onenter callbacks
 	e.FutureTilePos = tilePos
-
 	s.Field.Tiles[e.FutureTilePos].Reserver = e.ID()
 
 	return true
@@ -284,6 +281,7 @@ func (e *Entity) StartMove(tilePos TilePos, s *State) bool {
 func (e *Entity) FinishMove(s *State) {
 	s.Field.Tiles[e.TilePos].OnLeave(e, s)
 	e.TilePos = e.FutureTilePos
+	s.Field.Tiles[e.TilePos].Reserver = 0
 }
 
 // SetBehaviorImmediate sets the entity's behavior immediately to the next state and steps once. You probably don't want to call this: you should probably use NextBehavior instead.
