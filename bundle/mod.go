@@ -180,8 +180,9 @@ type Sprite struct {
 type DecorationType int
 
 const (
-	DecorationTypeNone            DecorationType = 0
-	DecorationTypeCannonExplosion DecorationType = iota
+	DecorationTypeNone           DecorationType = 0
+	DecorationTypeDeathExplosion DecorationType = iota
+	DecorationTypeCannonExplosion
 	DecorationTypeBusterPowerShotExplosion
 	DecorationTypeBusterExplosion
 	DecorationTypeVulcanExplosion
@@ -440,6 +441,9 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	var windSlashDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0109.png", &windSlashDecorationSprites, makeSpriteLoader(sheetToSprites))
 
+	var deathExplosionDecorationSprites *Sprites
+	loader.Add(ctx, l, "assets/sprites/0266.png", &deathExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
+
 	var cannonExplosionDecorationSprites *Sprites
 	loader.Add(ctx, l, "assets/sprites/0267.png", &cannonExplosionDecorationSprites, makeSpriteLoader(sheetToSprites))
 
@@ -552,6 +556,7 @@ func Load(ctx context.Context, loaderCallback loader.Callback) (*Bundle, error) 
 	}
 
 	b.DecorationSprites = map[DecorationType]*Sprite{
+		DecorationTypeDeathExplosion:           {deathExplosionDecorationSprites.Image, deathExplosionDecorationSprites.Animations[0]},
 		DecorationTypeCannonExplosion:          {cannonExplosionDecorationSprites.Image, cannonExplosionDecorationSprites.Animations[0]},
 		DecorationTypeBusterPowerShotExplosion: {chargeShotExplosionDecorationSprites.Image, chargeShotExplosionDecorationSprites.Animations[0]},
 		DecorationTypeBusterExplosion:          {explosionDecorationSprites.Image, explosionDecorationSprites.Animations[0]},

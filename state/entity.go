@@ -22,6 +22,8 @@ type EntityTraits struct {
 	CanStepOnHoleLikeTiles bool
 	IgnoresTileEffects     bool
 	CannotFlinch           bool
+	CannotFlash            bool
+	StatusGuard            bool
 	FatalHitLeaves1HP      bool
 	IgnoresTileOwnership   bool
 	CannotSlide            bool
@@ -110,6 +112,7 @@ type Entity struct {
 	id EntityID
 
 	ElapsedTime Ticks
+	MaxLifeTime Ticks
 
 	RunsInTimestop bool
 
@@ -176,7 +179,7 @@ func (e *Entity) Flip() {
 func (e *Entity) Clone() *Entity {
 	return &Entity{
 		e.id,
-		e.ElapsedTime,
+		e.ElapsedTime, e.MaxLifeTime,
 		e.RunsInTimestop,
 		e.BehaviorState.Clone(), clone.Interface[EntityBehavior](e.NextBehavior), e.IsPendingDestruction,
 		e.Intent, e.LastIntent,
@@ -463,6 +466,23 @@ func (e *Entity) Step(s *State) {
 		if e.ChipPlaque.ElapsedTime >= 60 {
 			e.ChipPlaque = ChipPlaque{}
 		}
+	}
+
+	if e.MaxLifeTime > 0 && e.ElapsedTime >= e.MaxLifeTime {
+		e.HP = 0
+	}
+
+	if e.HP == 0 && !e.Traits.Intangible {
+		// TODO: This only gets destroyed on the next frame.
+		e.IsPendingDestruction = true
+
+		// TODO: Play sound
+		s.AttachDecoration(&Decoration{
+			Type:      bundle.DecorationTypeDeathExplosion,
+			TilePos:   e.TilePos,
+			IsFlipped: e.IsFlipped,
+		})
+
 	}
 
 	e.ElapsedTime++

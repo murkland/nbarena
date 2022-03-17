@@ -16,6 +16,19 @@ func resolveOne(e *state.Entity, s *state.State) {
 		e.HitResolution.Flinch = false
 	}
 
+	if e.Traits.CannotFlash {
+		e.HitResolution.FlashTime = 0
+	}
+
+	if e.Traits.StatusGuard {
+		e.HitResolution.BlindTime = 0
+		e.HitResolution.BubbleTime = 0
+		e.HitResolution.ParalyzeTime = 0
+		e.HitResolution.ConfuseTime = 0
+		e.HitResolution.FreezeTime = 0
+		e.HitResolution.ImmobilizeTime = 0
+	}
+
 	if e.Traits.CannotSlide {
 		e.HitResolution.ForcedMovement = state.ForcedMovement{}
 	}
@@ -267,10 +280,6 @@ func Step(s *state.State, b *bundle.Bundle) {
 	})
 	for _, e := range pending {
 		resolveOne(e, s)
-
-		if e.HP == 0 {
-			// Do something special.
-		}
 
 		// Update UI.
 		if e.DisplayHP != 0 && e.DisplayHP != e.HP {

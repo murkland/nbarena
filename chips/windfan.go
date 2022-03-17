@@ -10,18 +10,22 @@ func makeWindFanOnUse(isFan bool) func(s *state.State, e *state.Entity, damage s
 		x, y := e.TilePos.XY()
 		dx, _ := e.Facing().XY()
 		s.AttachEntity(&state.Entity{
-			TilePos: state.TilePosXY(x+dx, y),
+			TilePos:     state.TilePosXY(x+dx, y),
+			MaxLifeTime: 1440,
+
+			HP:    40,
+			MaxHP: 40,
 
 			IsFlipped:            e.IsFlipped,
 			IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
 
 			Traits: state.EntityTraits{
-				CanStepOnHoleLikeTiles: true,
-				IgnoresTileEffects:     true,
-				CannotFlinch:           true,
-				IgnoresTileOwnership:   true,
-				CannotSlide:            true,
-				Intangible:             true,
+				IgnoresTileEffects:   true,
+				CannotFlinch:         true,
+				CannotFlash:          true,
+				StatusGuard:          true,
+				IgnoresTileOwnership: true,
+				CannotSlide:          true,
 			},
 
 			BehaviorState: state.EntityBehaviorState{
