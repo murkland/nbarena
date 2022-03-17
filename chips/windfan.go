@@ -40,12 +40,16 @@ var Wind = &state.Chip{
 	Index:      128,
 	Name:       "Wind",
 	BaseDamage: 0,
-	OnUse:      makeWindFanOnUse(false),
+	MakeBehavior: func(damage state.Damage) state.EntityBehavior {
+		return nil
+	},
 }
 
 var Fan = &state.Chip{
 	Index:      129,
 	Name:       "Fan",
 	BaseDamage: 0,
-	OnUse:      makeWindFanOnUse(true),
+	MakeBehavior: func(damage state.Damage) state.EntityBehavior {
+		return nil
+	},
 }

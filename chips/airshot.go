@@ -9,7 +9,7 @@ var AirShot = &state.Chip{
 	Index:      3,
 	Name:       "AirShot",
 	BaseDamage: 20,
-	OnUse: func(s *state.State, e *state.Entity, damage state.Damage) {
-		e.NextBehavior = &behaviors.AirShot{Damage: damage}
+	MakeBehavior: func(damage state.Damage) state.EntityBehavior {
+		return &behaviors.AirShot{Damage: damage}
 	},
 }

@@ -1,4 +1,4 @@
-package timestopbehaviors
+package behaviors
 
 import (
 	"github.com/murkland/nbarena/bundle"
