@@ -216,6 +216,10 @@ func resolveSlideOrDrag(e *state.Entity, s *state.State) {
 }
 
 func Step(s *state.State, b *bundle.Bundle) {
+	if s.Timestop != nil && s.Timestop.IsPendingDestruction {
+		s.Timestop = nil
+	}
+
 	s.ElapsedTime++
 
 	if s.CounterPlaqueTimeLeft > 0 {
@@ -248,6 +252,10 @@ func Step(s *state.State, b *bundle.Bundle) {
 
 	if s.Timestop == nil {
 		s.Field.Step(s)
+	}
+
+	if s.Timestop != nil {
+		s.Timestop.Step(s)
 	}
 
 	// Step all entities in a random order.

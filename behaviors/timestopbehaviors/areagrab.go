@@ -1,4 +1,4 @@
-package behaviors
+package timestopbehaviors
 
 import (
 	"github.com/murkland/nbarena/bundle"
@@ -7,26 +7,22 @@ import (
 )
 
 type AreaGrab struct {
+	Owner state.EntityID
 }
 
-func (eb *AreaGrab) Clone() state.EntityBehavior {
+func (tb *AreaGrab) Clone() state.TimestopBehavior {
 	return &AreaGrab{}
 }
 
-func (eb *AreaGrab) Traits(e *state.Entity) state.EntityBehaviorTraits {
-	return state.EntityBehaviorTraits{}
-}
+func (tb *AreaGrab) Step(t *state.Timestop, s *state.State) {
+	owner := s.Entities[tb.Owner]
 
-func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
-	if e.BehaviorState.ElapsedTime == 0 {
-		s.IsInTimeStop = true
-		e.RunsInTimestop = true
-
+	if t.BehaviorElapsedTime == 0 {
 		xStart := 1
 		xEnd := state.TileCols - 2
 		xStep := 1
 
-		if e.IsAlliedWithAnswerer {
+		if owner.IsAlliedWithAnswerer {
 			xStart, xEnd = xEnd, xStart
 			xStep = -1
 		}
@@ -36,19 +32,19 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 			for y := 1; y < 4; y++ {
 				pos := state.TilePosXY(x, y)
 				t := s.Field.Tiles[pos]
-				if t.IsAlliedWithAnswerer != e.IsAlliedWithAnswerer {
+				if t.IsAlliedWithAnswerer != owner.IsAlliedWithAnswerer {
 					goto found
 				}
 			}
 		}
 	found:
-
 		for y := 1; y < 4; y++ {
 			s.AttachEntity(&state.Entity{
 				TilePos: state.TilePosXY(x, y),
 
-				IsFlipped:            e.IsFlipped,
-				IsAlliedWithAnswerer: e.IsAlliedWithAnswerer,
+				RunsInTimestop: true,
+
+				IsAlliedWithAnswerer: owner.IsAlliedWithAnswerer,
 
 				Traits: state.EntityTraits{
 					CanStepOnHoleLikeTiles: true,
@@ -60,23 +56,14 @@ func (eb *AreaGrab) Step(e *state.Entity, s *state.State) {
 				},
 
 				BehaviorState: state.EntityBehaviorState{
-					Behavior: &areaGrabBall{e.ID()},
+					Behavior: &areaGrabBall{owner.ID()},
 				},
 			})
 		}
-	} else if e.BehaviorState.ElapsedTime == 40 {
+	} else if t.BehaviorElapsedTime == 40 {
 		// TODO: Probably not 40!
-		e.NextBehavior = &Idle{}
+		t.IsPendingDestruction = true
 	}
-}
-
-func (eb *AreaGrab) Cleanup(e *state.Entity, s *state.State) {
-	s.IsInTimeStop = false
-	e.RunsInTimestop = false
-}
-
-func (eb *AreaGrab) Appearance(e *state.Entity, b *bundle.Bundle) draw.Node {
-	return draw.ImageWithAnimation(b.MegamanSprites.Image, b.MegamanSprites.IdleAnimation, int(e.ElapsedTime))
 }
 
 type areaGrabBall struct {
